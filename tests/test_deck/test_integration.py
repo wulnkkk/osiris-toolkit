@@ -9,20 +9,29 @@ DECKS_DIR = Path(__file__).resolve().parents[3] / "osiris-1.0.0" / "decks" / "te
 
 def test_parse_base_2d() -> None:
     """Parse the base-2d test deck."""
-    result = parse_deck_file(str(DECKS_DIR / "base-2d"))
+    deck_path = DECKS_DIR / "base-2d"
+    if not deck_path.exists():
+        pytest.skip(f"External test deck not found: {deck_path}")
+    result = parse_deck_file(str(deck_path))
     assert result["filename"] is not None
     assert len(result["sections"]) > 0
 
 
 def test_parse_base_3d() -> None:
     """Parse the base-3d test deck."""
-    result = parse_deck_file(str(DECKS_DIR / "base-3d"))
+    deck_path = DECKS_DIR / "base-3d"
+    if not deck_path.exists():
+        pytest.skip(f"External test deck not found: {deck_path}")
+    result = parse_deck_file(str(deck_path))
     assert len(result["sections"]) > 0
 
 
 def test_lint_base_2d() -> None:
     """Lint a valid deck returns a report with no errors."""
-    report = lint_deck_file(str(DECKS_DIR / "base-2d"))
+    deck_path = DECKS_DIR / "base-2d"
+    if not deck_path.exists():
+        pytest.skip(f"External test deck not found: {deck_path}")
+    report = lint_deck_file(str(deck_path))
     assert not report.has_errors()
 
 

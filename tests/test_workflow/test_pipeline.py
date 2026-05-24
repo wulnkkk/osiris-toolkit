@@ -102,9 +102,16 @@ class TestDeckParseStep:
 
 class TestPipelineYaml:
     def test_from_yaml(self) -> None:
-        yaml_content = """pipeline:
+        import os
+
+        # Write a minimal deck to a temp file for the YAML to reference
+        deck_fd, deck_path = tempfile.mkstemp(suffix=".in")
+        os.write(deck_fd, b"simulation { omega_p0 = 3.55e15, }\n")
+        os.close(deck_fd)
+
+        yaml_content = f"""pipeline:
   - deck_parse:
-      path: "../osiris-deck-parser/inputtest/Au.in"
+      path: \"{deck_path}\"
 """
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".yaml", delete=False
@@ -118,5 +125,7 @@ class TestPipelineYaml:
             assert isinstance(pipe._steps[0], DeckParseStep)
             ctx = pipe.run()
             assert ctx.params is not None
+            assert ctx.params.omega_p0 == 3.55e15
         finally:
             Path(tmp).unlink()
+            Path(deck_path).unlink()
