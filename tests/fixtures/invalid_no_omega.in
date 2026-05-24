@@ -1,0 +1,10 @@
+simulation
+{
+  gamma = 5.0,
+}
+
+grid
+{
+  nx_p(1:2) = 32, 32,
+  coordinates = "cartesian",
+}

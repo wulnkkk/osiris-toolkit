@@ -1,0 +1,12 @@
+steps:
+  - sim_load:
+      directory: "."
+  - analyze:
+      quantities:
+        - e1
+      iterations:
+        - 0
+  - visualize:
+      kind: EMF
+      quantity: e1
+      iteration: 0

@@ -287,8 +287,10 @@ def _read_cdset(fh: BinaryIO, rec: ZdfRecord, rewind: bool = False) -> np.ndarra
             count = [int(x) for x in np.fromfile(fh, dtype="<i8", count=ndims)]
             start = [int(x) for x in np.fromfile(fh, dtype="<i8", count=ndims)]
             stride = [int(x) for x in np.fromfile(fh, dtype="<i8", count=ndims)]
-            # Read chunk data (Fortran order, reverse to C)
-            chunk = _read_array(fh, data_type_id, tuple(reversed(count)))
+            # Read chunk data: pass count as-is (Fortran dims).
+            # _read_array reverses internally, producing C-order shape that
+            # matches the slice target built from reversed count below.
+            chunk = _read_array(fh, data_type_id, tuple(count))
 
             # Map chunk into full array using C-order slices
             slices: list[slice] = []
@@ -459,11 +461,11 @@ def read_tracks(path: str | Path) -> tuple[list[np.ndarray], ZdfTrackInfo]:
         rec = _read_record(fh)
         if rec is None or rec.name != "itermap":
             raise ValueError("Expected itermap record")
-        itermap = _read_cdset(fh, rec, rewind=True)
+        itermap = _read_cdset(fh, rec)
         if itermap is None:
             return [], ti
 
-        # Read data
+        # Read data (position is now after itermap CDSET_END)
         rec = _read_record(fh)
         if rec is None or rec.name != "data":
             raise ValueError("Expected data record")

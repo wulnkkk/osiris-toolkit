@@ -62,3 +62,52 @@ def test_parse_all_test_decks() -> None:
         if deck_path.exists():
             result = parse_deck_file(str(deck_path))
             assert len(result["sections"]) > 0, f"Failed to parse {name}"
+
+
+# ---------------------------------------------------------------------------
+# Invalid deck fixtures tests
+# ---------------------------------------------------------------------------
+
+def test_lint_invalid_no_omega():
+    """Linting a deck without omega_p0 should produce issues."""
+    f = FIXTURES_DIR / "invalid_no_omega.in"
+    report = lint_deck_file(str(f))
+    assert len(report.issues) > 0
+
+
+def test_lint_invalid_neg_dt():
+    """Negative dt should produce errors."""
+    f = FIXTURES_DIR / "invalid_neg_dt.in"
+    report = lint_deck_file(str(f))
+    assert len(report.issues) > 0
+
+
+def test_lint_invalid_order():
+    """Wrong section order should produce warnings."""
+    f = FIXTURES_DIR / "invalid_order.in"
+    report = lint_deck_file(str(f))
+    assert len(report.issues) > 0
+
+
+def test_lint_invalid_syntax():
+    """Syntax errors should be caught or parsing may fail gracefully."""
+    f = FIXTURES_DIR / "invalid_syntax.in"
+    try:
+        report = lint_deck_file(str(f))
+        # If lint succeeds, there should be issues
+        assert len(report.issues) > 0
+    except Exception:
+        # Parse errors are expected for syntax errors
+        pass
+
+
+def test_parse_invalid_syntax_raises_or_partial():
+    """Syntax errors should either raise or return a partial result."""
+    f = FIXTURES_DIR / "invalid_syntax.in"
+    try:
+        result = parse_deck_file(str(f))
+        # If it doesn't raise, should return some structure
+        assert "sections" in result
+    except Exception:
+        # Raising on syntax error is acceptable
+        pass

@@ -1,0 +1,11 @@
+species
+{
+  rqm = -1.0,
+  num_par_x(1:2) = 2, 2,
+}
+
+simulation
+{
+  omega_p0 = 3.55e15,
+  gamma = 5.0,
+}

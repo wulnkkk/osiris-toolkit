@@ -72,3 +72,7 @@ ignore = ["N"]  # ZDF naming follows upstream Fortran conventions
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+    "slow: marks tests as slow (excluded from CI by default)",
+    "data: marks tests requiring real ZDF simulation data",
+]

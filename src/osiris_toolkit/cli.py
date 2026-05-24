@@ -68,6 +68,7 @@ def deck_parse(file: Path, output: str) -> None:
 def deck_lint(file: Path) -> None:
     """Validate an input deck and print issues."""
     from osiris_toolkit.deck import lint_deck_file
+    from osiris_toolkit.deck.reporter import Severity
 
     report = lint_deck_file(str(file))
 
@@ -77,9 +78,9 @@ def deck_lint(file: Path) -> None:
 
     for issue in report.issues:
         prefix = {
-            report.Severity.ERROR: "ERROR",
-            report.Severity.WARNING: "WARNING",
-            report.Severity.INFO: "INFO",
+            Severity.ERROR: "ERROR",
+            Severity.WARNING: "WARNING",
+            Severity.INFO: "INFO",
         }.get(issue.severity, "?")
 
         click.echo(
