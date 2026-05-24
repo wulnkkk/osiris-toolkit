@@ -251,6 +251,7 @@ def _make_cdset(data_type_id: int, ndims: int, nx: list[int],
     arr = np.asarray(data)  # ensure ndarray
     chunk_data_bytes = arr.tobytes()
     chunk_body = b""
+    chunk_body += struct.pack("<I", dsid)          # dataset_id (uint32, per OSIRIS zdf.c)
     for c in nx:
         chunk_body += struct.pack("<q", c)       # count (Fortran dims)
     for _ in range(ndims):

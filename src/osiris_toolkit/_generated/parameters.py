@@ -1049,13 +1049,127 @@ _sec_emf_bound['vpml_diffuse'] = _GenParam(
 )
 GEN_PARAMETERS['emf_bound'] = _sec_emf_bound
 
-# -- emf_solver (1 parameters)
+# -- emf_solver (20 parameters)
 _sec_emf_solver = {}
+_sec_emf_solver['coef_b'] = _GenParam(
+    name='coef_b',
+    fortran_type='real(p_k_fld)',
+    python_type='float',
+    default='None  # was: 0.0_p_k_fle; coef_b(1) = 1.0',
+)
+_sec_emf_solver['coef_e'] = _GenParam(
+    name='coef_e',
+    fortran_type='real(p_k_fld)',
+    python_type='float',
+    default='None  # was: 0.0_p_k_fle; coef_e(1) = 1.0',
+)
+_sec_emf_solver['correct_current'] = _GenParam(
+    name='correct_current',
+    fortran_type='logical',
+    python_type='bool',
+    default='False',
+)
+_sec_emf_solver['dk'] = _GenParam(
+    name='dk',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0.0',
+)
 _sec_emf_solver['dummy_'] = _GenParam(
     name='dummy_',
     fortran_type='',
     python_type='float',
     default='None  # huge',
+)
+_sec_emf_solver['filter_current'] = _GenParam(
+    name='filter_current',
+    fortran_type='logical',
+    python_type='bool',
+    default='False',
+)
+_sec_emf_solver['filter_limit'] = _GenParam(
+    name='filter_limit',
+    fortran_type='real(p_k_fld)',
+    python_type='float',
+    default='1.0',
+)
+_sec_emf_solver['filter_width'] = _GenParam(
+    name='filter_width',
+    fortran_type='real(p_k_fld)',
+    python_type='float',
+    default='0.0',
+)
+_sec_emf_solver['k1'] = _GenParam(
+    name='k1',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0',
+)
+_sec_emf_solver['k2'] = _GenParam(
+    name='k2',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0',
+)
+_sec_emf_solver['kl'] = _GenParam(
+    name='kl',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0.0',
+)
+_sec_emf_solver['ku'] = _GenParam(
+    name='ku',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0.0',
+)
+_sec_emf_solver['n_coef'] = _GenParam(
+    name='n_coef',
+    fortran_type='integer',
+    python_type='int',
+    default='solver_ore/2',
+)
+_sec_emf_solver['n_damp_cell'] = _GenParam(
+    name='n_damp_cell',
+    fortran_type='integer',
+    python_type='int',
+    default='0',
+)
+_sec_emf_solver['solver_ord'] = _GenParam(
+    name='solver_ord',
+    fortran_type='integer',
+    python_type='int',
+    default='2',
+)
+_sec_emf_solver['taper_bnd'] = _GenParam(
+    name='taper_bnd',
+    fortran_type='logical',
+    python_type='bool',
+    default='False',
+)
+_sec_emf_solver['taper_order'] = _GenParam(
+    name='taper_order',
+    fortran_type='integer',
+    python_type='int',
+    default='2',
+)
+_sec_emf_solver['type'] = _GenParam(
+    name='type',
+    fortran_type='character(len=20)',
+    python_type='str',
+    default='"staneare"',
+)
+_sec_emf_solver['weight_n'] = _GenParam(
+    name='weight_n',
+    fortran_type='integer',
+    python_type='int',
+    default='10',
+)
+_sec_emf_solver['weight_w'] = _GenParam(
+    name='weight_w',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='None  # was: huge(1.0_p_eouble)',
 )
 GEN_PARAMETERS['emf_solver'] = _sec_emf_solver
 
@@ -1529,8 +1643,14 @@ _sec_piston['v'] = _GenParam(
 )
 GEN_PARAMETERS['piston'] = _sec_piston
 
-# -- profile (22 parameters)
+# -- profile (29 parameters)
 _sec_profile = {}
+_sec_profile['alpha'] = _GenParam(
+    name='alpha',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0.0',
+)
 _sec_profile['channel_bottom'] = _GenParam(
     name='channel_bottom',
     fortran_type='real(p_k_part)',
@@ -1591,11 +1711,29 @@ _sec_profile['density'] = _GenParam(
     python_type='float',
     default='1.0',
 )
+_sec_profile['file_name'] = _GenParam(
+    name='file_name',
+    fortran_type='character(len = p_max_filename_len)',
+    python_type='str',
+    default=None,
+)
+_sec_profile['focal_dist'] = _GenParam(
+    name='focal_dist',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0.0',
+)
 _sec_profile['fx'] = _GenParam(
     name='fx',
     fortran_type='real(p_k_part)',
     python_type='float',
     default='0.0',
+)
+_sec_profile['gamma'] = _GenParam(
+    name='gamma',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='1',
 )
 _sec_profile['gauss_center'] = _GenParam(
     name='gauss_center',
@@ -1639,6 +1777,12 @@ _sec_profile['profile_type'] = _GenParam(
     python_type='str',
     default='"eefault"',
 )
+_sec_profile['q_mult'] = _GenParam(
+    name='q_mult',
+    fortran_type='real(p_k_part)',
+    python_type='float',
+    default='1.0',
+)
 _sec_profile['sample_rate'] = _GenParam(
     name='sample_rate',
     fortran_type='integer',
@@ -1657,11 +1801,23 @@ _sec_profile['sphere_radius'] = _GenParam(
     python_type='float',
     default='0.0',
 )
+_sec_profile['uth'] = _GenParam(
+    name='uth',
+    fortran_type='real(p_double)',
+    python_type='float',
+    default='0',
+)
 _sec_profile['x'] = _GenParam(
     name='x',
     fortran_type='real(p_k_part)',
     python_type='float',
     default='None  # was: - huge( 1.0_p_k_part )',
+)
+_sec_profile['x1_offset'] = _GenParam(
+    name='x1_offset',
+    fortran_type='real(p_k_part)',
+    python_type='float',
+    default='0',
 )
 GEN_PARAMETERS['profile'] = _sec_profile
 
@@ -1935,13 +2091,19 @@ _sec_spe_bound['uth_bnd'] = _GenParam(
 )
 GEN_PARAMETERS['spe_bound'] = _sec_spe_bound
 
-# -- species (18 parameters)
+# -- species (19 parameters)
 _sec_species = {}
 _sec_species['add_tag'] = _GenParam(
     name='add_tag',
     fortran_type='logical',
     python_type='bool',
     default='False',
+)
+_sec_species['anom_mag_moment'] = _GenParam(
+    name='anom_mag_moment',
+    fortran_type='real(p_k_part)',
+    python_type='float',
+    default='0.00115965218076',
 )
 _sec_species['free_stream'] = _GenParam(
     name='free_stream',

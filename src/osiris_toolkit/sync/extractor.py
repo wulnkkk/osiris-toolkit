@@ -43,7 +43,7 @@ _DEFAULT_RE = re.compile(
 
 # p_report_quants character array
 _QUANTS_RE = re.compile(
-    r"character\s*\(\s*len\s*=\s*\d+\s*\)\s*,\s*dimension\s*\((\d+)\)\s*,"
+    r"character\s*\(\s*len\s*=\s*(?:\d+|\*)\s*\)\s*,\s*dimension\s*\((\d+)\)\s*,"
     r"\s*(?:parameter(?:,\s*public)?\s*::|public\s*::)"
     r"\s*(?:&\s*)?\s*(\w+)\s*=\s*\(\s*/\s*(.+?)\s*/\s*\)",
     re.IGNORECASE | re.DOTALL,
@@ -111,7 +111,7 @@ class FortranScanner:
     def __init__(self, source_dir: str | Path) -> None:
         self._root = Path(source_dir)
         self._fortran_files: list[Path] = []
-        self._namelists: dict[str, NamelistEntry] = {}
+        self._namelists: dict[str, list[NamelistEntry]] = {}  # name -> [entries from multiple files]
         self._quantities: list[QuantitiesEntry] = []
         self._sections: list[SectionEntry] = []
         self._var_types: dict[str, dict[str, str]] = {}  # file -> {var -> type}
@@ -129,7 +129,10 @@ class FortranScanner:
 
     @property
     def namelists(self) -> list[NamelistEntry]:
-        return list(self._namelists.values())
+        result: list[NamelistEntry] = []
+        for entries in self._namelists.values():
+            result.extend(entries)
+        return result
 
     @property
     def quantities(self) -> list[QuantitiesEntry]:
@@ -140,7 +143,10 @@ class FortranScanner:
         return self._sections
 
     def get_namelist(self, name: str) -> NamelistEntry | None:
-        return self._namelists.get(name)
+        entries = self._namelists.get(name)
+        if entries:
+            return entries[0]
+        return None
 
     # ------------------------------------------------------------------
     # File discovery
@@ -177,7 +183,7 @@ class FortranScanner:
         self._scan_types_and_defaults(fpath, lines)
 
         # After scanning types/defaults, enrich namelist variables
-        for entry in self._namelists.values():
+        for entry in self.namelists:
             if entry.file_path != str(fpath):
                 continue
             file_vtypes = self._var_types.get(str(fpath), {})
@@ -234,7 +240,7 @@ class FortranScanner:
                 line_number=line_num,
                 variables=[NamelistVar(name=vn) for vn in var_names],
             )
-            self._namelists[name] = entry
+            self._namelists.setdefault(name, []).append(entry)
 
     # ------------------------------------------------------------------
     # Quantity array scanner

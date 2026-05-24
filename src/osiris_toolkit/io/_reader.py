@@ -284,6 +284,7 @@ def _read_cdset(fh: BinaryIO, rec: ZdfRecord, rewind: bool = False) -> np.ndarra
             break
 
         if chunk_rec.name == chunk_name:
+            _ = _read_uint32(fh)  # dataset_id (uint32, verified against OSIRIS zdf.c)
             count = [int(x) for x in np.fromfile(fh, dtype="<i8", count=ndims)]
             start = [int(x) for x in np.fromfile(fh, dtype="<i8", count=ndims)]
             stride = [int(x) for x in np.fromfile(fh, dtype="<i8", count=ndims)]

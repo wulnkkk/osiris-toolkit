@@ -9,6 +9,13 @@ from __future__ import annotations
 # diagnostic_type -> list of quantity name strings
 GEN_QUANTITIES: dict[str, list[str]] = {}
 
+# CHARGE: 3 quantities
+GEN_QUANTITIES['CHARGE'] = [
+    'charge',
+    'charge_htc',
+    'dcharge_dt',
+]
+
 # CURRENT: 4 quantities
 GEN_QUANTITIES['CURRENT'] = [
     'j1',
@@ -66,6 +73,12 @@ GEN_QUANTITIES['EMF'] = [
     's1',
     's2',
     's3',
+]
+
+# NEUTRAL: 2 quantities
+GEN_QUANTITIES['NEUTRAL'] = [
+    'ion_charge',
+    'neut_den',
 ]
 
 # UDIST: 12 quantities
