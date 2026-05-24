@@ -1,0 +1,63 @@
+simulation
+{
+  omega_p0 = 3.55e15,
+  n0 = 1.0,
+  gamma = 5.0,
+}
+
+node_conf
+{
+  node_number(1:2) = 1, 1,
+  if_periodic(1:2) = .true., .true.,
+}
+
+grid
+{
+  nx_p(1:2) = 32, 32,
+  coordinates = "cartesian",
+}
+
+time_step
+{
+  dt = 0.07,
+  ndump = 10,
+}
+
+space
+{
+  xmin(1:2) = 0.0, 0.0,
+  xmax(1:2) = 10.0, 10.0,
+}
+
+time
+{
+  tmin = 0.0,
+  tmax = 50.0,
+}
+
+el_mag_fld
+{
+  solver = "yee",
+}
+
+emf_bound
+{
+  type(1:2,1) = "conducting", "conducting",
+  type(1:2,2) = "conducting", "conducting",
+}
+
+particles
+{
+  num_species = 1,
+}
+
+species
+{
+  rqm = -1.0,
+  num_par_x(1:2) = 2, 2,
+}
+
+smooth
+{
+  type(1:2) = "none", "none",
+}

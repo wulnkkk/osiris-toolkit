@@ -109,9 +109,11 @@ class TestPipelineYaml:
         os.write(deck_fd, b"simulation { omega_p0 = 3.55e15, }\n")
         os.close(deck_fd)
 
+        # Use forward slashes to avoid YAML escape-sequence issues on Windows
+        yaml_path = deck_path.replace("\\", "/")
         yaml_content = f"""pipeline:
   - deck_parse:
-      path: \"{deck_path}\"
+      path: \"{yaml_path}\"
 """
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".yaml", delete=False
