@@ -40,9 +40,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/zty/osiris-toolkit"
-Repository = "https://github.com/zty/osiris-toolkit"
-Issues = "https://github.com/zty/osiris-toolkit/issues"
+Homepage = "https://github.com/wulnkkk/osiris-toolkit"
+Repository = "https://github.com/wulnkkk/osiris-toolkit"
+Issues = "https://github.com/wulnkkk/osiris-toolkit/issues"
 
 [project.optional-dependencies]
 dev = [
