@@ -25,7 +25,7 @@ For development:
 git clone https://github.com/username/osiris-toolkit.git
 cd osiris-toolkit
 uv venv
-uv pip install -e ".[dev]"
+uv sync --dev
 ```
 
 **Requirements:** Python ≥ 3.10, numpy ≥ 1.20, matplotlib ≥ 3.5
