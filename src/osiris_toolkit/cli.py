@@ -108,6 +108,33 @@ def deck_validate(file: Path) -> None:
     click.echo("Deck is valid.")
 
 
+@deck.command("estimate")
+@click.argument("file", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--cores-per-node", "-c",
+    type=int, default=None,
+    help="CPU cores per compute node (default: auto-detect from node_conf × n_threads).",
+)
+@click.option(
+    "--efficiency", "-e",
+    type=float, default=0.15,
+    help="Sustained FLOP/s fraction of peak (default: 0.15).",
+)
+def deck_estimate(file: Path, cores_per_node: int | None, efficiency: float) -> None:
+    """Estimate computational resources for a simulation input deck.
+
+    Predicts per-node memory usage, wall-clock runtime (order-of-magnitude),
+    and total disk space based on grid size, particle count, and diagnostic
+    output frequencies.
+    """
+    from osiris_toolkit.deck import parse_deck_file
+    from osiris_toolkit.resource import estimate_resources, format_report
+
+    deck = parse_deck_file(str(file))
+    report = estimate_resources(deck, efficiency=efficiency)
+    click.echo(format_report(report))
+
+
 # ---------------------------------------------------------------------------
 # sim subcommands
 # ---------------------------------------------------------------------------

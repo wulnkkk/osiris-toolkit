@@ -11,6 +11,7 @@ Comprehensive Python toolkit for [OSIRIS](https://osiris-code.org/) PIC (Particl
 - **Analysis** — Statistical and physics-domain analysis: field energy, spectra, Poynting flux, density profiles, temperature tensor
 - **Visualization** — Plotting routines for all diagnostic types: colormaps, k-space spectra, scattering analysis, batch processing
 - **Workflow** — YAML-configurable pipeline for automated deck→analyze→visualize workflows
+- **Resource estimation** — Predict memory (per-node), runtime (CPU/wall-clock), and disk space from an input deck before submitting to the cluster
 - **Code sync** — Automated extraction of parameter and quantity definitions from OSIRIS Fortran source
 
 ## Format Support
@@ -193,6 +194,9 @@ osiris-toolkit analyze describe /path/to/output/ --quantity e1 --iteration 50
 # Sync from Fortran source
 osiris-toolkit sync extract --osiris-path /path/to/osiris-1.0.0/source
 
+# Resource estimation
+osiris-toolkit deck estimate input/simulation.in
+
 # Run workflow
 osiris-toolkit run workflow.yaml
 ```
@@ -202,8 +206,9 @@ osiris-toolkit run workflow.yaml
 ```
 osiris-toolkit/
 ├── deck/         Input deck lexer, parser, validator (700+ params, 36 sections)
+├── resource/     Resource estimation: memory, runtime, disk (25+ params)
 ├── io/           ZDF binary format reader (10 data types)
-├── sim/          Simulation directory discovery, 12 diagnostic kinds
+├── sim/          Simulation directory discovery, 13 diagnostic kinds
 ├── units/        Normalized ↔ physical unit converter (10 quantities)
 ├── analysis/     Statistics, EMF energy/spectra, density profiles
 ├── vis/          Plotting: fields, density, phasespace, k-space, scattering
