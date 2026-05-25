@@ -246,7 +246,7 @@ def vis() -> None:
 @click.option("--kind", "-k", default="EMF", help="Diagnostic kind.")
 @click.option("--quantity", "-q", default="e1", help="Quantity name.")
 @click.option("--iteration", "-i", type=int, default=0, help="Iteration number.")
-@click.option("--output", "-o", type=Path, default=None, help="Output file path.")
+@click.option("--output", "-o", type=Path, default=None, help="Output file path.  Default: auto-generated under {sim}/figures/.")
 def vis_plot(
     directory: Path, kind: str, quantity: str, iteration: int, output: Path | None
 ) -> None:
@@ -272,8 +272,8 @@ def vis_plot(
 @click.option(
     "--output-dir", "-o",
     type=Path,
-    required=True,
-    help="Root directory for all output.",
+    default=None,
+    help="Root directory for all output.  Default: {sim_path}/figures/.",
 )
 @click.option(
     "--max-workers", "-j",
@@ -281,12 +281,13 @@ def vis_plot(
     default=None,
     help="Number of parallel workers. Default: auto-detect (SLURM_CPUS_PER_TASK or CPU count).",
 )
-def vis_batch(sims: tuple[str, ...], output_dir: Path, max_workers: int | None) -> None:
+def vis_batch(sims: tuple[str, ...], output_dir: Path | None, max_workers: int | None) -> None:
     """Batch-process multiple simulations.
 
     Provide pairs of SIM_PATH SIM_NAME arguments:
 
     \b
+        osiris-toolkit vis batch /data/Au Au
         osiris-toolkit vis batch -o /path/to/output /data/Au Au /data/Au0 Au0
     """
     from osiris_toolkit.vis.batch import process_simulation
