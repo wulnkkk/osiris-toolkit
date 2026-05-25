@@ -114,11 +114,14 @@ def save_or_show(fig: plt.Figure, filepath: str | Path | None = None) -> None:
         The figure to save or show.
     filepath : str, Path, or None
         If provided, save the figure to this path (DPI 150, tight bbox).
+        Parent directories are created automatically.
         If None, display the figure with ``plt.show()``.
     """
     if filepath:
-        fig.savefig(filepath, dpi=150, bbox_inches="tight")
-        print(f"Saved to {filepath}")
+        p = Path(filepath)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(str(p), dpi=150, bbox_inches="tight")
+        print(f"Saved to {p}")
     else:
         plt.show()
     plt.close(fig)
