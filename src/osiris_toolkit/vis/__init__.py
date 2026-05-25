@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from matplotlib.figure import Figure
 
 from osiris_toolkit.sim import Simulation
@@ -143,12 +145,34 @@ class VisEngine:
             **kwargs,
         )
 
-    def batch(self, sim_name: str, **kwargs) -> None:
-        """Batch-process all diagnostic types."""
+    def batch(
+        self,
+        sim_name: str,
+        output_root: str | Path,
+        x_unit: str = "um",
+        y_unit: str = "um",
+        time_unit: str = "ps",
+    ) -> None:
+        """Batch-process all diagnostic types.
+
+        Parameters
+        ----------
+        sim_name : str
+            Human-readable name used for the output subdirectory.
+        output_root : str or Path
+            Root directory for all output.
+        x_unit, y_unit : str
+            Spatial axis units.
+        time_unit : str
+            Time unit for titles.
+        """
         return process_simulation(
             sim_path=str(self._sim._path),
             sim_name=sim_name,
-            **kwargs,
+            output_root=output_root,
+            x_unit=x_unit,
+            y_unit=y_unit,
+            time_unit=time_unit,
         )
 
 

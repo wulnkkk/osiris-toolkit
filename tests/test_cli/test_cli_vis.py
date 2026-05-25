@@ -17,3 +17,35 @@ class TestCLIVisPlot:
                                           "-k", "EMF", "-q", "e1", "-i", "0"])
         # May exit 0 or with message about no data
         assert result.exit_code in (0, 1)
+
+
+class TestCLIVisBatch:
+    def test_batch_valid(self, cli_runner, tmp_sim_dir, tmp_path):
+        from osiris_toolkit.cli import main
+        out_dir = tmp_path / "cli_batch_output"
+        result = cli_runner.invoke(main, [
+            "vis", "batch",
+            "-o", str(out_dir),
+            str(tmp_sim_dir), "test_sim",
+        ])
+        assert result.exit_code == 0
+        assert (out_dir / "test_sim" / "fields").is_dir()
+        assert (out_dir / "test_sim" / "k_space").is_dir()
+
+    def test_batch_missing_output_dir(self, cli_runner, tmp_sim_dir):
+        from osiris_toolkit.cli import main
+        result = cli_runner.invoke(main, [
+            "vis", "batch",
+            str(tmp_sim_dir), "test_sim",
+        ])
+        assert result.exit_code != 0
+
+    def test_batch_odd_args(self, cli_runner, tmp_path):
+        from osiris_toolkit.cli import main
+        out_dir = tmp_path / "out"
+        result = cli_runner.invoke(main, [
+            "vis", "batch",
+            "-o", str(out_dir),
+            "/data/Au",
+        ])
+        assert result.exit_code != 0

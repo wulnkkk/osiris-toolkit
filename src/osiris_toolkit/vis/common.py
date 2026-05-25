@@ -9,10 +9,6 @@ from matplotlib.colors import LogNorm
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
-# Configure matplotlib for consistent font rendering
-plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "DejaVu Sans"]
-plt.rcParams["axes.unicode_minus"] = False
-
 
 def load_sim(path: str | Path) -> Simulation:
     """Load a simulation from the given directory path.

@@ -267,6 +267,40 @@ def vis_plot(
         )
 
 
+@vis.command("batch")
+@click.argument("sims", nargs=-1, type=str)
+@click.option(
+    "--output-dir", "-o",
+    type=Path,
+    required=True,
+    help="Root directory for all output.",
+)
+def vis_batch(sims: tuple[str, ...], output_dir: Path) -> None:
+    """Batch-process multiple simulations.
+
+    Provide pairs of SIM_PATH SIM_NAME arguments:
+
+    \b
+        osiris-toolkit vis batch -o /path/to/output /data/Au Au /data/Au0 Au0
+    """
+    from osiris_toolkit.vis.batch import process_simulation
+
+    if len(sims) < 2 or len(sims) % 2 != 0:
+        raise click.UsageError(
+            "Requires at least one pair of SIM_PATH SIM_NAME arguments. "
+            f"Got {len(sims)} argument(s)."
+        )
+
+    for i in range(0, len(sims), 2):
+        sim_path = sims[i]
+        sim_name = sims[i + 1]
+        click.echo("=" * 60)
+        click.echo(f"Batch processing: {sim_name}")
+        click.echo("=" * 60)
+        process_simulation(sim_path, sim_name, output_root=output_dir)
+        click.echo()
+
+
 # ---------------------------------------------------------------------------
 # analyze subcommands
 # ---------------------------------------------------------------------------

@@ -15,15 +15,13 @@ from .field import plot_field
 from .kspace import plot_k_space
 from .scattering import analyze_scattering, plot_scattering_fraction
 
-OUTPUT_ROOT = Path(__file__).resolve().parents[4] / "output"
-
 FIELD_QUANTS = ["e1", "e2", "e3", "b1", "b2", "b3"]
 
 
 def process_simulation(
     sim_path: str | Path,
     sim_name: str,
-    output_root: str | Path | None = None,
+    output_root: str | Path,
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
@@ -43,9 +41,8 @@ def process_simulation(
         Path to the simulation output directory.
     sim_name : str
         Human-readable name used for the output subdirectory.
-    output_root : str or Path or None
-        Root directory for all output.  Defaults to the project-level
-        ``output/`` directory.
+    output_root : str or Path
+        Root directory for all output.
     x_unit, y_unit : str
         Spatial axis units.
     time_unit : str
@@ -53,8 +50,6 @@ def process_simulation(
     """
     t_start = time.time()
 
-    if output_root is None:
-        output_root = OUTPUT_ROOT
     output_root = Path(output_root)
 
     sim = Simulation(sim_path)
@@ -182,27 +177,42 @@ def process_simulation(
 def main() -> None:
     """Entry point for batch processing.
 
-    Expects pairs of (sim_path, sim_name) arguments::
+    Usage::
 
-        python -m osiris_toolkit.vis.batch /data/Au Au /data/Au0 Au0
+        python -m osiris_toolkit.vis.batch -o /path/to/output \\
+            /data/Au Au /data/Au0 Au0
     """
-    import sys
+    import argparse
 
-    if len(sys.argv) < 3 or len(sys.argv) % 2 != 1:
-        print(
-            "Usage: python -m osiris_toolkit.vis.batch"
-            " SIM_PATH_1 SIM_NAME_1 [SIM_PATH_2 SIM_NAME_2 ...]"
+    parser = argparse.ArgumentParser(
+        description="Batch-process OSIRIS simulations: fields, k-space, density, scattering.",
+    )
+    parser.add_argument(
+        "-o", "--output-dir",
+        type=Path,
+        required=True,
+        help="Root directory for all output.",
+    )
+    parser.add_argument(
+        "sims",
+        nargs="*",
+        help="Pairs of SIM_PATH SIM_NAME (e.g. /data/Au Au /data/Au0 Au0).",
+    )
+    args = parser.parse_args()
+
+    if len(args.sims) < 2 or len(args.sims) % 2 != 0:
+        parser.error(
+            "At least one pair of SIM_PATH SIM_NAME is required. "
+            "Got: %s" % (" ".join(args.sims) if args.sims else "(none)")
         )
-        sys.exit(1)
 
-    args = sys.argv[1:]
-    for i in range(0, len(args), 2):
-        sim_path = args[i]
-        sim_name = args[i + 1]
+    for i in range(0, len(args.sims), 2):
+        sim_path = args.sims[i]
+        sim_name = args.sims[i + 1]
         print("=" * 60)
         print(f"Batch processing: {sim_name}")
         print("=" * 60)
-        process_simulation(sim_path, sim_name)
+        process_simulation(sim_path, sim_name, output_root=args.output_dir)
         print()
 
 
