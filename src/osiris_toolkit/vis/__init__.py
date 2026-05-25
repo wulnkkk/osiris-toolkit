@@ -54,7 +54,7 @@ class VisEngine:
 
     # -- generic agent-friendly interface -------------------------------
 
-    def plot(self, kind: str, **kwargs) -> Figure | None:
+    def plot(self, kind: str, **kwargs) -> Path | None:
         """Plot a diagnostic type with keyword arguments.
 
         Parameters
@@ -98,7 +98,7 @@ class VisEngine:
 
     # -- convenience shortcuts ------------------------------------------
 
-    def plot_field(self, quantity: str, iteration: int, **kwargs) -> Figure | None:
+    def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
         return plot_field(
             sim=self._sim, converter=self._converter,
             quantity=quantity,
@@ -108,7 +108,7 @@ class VisEngine:
 
     def plot_density(
         self, species: str, iteration: int, quantity: str = "charge", **kwargs
-    ) -> Figure | None:
+    ) -> Path | None:
         return plot_density(
             sim=self._sim, converter=self._converter,
             species=species,
@@ -119,7 +119,7 @@ class VisEngine:
 
     def plot_phasespace(
         self, ps_name: str, species: str, iteration: int, **kwargs
-    ) -> Figure | None:
+    ) -> Path | None:
         return plot_phasespace(
             sim=self._sim, converter=self._converter,
             ps_name=ps_name,
@@ -130,7 +130,7 @@ class VisEngine:
 
     def plot_k_space(
         self, quantity: str, iteration: int, **kwargs
-    ) -> Figure | None:
+    ) -> Path | None:
         return plot_k_space(
             sim=self._sim, converter=self._converter,
             quantity=quantity,
@@ -138,7 +138,7 @@ class VisEngine:
             **kwargs,
         )
 
-    def plot_composite(self, iteration: int, **kwargs) -> Figure | None:
+    def plot_composite(self, iteration: int, **kwargs) -> Path | None:
         return plot_composite(
             sim=self._sim, converter=self._converter,
             iteration=iteration,

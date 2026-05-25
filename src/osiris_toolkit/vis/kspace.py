@@ -73,7 +73,7 @@ def plot_k_space(
     ylim: tuple[float, float] = (-2.0, 2.0),
     white_low: float = 0.05,
     output: str | Path | None = None,
-) -> None:
+) -> Path | None:
     """Plot the 2-D FFT of a field component in k/k0 space.
 
     Parameters
@@ -107,6 +107,10 @@ def plot_k_space(
     sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
         converter = get_converter(sim_obj)
+
+    if output is None and sim_obj is not None:
+        d = sim_obj.output_dir("k_space")
+        output = d / f"{quantity}_{iteration:06d}.png"
 
     grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
@@ -178,6 +182,7 @@ def plot_k_space(
 
     fig.tight_layout()
     save_or_show(fig, output)
+    return Path(output) if output else None
 
 
 def batch_k_space(

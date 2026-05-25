@@ -243,7 +243,9 @@ def plot_scattering_fraction(
     converter: UnitConverter | None = None,
     time_unit: str = "auto",
     output: str | Path | None = None,
-) -> plt.Figure:
+    *,
+    sim: Simulation | None = None,
+) -> Path | None:
     """Plot scattering energy fractions as a function of time.
 
     Parameters
@@ -255,13 +257,20 @@ def plot_scattering_fraction(
     time_unit : str
         Time unit for the plot.
     output : Path or None
-        File path to save the figure.
+        File path to save the figure.  If None and *sim* is provided,
+        auto-generated under ``sim.output_root/scattering/``.
+    sim : Simulation or None
+        Simulation object for auto-output path derivation.
 
     Returns
     -------
-    matplotlib.figure.Figure
-        The created figure.
+    Path or None
+        The output file path if saved, None if shown interactively.
     """
+    if output is None and sim is not None:
+        d = sim.output_dir("scattering")
+        output = d / f"scattering_{result.quantity}.png"
+
     if converter is not None:
         t = converter.convert(np.array(result.times), "time", time_unit)
         t_label = converter.get_label("time", time_unit)
@@ -296,7 +305,7 @@ def plot_scattering_fraction(
     )
     fig.tight_layout()
     save_or_show(fig, output)
-    return fig
+    return Path(output) if output else None
 
 
 if __name__ == "__main__":

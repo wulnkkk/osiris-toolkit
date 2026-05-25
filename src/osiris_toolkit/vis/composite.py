@@ -25,7 +25,7 @@ def plot_composite(
     p_unit: str = "norm",
     time_unit: str = "auto",
     output: str | Path | None = None,
-) -> None:
+) -> Path | None:
     """Generate a composite overview figure for a single time step.
 
     Creates a multi-panel figure showing field components, density, and
@@ -59,6 +59,10 @@ def plot_composite(
     sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
         converter = get_converter(sim_obj)
+
+    if output is None and sim_obj is not None:
+        d = sim_obj.output_dir("composite")
+        output = d / f"composite_{iteration:06d}.png"
 
     if field_quantities is None:
         available = sim_obj.list_fields()
@@ -249,6 +253,7 @@ def plot_composite(
     )
     fig.tight_layout()
     save_or_show(fig, output)
+    return Path(output) if output else None
 
 
 if __name__ == "__main__":

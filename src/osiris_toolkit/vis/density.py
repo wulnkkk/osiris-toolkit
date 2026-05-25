@@ -28,7 +28,7 @@ def plot_density(
     vmax: float | None = None,
     cmap: str = "plasma",
     output: str | Path | None = None,
-) -> None:
+) -> Path | None:
     """Plot a 2-D particle density distribution at a given iteration.
 
     Parameters
@@ -61,6 +61,10 @@ def plot_density(
     sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
         converter = get_converter(sim_obj)
+
+    if output is None and sim_obj is not None:
+        d = sim_obj.output_dir("density")
+        output = d / f"{species}_{iteration:06d}.png"
 
     grid = sim_obj.get_density(species, quantity, iteration)
     if grid is None:
@@ -155,6 +159,7 @@ def plot_density(
         )
 
     save_or_show(fig, output)
+    return Path(output) if output else None
 
 
 if __name__ == "__main__":

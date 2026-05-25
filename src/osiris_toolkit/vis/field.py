@@ -28,7 +28,7 @@ def plot_field(
     vmax: float | None = None,
     cmap: str = "RdBu_r",
     output: str | Path | None = None,
-) -> None:
+) -> Path | None:
     """Plot a 2-D field component at a given iteration.
 
     Parameters
@@ -60,6 +60,10 @@ def plot_field(
     sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
         converter = get_converter(sim_obj)
+
+    if output is None and sim_obj is not None:
+        d = sim_obj.output_dir("fields")
+        output = d / f"{quantity}_{iteration:06d}.png"
 
     grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
@@ -159,6 +163,7 @@ def plot_field(
         )
 
     save_or_show(fig, output)
+    return Path(output) if output else None
 
 
 def plot_all_fields(

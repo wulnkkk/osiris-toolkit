@@ -25,7 +25,7 @@ def plot_phasespace(
     vmax: float | None = None,
     cmap: str = "plasma",
     output: str | Path | None = None,
-) -> None:
+) -> Path | None:
     """Plot a 2-D phase-space histogram at a given iteration.
 
     Parameters
@@ -56,6 +56,10 @@ def plot_phasespace(
     sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
         converter = get_converter(sim_obj)
+
+    if output is None and sim_obj is not None:
+        d = sim_obj.output_dir("phasespace")
+        output = d / f"{ps_name}_{species}_{iteration:06d}.png"
 
     ps = sim_obj.get_phasespace(ps_name, species, iteration)
     if ps is None:
@@ -134,6 +138,7 @@ def plot_phasespace(
         )
 
     save_or_show(fig, output)
+    return Path(output) if output else None
 
 
 if __name__ == "__main__":
