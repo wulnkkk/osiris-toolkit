@@ -179,19 +179,33 @@ class _SpeciesEntry:
 
 
 class Simulation:
-    """Access OSIRIS simulation output by diagnostic type.
+    """One OSIRIS simulation output directory.
 
     Parameters
     ----------
     path : str or Path
         Path to the simulation output directory (containing MS/, HIST/,
-        TIMINGS/, and run-info).
+        TIMINGS/, and run-info).  Converted to an absolute path immediately.
+    output_root : str, Path, or None
+        Root directory for analysis/visualisation outputs.  Defaults to
+        ``{path}/figures/`` (in-place).  Set this to write outputs to a
+        different location (e.g. when the simulation data is read-only).
     """
 
-    def __init__(self, path: str | Path) -> None:
-        self._path = Path(path)
+    def __init__(
+        self,
+        path: str | Path,
+        output_root: str | Path | None = None,
+    ) -> None:
+        self._path = Path(path).absolute()
         if not self._path.is_dir():
             raise NotADirectoryError(f"Not a directory: {self._path}")
+
+        self._output_root = (
+            Path(output_root).absolute()
+            if output_root is not None
+            else self._path / "figures"
+        )
 
         self._fields: dict[str, list[_FieldEntry]] = {}
         self._chargecons: list[_FieldEntry] = []
@@ -207,6 +221,37 @@ class Simulation:
         self._timings: list[Path] = []
 
         self._discover()
+
+    # ------------------------------------------------------------------
+    # Path properties
+    # ------------------------------------------------------------------
+
+    @property
+    def path(self) -> Path:
+        """Absolute path to the simulation output directory."""
+        return self._path
+
+    @property
+    def output_root(self) -> Path:
+        """Absolute path to the output root directory."""
+        return self._output_root
+
+    def output_dir(self, *parts: str) -> Path:
+        """Construct and create an output subdirectory.
+
+        Parameters
+        ----------
+        *parts : str
+            Path components to join under :attr:`output_root`.
+
+        Returns
+        -------
+        Path
+            Absolute path to the created directory.
+        """
+        d = self._output_root.joinpath(*parts)
+        d.mkdir(parents=True, exist_ok=True)
+        return d
 
     # ------------------------------------------------------------------
     # Directory auto-discovery
