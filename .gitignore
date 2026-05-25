@@ -55,6 +55,9 @@ coverage.xml
 # Development logs — personal notes only (version release logs are tracked)
 docs/devlog/notes/
 
+# Superpowers plans and specs (auto-generated)
+docs/superpowers/
+
 # Documentation build
 docs/_build/
 site/
