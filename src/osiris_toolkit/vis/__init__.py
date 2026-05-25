@@ -67,13 +67,13 @@ class VisEngine:
         """
         kind = kind.upper()
         if kind == "EMF":
-            return plot_field(sim_path=str(self._sim._path), **kwargs)
+            return plot_field(sim=self._sim, converter=self._converter, **kwargs)
         elif kind == "DENSITY":
-            return plot_density(sim_path=str(self._sim._path), **kwargs)
+            return plot_density(sim=self._sim, converter=self._converter, **kwargs)
         elif kind == "PHASESPACE":
-            return plot_phasespace(sim_path=str(self._sim._path), **kwargs)
+            return plot_phasespace(sim=self._sim, converter=self._converter, **kwargs)
         elif kind == "KSPACE":
-            return plot_k_space(sim_path=str(self._sim._path), **kwargs)
+            return plot_k_space(sim=self._sim, converter=self._converter, **kwargs)
         else:
             # Generic: try to read the diagnostic kind directly
             diag_kind = OSIRIS_DIAGNOSTICS.get(kind)
@@ -87,7 +87,7 @@ class VisEngine:
             iteration = kwargs.get("iteration")
             if quantity and iteration is not None:
                 return plot_field(
-                    sim_path=str(self._sim._path),
+                    sim=self._sim, converter=self._converter,
                     quantity=quantity,
                     iteration=iteration,
                     **{k: v for k, v in kwargs.items() if k not in ("quantity", "iteration")},
@@ -100,7 +100,7 @@ class VisEngine:
 
     def plot_field(self, quantity: str, iteration: int, **kwargs) -> Figure | None:
         return plot_field(
-            sim_path=str(self._sim._path),
+            sim=self._sim, converter=self._converter,
             quantity=quantity,
             iteration=iteration,
             **kwargs,
@@ -110,7 +110,7 @@ class VisEngine:
         self, species: str, iteration: int, quantity: str = "charge", **kwargs
     ) -> Figure | None:
         return plot_density(
-            sim_path=str(self._sim._path),
+            sim=self._sim, converter=self._converter,
             species=species,
             iteration=iteration,
             quantity=quantity,
@@ -121,7 +121,7 @@ class VisEngine:
         self, ps_name: str, species: str, iteration: int, **kwargs
     ) -> Figure | None:
         return plot_phasespace(
-            sim_path=str(self._sim._path),
+            sim=self._sim, converter=self._converter,
             ps_name=ps_name,
             species=species,
             iteration=iteration,
@@ -132,7 +132,7 @@ class VisEngine:
         self, quantity: str, iteration: int, **kwargs
     ) -> Figure | None:
         return plot_k_space(
-            sim_path=str(self._sim._path),
+            sim=self._sim, converter=self._converter,
             quantity=quantity,
             iteration=iteration,
             **kwargs,
@@ -140,7 +140,7 @@ class VisEngine:
 
     def plot_composite(self, iteration: int, **kwargs) -> Figure | None:
         return plot_composite(
-            sim_path=str(self._sim._path),
+            sim=self._sim, converter=self._converter,
             iteration=iteration,
             **kwargs,
         )
@@ -152,6 +152,7 @@ class VisEngine:
         x_unit: str = "um",
         y_unit: str = "um",
         time_unit: str = "ps",
+        max_workers: int | None = None,
     ) -> None:
         """Batch-process all diagnostic types.
 
@@ -165,6 +166,8 @@ class VisEngine:
             Spatial axis units.
         time_unit : str
             Time unit for titles.
+        max_workers : int or None
+            Number of parallel workers.  ``None`` runs sequentially.
         """
         return process_simulation(
             sim_path=str(self._sim._path),
@@ -173,6 +176,7 @@ class VisEngine:
             x_unit=x_unit,
             y_unit=y_unit,
             time_unit=time_unit,
+            max_workers=max_workers,
         )
 
 

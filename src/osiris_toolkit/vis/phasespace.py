@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, safe_log_norm, save_or_show
@@ -13,7 +14,9 @@ def plot_phasespace(
     ps_name: str,
     species: str,
     iteration: int,
-    sim_path: str | Path,
+    sim_path: str | Path | None = None,
+    *,
+    sim: Simulation | None = None,
     converter: UnitConverter | None = None,
     p_unit: str = "norm",
     time_unit: str = "auto",
@@ -50,11 +53,11 @@ def plot_phasespace(
     output : Path or None
         File path to save the figure.
     """
-    sim = load_sim(sim_path)
+    sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
-        converter = get_converter(sim)
+        converter = get_converter(sim_obj)
 
-    ps = sim.get_phasespace(ps_name, species, iteration)
+    ps = sim_obj.get_phasespace(ps_name, species, iteration)
     if ps is None:
         raise ValueError(
             f"Phasespace {ps_name!r}/{species!r} not found"

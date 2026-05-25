@@ -12,6 +12,7 @@ Comprehensive Python toolkit for [OSIRIS](https://osiris-code.org/) PIC (Particl
 - **Visualization** — Plotting routines for all diagnostic types: colormaps, k-space spectra, scattering analysis, batch processing
 - **Workflow** — YAML-configurable pipeline for automated deck→analyze→visualize workflows
 - **Resource estimation** — Predict memory (per-node), runtime (CPU/wall-clock), and disk space from an input deck before submitting to the cluster
+- **Parallel execution** — Multi-core batch processing on laptops, HPC single nodes, and multi-node clusters (MPI / SLURM job arrays). Automatic resource detection, zero new dependencies
 - **Code sync** — Automated extraction of parameter and quantity definitions from OSIRIS Fortran source
 
 ## Format Support
@@ -143,6 +144,35 @@ vis.plot("DENSITY", species="electrons", quantity="charge", iteration=50)
 vis.plot_composite(iteration=100, x_unit="um")
 ```
 
+### Parallel Processing
+
+```python
+from osiris_toolkit.sim import Simulation
+from osiris_toolkit.analysis.parallel import field_energy_all
+from osiris_toolkit.vis.batch import process_simulation
+
+sim = Simulation("/path/to/output")
+
+# Parallel analysis — compute field energy across all iterations
+results = field_energy_all(sim, "e1")         # auto-detect worker count
+results = field_energy_all(sim, "e1", max_workers=8)  # explicit workers
+
+# Parallel visualization — batch all diagnostic plots
+process_simulation("/path/to/sim", "MyRun", "./output")        # sequential
+process_simulation("/path/to/sim", "MyRun", "./output", max_workers=8)  # 8 workers
+```
+
+```bash
+# CLI: sequential batch
+osiris-toolkit vis batch -o ./output /data/sim MySim
+
+# CLI: parallel batch — auto-detect cores
+osiris-toolkit vis batch -o ./output -j auto /data/sim MySim
+
+# CLI: parallel batch — 8 workers
+osiris-toolkit vis batch -o ./output -j 8 /data/sim MySim
+```
+
 ### Workflow
 
 ```python
@@ -197,6 +227,10 @@ osiris-toolkit sync extract --osiris-path /path/to/osiris-1.0.0/source
 # Resource estimation
 osiris-toolkit deck estimate input/simulation.in
 
+# Batch visualization (sequential / parallel)
+osiris-toolkit vis batch -o ./output /data/sim MySim
+osiris-toolkit vis batch -o ./output -j 8 /data/sim MySim
+
 # Run workflow
 osiris-toolkit run workflow.yaml
 ```
@@ -212,6 +246,7 @@ osiris-toolkit/
 ├── units/        Normalized ↔ physical unit converter (10 quantities)
 ├── analysis/     Statistics, EMF energy/spectra, density profiles
 ├── vis/          Plotting: fields, density, phasespace, k-space, scattering
+├── parallel/     Cluster-aware parallel execution (SLURM/MPI/ProcessPoolExecutor)
 ├── workflow/     YAML pipeline: deck→analyze→visualize
 ├── sync/         Fortran source extractor (dev-time)
 └── _generated/   Auto-generated definitions (59 quantities, 37 sections, 493 params)

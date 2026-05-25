@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, safe_log_norm, save_or_show
@@ -12,7 +13,9 @@ from .common import get_converter, load_sim, safe_log_norm, save_or_show
 
 def plot_composite(
     iteration: int,
-    sim_path: str | Path,
+    sim_path: str | Path | None = None,
+    *,
+    sim: Simulation | None = None,
     converter: UnitConverter | None = None,
     field_quantities: list[str] | None = None,
     species: str | None = None,
@@ -53,23 +56,23 @@ def plot_composite(
     output : Path or None
         File path to save the figure.
     """
-    sim = load_sim(sim_path)
+    sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
-        converter = get_converter(sim)
+        converter = get_converter(sim_obj)
 
     if field_quantities is None:
-        available = sim.list_fields()
+        available = sim_obj.list_fields()
         preferred = ["e1", "b3"]
         field_quantities = [q for q in preferred if q in available]
         if "e2" in available:
             field_quantities.append("e2")
 
     if species is None:
-        sp_list = sim.list_species()
+        sp_list = sim_obj.list_species()
         species = sp_list[0] if sp_list else "electrons"
 
     n_panels = len(field_quantities) + 1
-    has_ps = bool(sim.list_phasespaces())
+    has_ps = bool(sim_obj.list_phasespaces())
     if has_ps:
         n_panels += 1
 
@@ -84,7 +87,7 @@ def plot_composite(
     # --- Field panels ---
     for qty in field_quantities:
         ax = axes[panel_idx]
-        grid = sim.get_field(qty, iteration)
+        grid = sim_obj.get_field(qty, iteration)
         if grid is not None:
             data = grid.data
             if converter is not None:
@@ -130,7 +133,7 @@ def plot_composite(
 
     # --- Density panel ---
     ax = axes[panel_idx]
-    grid = sim.get_density(species, "charge", iteration)
+    grid = sim_obj.get_density(species, "charge", iteration)
     if grid is not None:
         data = grid.data
         if converter is not None:
@@ -178,7 +181,7 @@ def plot_composite(
     # --- Phase-space panel ---
     if has_ps:
         ax = axes[panel_idx]
-        ps_list = sim.list_phasespaces()
+        ps_list = sim_obj.list_phasespaces()
         ps_name = (
             phasespace
             if any(p[0] == phasespace for p in ps_list)
@@ -189,7 +192,7 @@ def plot_composite(
             if any(p[1] == species for p in ps_list)
             else ps_list[0][1]
         )
-        ps = sim.get_phasespace(ps_name, ps_sp, iteration)
+        ps = sim_obj.get_phasespace(ps_name, ps_sp, iteration)
         if ps is not None:
             data = ps.data
             if len(ps.axes) >= 2:

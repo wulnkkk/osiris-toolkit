@@ -10,26 +10,34 @@ from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 
-def load_sim(path: str | Path) -> Simulation:
-    """Load a simulation from the given directory path.
+def load_sim(
+    path: str | Path | None = None,
+    *,
+    sim: Simulation | None = None,
+) -> Simulation:
+    """Load or reuse a Simulation object.
 
     Parameters
     ----------
     path : str or Path
         Path to the OSIRIS simulation output directory.
+    sim : Simulation or None
+        Pre-constructed Simulation to reuse.  Takes priority over *path*.
 
     Returns
     -------
     Simulation
-        The loaded simulation object.
+        The loaded or reused simulation object.
 
     Raises
     ------
     ValueError
-        If *path* is None or an empty string.
+        If neither *sim* nor a valid *path* is provided.
     """
+    if sim is not None:
+        return sim
     if path is None:
-        raise ValueError("A simulation path is required.")
+        raise ValueError("Either sim or a valid path is required.")
     if isinstance(path, str) and path.strip() == "":
         raise ValueError("A simulation path is required.")
     return Simulation(path)

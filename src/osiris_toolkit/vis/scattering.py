@@ -11,6 +11,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
@@ -116,7 +117,9 @@ def _mask_energy(
 
 def analyze_scattering(
     quantity: str,
-    sim_path: str | Path,
+    sim_path: str | Path | None = None,
+    *,
+    sim: Simulation | None = None,
     iterations: list[int] | None = None,
     masks: dict | None = None,
     omega0_norm: float = 1.0,
@@ -146,12 +149,12 @@ def analyze_scattering(
     ScatteringResult
         Time series of energy fractions.
     """
-    sim = load_sim(sim_path)
+    sim_obj = load_sim(sim_path, sim=sim)
     if masks is None:
         masks = DEFAULT_MASKS
 
     if iterations is None:
-        entries = sim._fields.get(quantity, [])
+        entries = sim_obj._fields.get(quantity, [])
         iterations = sorted({e.iteration for e in entries})
 
     if not iterations:
@@ -160,7 +163,7 @@ def analyze_scattering(
     result = ScatteringResult(quantity=quantity, mask_info=dict(masks))
 
     for it in iterations:
-        grid = sim.get_field(quantity, it)
+        grid = sim_obj.get_field(quantity, it)
         if grid is None:
             continue
 

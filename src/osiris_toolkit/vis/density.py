@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
@@ -13,8 +14,10 @@ from .common import get_converter, load_sim, save_or_show
 def plot_density(
     species: str,
     iteration: int,
-    sim_path: str | Path,
+    sim_path: str | Path | None = None,
     quantity: str = "charge",
+    *,
+    sim: Simulation | None = None,
     converter: UnitConverter | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
@@ -55,11 +58,11 @@ def plot_density(
     output : Path or None
         File path to save the figure.
     """
-    sim = load_sim(sim_path)
+    sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
-        converter = get_converter(sim)
+        converter = get_converter(sim_obj)
 
-    grid = sim.get_density(species, quantity, iteration)
+    grid = sim_obj.get_density(species, quantity, iteration)
     if grid is None:
         raise ValueError(
             f"Density for {species!r}/{quantity!r} not found"

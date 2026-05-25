@@ -275,7 +275,13 @@ def vis_plot(
     required=True,
     help="Root directory for all output.",
 )
-def vis_batch(sims: tuple[str, ...], output_dir: Path) -> None:
+@click.option(
+    "--max-workers", "-j",
+    type=int,
+    default=None,
+    help="Number of parallel workers. Default: auto-detect (SLURM_CPUS_PER_TASK or CPU count).",
+)
+def vis_batch(sims: tuple[str, ...], output_dir: Path, max_workers: int | None) -> None:
     """Batch-process multiple simulations.
 
     Provide pairs of SIM_PATH SIM_NAME arguments:
@@ -297,7 +303,8 @@ def vis_batch(sims: tuple[str, ...], output_dir: Path) -> None:
         click.echo("=" * 60)
         click.echo(f"Batch processing: {sim_name}")
         click.echo("=" * 60)
-        process_simulation(sim_path, sim_name, output_root=output_dir)
+        process_simulation(sim_path, sim_name, output_root=output_dir,
+                           max_workers=max_workers)
         click.echo()
 
 

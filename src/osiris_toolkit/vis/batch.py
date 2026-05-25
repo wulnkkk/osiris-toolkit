@@ -25,6 +25,7 @@ def process_simulation(
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
+    max_workers: int | None = None,
 ) -> None:
     """Run all visualisation and analysis pipelines on a single simulation.
 
@@ -47,7 +48,18 @@ def process_simulation(
         Spatial axis units.
     time_unit : str
         Time unit for titles.
+    max_workers : int or None
+        Number of parallel workers.  If positive, delegates to the parallel
+        implementation.  ``None`` (default) runs sequentially.
     """
+    if max_workers is not None and max_workers > 0:
+        from osiris_toolkit.vis.parallel import batch_process_parallel
+        return batch_process_parallel(
+            sim_path, sim_name, output_root,
+            x_unit=x_unit, y_unit=y_unit, time_unit=time_unit,
+            max_workers=max_workers,
+        )
+
     t_start = time.time()
 
     output_root = Path(output_root)
@@ -102,8 +114,7 @@ def process_simulation(
                 plot_field(
                     quantity=qty,
                     iteration=it,
-                    sim_path=str(sim_path),
-                    converter=converter,
+                    sim=sim, converter=converter,
                     x_unit=x_unit,
                     y_unit=y_unit,
                     time_unit=time_unit,
@@ -118,8 +129,7 @@ def process_simulation(
                 plot_k_space(
                     quantity=qty,
                     iteration=it,
-                    sim_path=str(sim_path),
-                    converter=converter,
+                    sim=sim, converter=converter,
                     time_unit=time_unit,
                     output=str(kspace_dir / f"kspace_{qty}_{it:06d}.png"),
                 )
@@ -132,8 +142,7 @@ def process_simulation(
                 plot_density(
                     species=sp,
                     iteration=it,
-                    sim_path=str(sim_path),
-                    converter=converter,
+                    sim=sim, converter=converter,
                     x_unit=x_unit,
                     y_unit=y_unit,
                     time_unit=time_unit,
@@ -157,7 +166,7 @@ def process_simulation(
         try:
             result = analyze_scattering(
                 quantity=qty,
-                sim_path=str(sim_path),
+                sim=sim,
                 verbose=False,
             )
             plot_scattering_fraction(
@@ -194,6 +203,12 @@ def main() -> None:
         help="Root directory for all output.",
     )
     parser.add_argument(
+        "-j", "--max-workers",
+        type=int,
+        default=None,
+        help="Number of parallel workers (default: sequential).",
+    )
+    parser.add_argument(
         "sims",
         nargs="*",
         help="Pairs of SIM_PATH SIM_NAME (e.g. /data/Au Au /data/Au0 Au0).",
@@ -212,7 +227,8 @@ def main() -> None:
         print("=" * 60)
         print(f"Batch processing: {sim_name}")
         print("=" * 60)
-        process_simulation(sim_path, sim_name, output_root=args.output_dir)
+        process_simulation(sim_path, sim_name, output_root=args.output_dir,
+                           max_workers=args.max_workers)
         print()
 
 

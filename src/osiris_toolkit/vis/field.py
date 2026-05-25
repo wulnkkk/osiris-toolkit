@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import SymLogNorm
 
+from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
@@ -14,7 +15,9 @@ from .common import get_converter, load_sim, save_or_show
 def plot_field(
     quantity: str,
     iteration: int,
-    sim_path: str | Path,
+    sim_path: str | Path | None = None,
+    *,
+    sim: Simulation | None = None,
     converter: UnitConverter | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
@@ -54,15 +57,15 @@ def plot_field(
     output : Path or None
         File path to save the figure.  If None, display interactively.
     """
-    sim = load_sim(sim_path)
+    sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
-        converter = get_converter(sim)
+        converter = get_converter(sim_obj)
 
-    grid = sim.get_field(quantity, iteration)
+    grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
         raise ValueError(
             f"Field {quantity!r} not found at iteration {iteration}. "
-            f"Available: {sim.list_fields()}"
+            f"Available: {sim_obj.list_fields()}"
         )
 
     data = grid.data
@@ -160,7 +163,9 @@ def plot_field(
 
 def plot_all_fields(
     iteration: int,
-    sim_path: str | Path,
+    sim_path: str | Path | None = None,
+    *,
+    sim: Simulation | None = None,
     converter: UnitConverter | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
@@ -184,11 +189,11 @@ def plot_all_fields(
     output : Path or None
         File path to save the figure.
     """
-    sim = load_sim(sim_path)
+    sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
-        converter = get_converter(sim)
+        converter = get_converter(sim_obj)
 
-    fields = sim.list_fields()
+    fields = sim_obj.list_fields()
     n = len(fields)
     if n == 0:
         raise ValueError("No field diagnostics found.")
@@ -199,7 +204,7 @@ def plot_all_fields(
     axes = np.atleast_1d(axes).flatten()
 
     for ax, qty in zip(axes, fields):
-        grid = sim.get_field(qty, iteration)
+        grid = sim_obj.get_field(qty, iteration)
         if grid is None:
             ax.set_title(f"{qty.upper()} -- not found")
             continue

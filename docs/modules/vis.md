@@ -13,7 +13,7 @@ VisEngine(sim, converter)
     ├── .plot_phasespace()          → phasespace.py
     ├── .plot_k_space()             → kspace.py
     ├── .plot_composite()           → composite.py
-    └── .batch()                    → batch.py
+    └── .batch()                    → batch.py (sequential) / parallel.py (parallel)
 ```
 
 **Files:**
@@ -27,7 +27,8 @@ VisEngine(sim, converter)
 | `kspace.py` | `compute_k_space()`, `plot_k_space()` — FFT spectrum with white-fade colormap |
 | `scattering.py` | `analyze_scattering()`, `plot_scattering_fraction()` — k-region energy analysis |
 | `composite.py` | `plot_composite()` — multi-panel overview |
-| `batch.py` | `process_simulation()` — batch all plots for all iterations |
+| `batch.py` | `process_simulation()` — batch all plots for all iterations (sequential) |
+| `parallel.py` | `batch_process_parallel()` — parallel batch via ProcessPoolExecutor |
 | `__init__.py` | `VisEngine` unified entry |
 
 ## Usage
@@ -48,15 +49,52 @@ vis.plot_k_space("e1", iteration=50)
 # Composite view
 vis.plot_composite(iteration=100)
 
-# Batch process all diagnostics
-vis.batch("run01", x_unit="um", time_unit="ps")
+# Sequential batch
+vis.batch("run01", output_root="./output")
+
+# Parallel batch — 8 workers
+vis.batch("run01", output_root="./output", max_workers=8)
+```
+
+### Direct function calls
+
+Plot functions accept either a `sim_path` string (creates a new `Simulation`) or a pre-built
+`sim` object (reuses it, avoiding redundant directory discovery):
+
+```python
+# Old style — still works
+plot_field("e1", 50, sim_path="/path/to/output", output="e1.png")
+
+# New style — reuse Simulation (more efficient in loops)
+sim = Simulation("/path/to/output")
+plot_field("e1", 50, sim=sim, converter=uc, output="e1.png")
+plot_field("e2", 50, sim=sim, converter=uc, output="e2.png")
+```
+
+### CLI
+
+```bash
+# Single plot
+osiris-toolkit vis plot /path/to/output/ --kind EMF --quantity e1 --iteration 50
+
+# Sequential batch
+osiris-toolkit vis batch -o ./output /data/sim MySim
+
+# Parallel batch (auto-detect workers)
+osiris-toolkit vis batch -o ./output -j auto /data/sim MySim
+
+# Parallel batch (explicit 8 workers)
+osiris-toolkit vis batch -o ./output -j 8 /data/sim MySim
 ```
 
 ## Key Design Decisions
 
 - **No default paths**: `load_sim()` requires an explicit path. No hardcoded data directories.
-- **Unit-aware**: when a `UnitConverter` is available (via bound deck), axis labels automatically
-  show physical units (e.g., `x [um]` instead of `x [c/omega_p]`).
+- **Simulation reuse**: all plot functions accept an optional `sim=` keyword argument to reuse
+  an already-constructed `Simulation` object, eliminating redundant directory discoveries in
+  batch processing.
+- **Unit-aware**: when a `UnitConverter` is available, axis labels automatically show physical
+  units (e.g., `x [um]` instead of `x [c/omega_p]`).
 - **Agent-friendly**: `vis.plot("EMF", quantity="e1", iteration=50)` works for programmatic use.
-- **Batch delegates**: `batch.py` calls the other modules' public functions rather than reimplementing
-  plotting logic inline (unlike the original `batch_process.py`).
+- **Parallel-ready**: `process_simulation()` accepts `max_workers`; when > 0, delegates to the
+  parallel implementation. Workers are module-level functions (Windows `spawn` compatible).
