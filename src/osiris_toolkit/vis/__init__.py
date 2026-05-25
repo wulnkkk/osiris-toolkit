@@ -148,7 +148,7 @@ class VisEngine:
     def batch(
         self,
         sim_name: str,
-        output_root: str | Path,
+        output_root: str | Path | None = None,
         x_unit: str = "um",
         y_unit: str = "um",
         time_unit: str = "ps",
@@ -160,8 +160,9 @@ class VisEngine:
         ----------
         sim_name : str
             Human-readable name used for the output subdirectory.
-        output_root : str or Path
-            Root directory for all output.
+        output_root : str, Path, or None
+            Root directory for all output.  If None, defaults to
+            ``self._sim.output_root`` (in-place under the sim directory).
         x_unit, y_unit : str
             Spatial axis units.
         time_unit : str
@@ -170,7 +171,7 @@ class VisEngine:
             Number of parallel workers.  ``None`` runs sequentially.
         """
         return process_simulation(
-            sim_path=str(self._sim._path),
+            sim_path=str(self._sim.path),
             sim_name=sim_name,
             output_root=output_root,
             x_unit=x_unit,
