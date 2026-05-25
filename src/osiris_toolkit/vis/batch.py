@@ -21,7 +21,7 @@ FIELD_QUANTS = ["e1", "e2", "e3", "b1", "b2", "b3"]
 def process_simulation(
     sim_path: str | Path,
     sim_name: str,
-    output_root: str | Path,
+    output_root: str | Path | None = None,
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
@@ -42,8 +42,10 @@ def process_simulation(
         Path to the simulation output directory.
     sim_name : str
         Human-readable name used for the output subdirectory.
-    output_root : str or Path
-        Root directory for all output.
+    output_root : str, Path, or None
+        Root directory for all output.  If None, defaults to
+        ``Simulation(sim_path).output_root`` (in-place under the sim
+        directory).  Set this to write outputs elsewhere.
     x_unit, y_unit : str
         Spatial axis units.
     time_unit : str
@@ -62,9 +64,11 @@ def process_simulation(
 
     t_start = time.time()
 
-    output_root = Path(output_root)
-
     sim = Simulation(sim_path)
+    if output_root is None:
+        output_root = sim.output_root
+    else:
+        output_root = Path(output_root)
     converter: UnitConverter | None = None
     try:
         # Try to build a converter from the simulation's omega_p0.

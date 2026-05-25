@@ -97,7 +97,7 @@ def _worker_plot_density(
 def batch_process_parallel(
     sim_path: str | Path,
     sim_name: str,
-    output_root: str | Path,
+    output_root: str | Path | None = None,
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
@@ -110,8 +110,11 @@ def batch_process_parallel(
     cross-iteration dependency) runs sequentially after all workers finish.
     """
     sim_path = str(sim_path)
-    output_root = Path(output_root)
     sim = Simulation(sim_path)
+    if output_root is None:
+        output_root = sim.output_root
+    else:
+        output_root = Path(output_root)
 
     converter_omega_p0: float | None = None
     try:

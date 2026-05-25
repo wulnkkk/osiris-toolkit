@@ -26,9 +26,15 @@ class TestProcessSimulation:
         assert (sim_out / "scattering").is_dir()
         assert (sim_out / "density").is_dir()
 
-    def test_output_root_required(self):
-        """process_simulation raises TypeError when output_root is missing."""
+    def test_output_root_defaults_to_sim_figures(self, tmp_sim_dir):
+        """When output_root is None, defaults to {sim_path}/figures/."""
         from osiris_toolkit.vis.batch import process_simulation
 
-        with pytest.raises(TypeError, match="output_root"):
-            process_simulation(sim_path="/fake/path", sim_name="test")
+        process_simulation(
+            sim_path=str(tmp_sim_dir),
+            sim_name="test_sim",
+        )
+
+        sim_out = tmp_sim_dir / "figures" / "test_sim"
+        assert sim_out.is_dir()
+        assert (sim_out / "fields").is_dir()
