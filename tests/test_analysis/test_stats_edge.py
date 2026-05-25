@@ -1,10 +1,7 @@
 """Tests for analysis.stats — enhance with edge cases."""
 
-import numpy as np
-import pytest
 
 from osiris_toolkit.analysis.stats import describe, mean, minmax, rms, std, total_energy
-from osiris_toolkit.sim.diagnostics import GridData
 
 
 class TestStatsEdgeCases:

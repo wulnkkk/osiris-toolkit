@@ -2,8 +2,6 @@
 
 import json
 
-import pytest
-
 
 class TestCLIDeckParse:
     def test_parse_minimal(self, cli_runner, minimal_deck_path):

@@ -7,6 +7,7 @@ from osiris_toolkit.sim.diagnostics import (
     HistoryData,
     ParticleData,
     PhasespaceData,
+    TimingsData,
     TrackData,
 )
 from osiris_toolkit.sim.simulation import Simulation
@@ -17,6 +18,7 @@ __all__ = [
     "GridAxis",
     "ParticleData",
     "PhasespaceData",
+    "TimingsData",
     "TrackData",
     "HistoryData",
     "OSIRIS_DIAGNOSTICS",

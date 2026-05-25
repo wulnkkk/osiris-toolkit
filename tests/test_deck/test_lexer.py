@@ -1,6 +1,5 @@
 """Tests for deck.lexer — tokenizer."""
 
-import pytest
 
 from osiris_toolkit.deck.lexer import TokenType, tokenize
 

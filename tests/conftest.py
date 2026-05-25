@@ -3,11 +3,11 @@
 import sys
 from pathlib import Path
 
+# Use Agg backend for all vis tests (no window popups)
+import matplotlib
 import numpy as np
 import pytest
 
-# Use Agg backend for all vis tests (no window popups)
-import matplotlib
 matplotlib.use("Agg")
 
 # Ensure tests/ is importable for helpers module
@@ -239,7 +239,7 @@ def tmp_sim_dir_density(tmp_path):
         sp_dir = tmp_path / "MS" / "DENSITY" / sp / "charge"
         sp_dir.mkdir(parents=True)
         data = np.ones((4, 4), dtype=np.float32) * (1.0 if sp == "electrons" else 2.0)
-        write_minimal_grid_zdf(sp_dir / f"charge-000000.zdf", data, iteration=0, time=0.0, label=sp)
+        write_minimal_grid_zdf(sp_dir / "charge-000000.zdf", data, iteration=0, time=0.0, label=sp)
     (tmp_path / "run-info").write_text("omega_p0: 3.55e15\n")
     return tmp_path
 

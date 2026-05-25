@@ -13,6 +13,21 @@ Comprehensive Python toolkit for [OSIRIS](https://osiris-code.org/) PIC (Particl
 - **Workflow** — YAML-configurable pipeline for automated deck→analyze→visualize workflows
 - **Code sync** — Automated extraction of parameter and quantity definitions from OSIRIS Fortran source
 
+## Format Support
+
+OSIRIS outputs simulation data in two formats: **ZDF** (default) and **HDF5**. This toolkit supports **ZDF only**.
+
+- ZDF (Zipped Diagnostic Format) is OSIRIS's default and lighter-weight output format — all 13 diagnostic types are fully supported.
+- HDF5 is **not** supported. If your simulation outputs HDF5 files, switch to ZDF by adding this to your input deck:
+
+```
+simulation {
+    file_format = "zdf",
+}
+```
+
+See [IO module documentation](docs/modules/io.md) for details on format coverage.
+
 ## Installation
 
 ```bash

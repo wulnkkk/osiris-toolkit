@@ -20,6 +20,7 @@ from osiris_toolkit.sim.diagnostics import (
     HistoryData,
     ParticleData,
     PhasespaceData,
+    TimingsData,
     TrackData,
 )
 
@@ -84,6 +85,71 @@ def _parse_history_file(filepath: Path) -> HistoryData:
             data[col] = arr[:, i]
 
     return HistoryData(columns=columns, data=data)
+
+
+def _parse_timings_file(filepath: Path) -> TimingsData:
+    """Parse an OSIRIS TIMINGS profiling text file.
+
+    Serial format::
+
+                                         Event            Total [s]
+    -----------------------------------------------------------
+    push_particles                          1.234E+02
+    deposit_current                         5.678E+01
+
+    Parallel format::
+
+     Iterations = 1000
+
+                                        Event            Avg [s]            Min [s]            Max [s]
+    ------------------------------------------------------------------------------------------------------
+    push_particles                       1.234E+02          1.200E+02          1.300E+02
+    """
+    with open(filepath, encoding="utf-8", errors="replace") as fh:
+        lines = [ln.rstrip() for ln in fh if ln.strip()]
+
+    if not lines:
+        return TimingsData()
+
+    # Detect serial vs parallel
+    start_idx: int
+    if lines[0].startswith(" Iterations"):
+        start_idx = 3  # skip "Iterations = N", blank line, header
+    else:
+        start_idx = 2  # skip header, separator line
+
+    if start_idx >= len(lines):
+        return TimingsData()
+
+    # Header line is the line just before the separator
+    header_line = lines[start_idx - 1]
+    col_parts = header_line.strip().split("  ")
+    columns = [c.strip() for c in col_parts if c.strip()]
+
+    event_names: list[str] = []
+    data: dict[str, list[float]] = {col: [] for col in columns}
+
+    for ln in lines[start_idx:]:
+        # Event name is left-aligned in the first 40 columns
+        if len(ln) < 40:
+            continue
+        event_name = ln[:40].strip()
+        rest = ln[40:].strip()
+        try:
+            values = [float(v) for v in rest.split()]
+        except ValueError:
+            continue
+        if len(values) != len(columns):
+            continue
+        event_names.append(event_name)
+        for col, val in zip(columns, values):
+            data[col].append(val)
+
+    return TimingsData(
+        events=event_names,
+        columns=columns,
+        data={col: np.array(vals) for col, vals in data.items()},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -362,6 +428,10 @@ class Simulation:
         """Return available history file names."""
         return sorted(self._history.keys())
 
+    def list_timings(self) -> list[str]:
+        """Return available TIMINGS file names."""
+        return sorted([p.name for p in self._timings])
+
     def list_iterations(self, quantity: str) -> list[int]:
         """Return available iteration numbers for a given field quantity."""
         entries = self._fields.get(quantity, [])
@@ -460,6 +530,29 @@ class Simulation:
         if path is None:
             return None
         return _parse_history_file(path)
+
+    def get_timings(self, name: str) -> TimingsData | None:
+        """Read TIMINGS profiling file by name."""
+        for p in self._timings:
+            if p.name == name:
+                return _parse_timings_file(p)
+        return None
+
+    @property
+    def detected_format(self) -> str:
+        """Detect the output file format: 'zdf', 'hdf5', 'mixed', or 'unknown'."""
+        ms = self._path / "MS"
+        if not ms.is_dir():
+            return "unknown"
+        zdf_files = list(ms.rglob("*.zdf"))
+        h5_files = list(ms.rglob("*.h5"))
+        if zdf_files and not h5_files:
+            return "zdf"
+        elif h5_files and not zdf_files:
+            return "hdf5"
+        elif zdf_files and h5_files:
+            return "mixed"
+        return "unknown"
 
     def get_chargecons(self, iteration: int) -> GridData | None:
         """Read charge conservation diagnostic."""

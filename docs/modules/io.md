@@ -29,6 +29,34 @@ _parallel.py
 | `_reader.py` | Stateless reader functions: `read_grid()`, `read_particles()`, `read_tracks()`, `read_info()` |
 | `_parallel.py` | `read_many(paths, reader_fn, max_workers)` — concurrent batch reads |
 
+## Format Coverage
+
+This module supports **ZDF (Zipped Diagnostic Format) only**. HDF5 output is not supported.
+
+| Aspect | Status |
+|--------|--------|
+| ZDF grid files | Fully supported (all 10 diagnostic kinds) |
+| ZDF particles files | Fully supported (RAW dumps) |
+| ZDF tracks-2 files | Fully supported (TRACKS diagnostics) |
+| ZDF record versions | v0, v1, v2 all supported |
+| Flat / nested directory layouts | Both auto-discovered |
+| HDF5 output | Not supported |
+
+OSIRIS uses ZDF as its default output format. If your simulation is configured to output HDF5,
+switch to ZDF by setting in the input deck:
+
+```
+simulation {
+    file_format = "zdf",
+}
+```
+
+The `osiris-toolkit sim info` command automatically detects the output format and will
+warn if HDF5 files are detected.
+
+For a detailed assessment of format coverage, see
+[IO Coverage Evaluation](../devlog/io-osiris-coverage-evaluation.md).
+
 ## Usage
 
 ```python

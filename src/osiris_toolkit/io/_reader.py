@@ -231,6 +231,17 @@ def _read_array(fh: BinaryIO, dtype_id: int, shape: tuple[int, ...]) -> np.ndarr
 # ---------------------------------------------------------------------------
 
 
+def _read_data_header(fh: BinaryIO) -> tuple[int, int, list[int]]:
+    """Read the common data header: data_type_id, ndims, nx.
+
+    Shared by regular and chunked dataset readers.
+    """
+    data_type_id = _read_int32(fh)
+    ndims = _read_uint32(fh)
+    nx = [int(x) for x in np.fromfile(fh, dtype="<u8", count=ndims)]
+    return data_type_id, ndims, nx
+
+
 def _read_dataset(fh: BinaryIO, rec: ZdfRecord) -> np.ndarray | None:
     """Read a regular (non-chunked) dataset."""
     type_id = rec.id & 0xFFFF0000
@@ -244,9 +255,7 @@ def _read_dataset(fh: BinaryIO, rec: ZdfRecord) -> np.ndarray | None:
     if ver >= 1:
         _id = _read_uint32(fh)  # dataset ID (not needed)
 
-    data_type_id = _read_int32(fh)
-    ndims = _read_uint32(fh)
-    nx = [int(x) for x in np.fromfile(fh, dtype="<u8", count=ndims)]
+    data_type_id, ndims, nx = _read_data_header(fh)
 
     return _read_array(fh, data_type_id, tuple(nx))
 
@@ -262,9 +271,7 @@ def _read_cdset(fh: BinaryIO, rec: ZdfRecord, rewind: bool = False) -> np.ndarra
         raise ValueError(f"Unsupported cdset version: {ver}")
 
     _id = _read_uint32(fh)
-    data_type_id = _read_int32(fh)
-    ndims = _read_uint32(fh)
-    nx = [int(x) for x in np.fromfile(fh, dtype="<u8", count=ndims)]
+    data_type_id, ndims, nx = _read_data_header(fh)
 
     # Allocate empty array (C-order shape)
     dt = numpy_dtype(data_type_id)

@@ -1,12 +1,11 @@
 """Tests for io._parallel — parallel batch I/O."""
 
-from pathlib import Path
 
 import numpy as np
 import pytest
 
-from osiris_toolkit.io._reader import read_grid, read_info
 from osiris_toolkit.io._parallel import read_many, read_many_map
+from osiris_toolkit.io._reader import read_grid, read_info
 
 
 class TestReadMany:

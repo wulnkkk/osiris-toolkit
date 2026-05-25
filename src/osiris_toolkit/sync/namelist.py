@@ -25,6 +25,7 @@ Each parameter has:
     fortran_type — original Fortran type declaration
     python_type  — corresponding Python type
     default      — default value from Fortran source (None if not found)
+    description  — human-readable description from reference docs (empty if unavailable)
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ class _GenParam:
     fortran_type: str = ""
     python_type: str = "float"
     default: str | None = None
+    description: str = ""
 
 
 # section_name -> {param_name -> _GenParam}
@@ -84,10 +86,26 @@ def _clean_default(raw: str | None) -> str | None:
     return cleaned
 
 
-def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
-    """Scan Fortran source and write _generated/parameters.py."""
+def generate(
+    output_path: str | Path,
+    osiris_source_dir: str | Path,
+    docs_path: str | Path | None = None,
+) -> None:
+    """Scan Fortran source and write _generated/parameters.py.
+
+    If *docs_path* is provided, parameter descriptions are extracted from
+    the OSIRIS reference documentation (docs/reference/*.md) and injected
+    into the generated output.
+    """
     scanner = FortranScanner(osiris_source_dir)
     scanner.scan()
+
+    # Load descriptions from docs if available
+    descriptions: dict[str, dict[str, str]] = {}
+    if docs_path is not None:
+        from osiris_toolkit.sync.descriptions import parse_docs
+
+        descriptions = parse_docs(docs_path)
 
     # Organize parameters by section
     sections: dict[str, dict[str, NamelistVar]] = {}
@@ -104,6 +122,7 @@ def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
 
     for sec_name in sorted(sections):
         params = sections[sec_name]
+        sec_descs = descriptions.get(sec_name, {})
         lines.append(f"# -- {sec_name} ({len(params)} parameters)")
         lines.append(f"_sec_{sec_name} = {{}}")
         for pname in sorted(params):
@@ -111,6 +130,7 @@ def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
             py_type = _type_to_python(var.fortran_type) if var.fortran_type else "float"
             default = _clean_default(var.default)
             default_str = repr(default) if default is not None else "None"
+            desc = sec_descs.get(pname.lower(), "")
             lines.append(
                 f"_sec_{sec_name}[{pname!r}] = _GenParam("
             )
@@ -118,6 +138,7 @@ def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
             lines.append(f"    fortran_type={var.fortran_type!r},")
             lines.append(f"    python_type={py_type!r},")
             lines.append(f"    default={default_str},")
+            lines.append(f"    description={desc!r},")
             lines.append(")")
         lines.append(f"GEN_PARAMETERS[{sec_name!r}] = _sec_{sec_name}")
         lines.append("")

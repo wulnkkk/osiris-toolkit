@@ -3,7 +3,6 @@
 import numpy as np
 import pytest
 
-
 # Check if safe_log_norm exists; if not, skip tests
 try:
     from osiris_toolkit.vis.common import safe_log_norm

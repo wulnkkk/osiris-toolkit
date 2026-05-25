@@ -2,8 +2,7 @@
 
 import pytest
 
-from osiris_toolkit.deck.ast import Deck, Section
-from osiris_toolkit.deck.lexer import TokenType, tokenize
+from osiris_toolkit.deck.lexer import tokenize
 from osiris_toolkit.deck.parser import ParseError, parse_tokens
 
 

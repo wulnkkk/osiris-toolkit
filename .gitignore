@@ -52,9 +52,8 @@ coverage.xml
 *.prof
 *.lprof
 
-# Development logs (local only)
-DEVLOG.md
-docs/devlog/
+# Development logs — personal notes only (version release logs are tracked)
+docs/devlog/notes/
 
 # Documentation build
 docs/_build/

@@ -68,3 +68,18 @@ class HistoryData:
 
     columns: list[str] = field(default_factory=list)
     data: dict[str, np.ndarray] = field(default_factory=dict)
+
+
+@dataclass
+class TimingsData:
+    """Timing profile data from TIMINGS/ text files.
+
+    Events are the profiling event names (e.g. push_particles, solve_emf).
+    Columns are the metric names (e.g. 'Total [s]' for serial,
+    'Avg [s]', 'Min [s]', 'Max [s]' for parallel).
+    Data maps metric name to array of per-event values.
+    """
+
+    events: list[str] = field(default_factory=list)
+    columns: list[str] = field(default_factory=list)
+    data: dict[str, np.ndarray] = field(default_factory=dict)

@@ -1,6 +1,6 @@
 """Tests for sim.catalog — OSIRIS diagnostic types."""
 
-from osiris_toolkit.sim.catalog import OSIRIS_DIAGNOSTICS, DiagKind
+from osiris_toolkit.sim.catalog import OSIRIS_DIAGNOSTICS
 from osiris_toolkit.sim.diagnostics import (
     GridData,
     HistoryData,

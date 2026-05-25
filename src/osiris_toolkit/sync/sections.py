@@ -30,6 +30,61 @@ class _GenSection:
 GEN_SECTIONS: list[_GenSection] = []
 '''
 
+# Mapping from Fortran section name to documentation filename (without .md).
+# Used by sync.descriptions to link parameter definitions to reference docs.
+SECTION_ALIASES: dict[str, str] = {
+    "antenna": "Antenna",
+    "antenna_array": "Antenna_Array",
+    "cathode": "Cathode",
+    "collisions": "Collisions",
+    "current": "Electric_Current",
+    "diag_current": "Electric_Current_Diagnostics",
+    "diag_emf": "Electro-Magnetic_Field_Diagnostics",
+    "diag_neutral": "Neutrals_Diagnostics",
+    "diag_species": "Species_Diagnostics",
+    "el_mag_fld": "Electro-Magnetic_Field",
+    "emf_bound": "Electro-Magnetic_Field_Boundaries",
+    "emf_solver": "Electro-Magnetic_Field_Solver",
+    "grid": "Grid",
+    "laser_pulse": "Laser_Pulse",
+    "neutral": "Neutrals",
+    "neutral_mov_ions": "Neutrals_with_Moving_Ions",
+    "node_conf": "Node_Configuration",
+    "profile": "Profile",
+    "restart": "Restart",
+    "simulation": "Simulation",
+    "smooth": "Smooth",
+    "space": "Space",
+    "spe_bound": "Species_Boundary",
+    "species": "Species",
+    "time": "Time",
+    "time_step": "Time_Step",
+    "udist": "Momentum_Distribution",
+    "zpulse": "Zpulse",
+}
+
+# Reverse mapping: documentation filename → Fortran section name
+DOC_TO_SECTION: dict[str, str] = {v: k for k, v in SECTION_ALIASES.items()}
+
+
+def _emit_aliases() -> list[str]:
+    """Generate the SECTION_ALIASES / DOC_TO_SECTION block for output."""
+    lines: list[str] = []
+    lines.append("# Fortran section name → documentation filename mapping")
+    lines.append("SECTION_ALIASES: dict[str, str] = {")
+    for sec_name in sorted(SECTION_ALIASES):
+        doc_name = SECTION_ALIASES[sec_name]
+        lines.append(f"    {sec_name!r}: {doc_name!r},")
+    lines.append("}")
+    lines.append("")
+    lines.append("# Documentation filename → Fortran section name (reverse mapping)")
+    lines.append("DOC_TO_SECTION: dict[str, str] = {")
+    for sec_name in sorted(SECTION_ALIASES):
+        doc_name = SECTION_ALIASES[sec_name]
+        lines.append(f"    {doc_name!r}: {sec_name!r},")
+    lines.append("}")
+    return lines
+
 
 def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
     """Scan Fortran source and write _generated/sections.py."""
@@ -66,6 +121,7 @@ def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
         lines.append(f"    {sec_name!r},")
     lines.append("]")
     lines.append("")
+    lines.extend(_emit_aliases())
 
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)

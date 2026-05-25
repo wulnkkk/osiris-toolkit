@@ -154,6 +154,24 @@ def sim_info(directory: Path) -> None:
     if sim_obj.list_history():
         click.echo(f"\nHistory files: {', '.join(sim_obj.list_history())}")
 
+    if sim_obj.list_timings():
+        click.echo(f"\nTIMINGS files: {', '.join(sim_obj.list_timings())}")
+
+    fmt = sim_obj.detected_format
+    if fmt == "hdf5":
+        click.secho(
+            "\nWARNING: Detected HDF5 output format. osiris-toolkit only supports ZDF.\n"
+            "  Set 'file_format = \"zdf\"' in the simulation section of your input deck.",
+            fg="yellow",
+        )
+    elif fmt == "mixed":
+        click.secho(
+            "\nWARNING: Detected mixed ZDF/HDF5 output. Only ZDF files will be read.",
+            fg="yellow",
+        )
+    else:
+        click.echo(f"\nOutput format: {fmt}")
+
 
 @sim.command("list")
 @click.argument("directory", type=click.Path(exists=True, path_type=Path))
@@ -290,7 +308,13 @@ def sync() -> None:
 
 @sync.command("extract")
 @click.option("--osiris-path", type=click.Path(exists=True, path_type=Path), required=True)
-def sync_extract(osiris_path: Path) -> None:
+@click.option(
+    "--docs-path",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Path to osiris/docs/reference/ for parameter descriptions.",
+)
+def sync_extract(osiris_path: Path, docs_path: Path | None) -> None:
     """Extract parameter and quantity definitions from OSIRIS Fortran source."""
     import osiris_toolkit.sync.diagnostics as _diag
     import osiris_toolkit.sync.namelist as _nl
@@ -302,7 +326,11 @@ def sync_extract(osiris_path: Path) -> None:
     generated_dir.mkdir(parents=True, exist_ok=True)
 
     click.echo(f"Scanning Fortran source: {osiris_path}")
-    _nl.generate(str(generated_dir / "parameters.py"), str(osiris_path))
+    _nl.generate(
+        str(generated_dir / "parameters.py"),
+        str(osiris_path),
+        docs_path=str(docs_path) if docs_path else None,
+    )
     click.echo("  → parameters.py")
     _diag.generate(str(generated_dir / "quantities.py"), str(osiris_path))
     click.echo("  → quantities.py")
