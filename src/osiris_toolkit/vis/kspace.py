@@ -5,11 +5,13 @@ Converted from the MATLAB scripts ``Filter_scattered_wave.m`` and
 dimensionless k/k0 space (no unit conversion needed for the axes).
 """
 
+import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.compute.fft import compute_k_space as _compute_k_space
 from osiris_toolkit.sim import GridData, Simulation
 from osiris_toolkit.units import UnitConverter
 
@@ -20,6 +22,11 @@ def compute_k_space(
     grid: GridData, omega0_norm: float = 1.0
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Compute the 2-D FFT k-space spectrum from a grid dataset.
+
+    .. deprecated::
+        Use ``osiris_toolkit.compute.fft.compute_k_space`` instead.
+        The new function accepts raw ``(data, dx, dy)`` arrays rather than
+        a ``GridData`` object.
 
     Parameters
     ----------
@@ -35,26 +42,21 @@ def compute_k_space(
     ky_k0 : 1-D array
         ky/k0 values, fftshifted.
     spectrum : 2-D array
-        |FFT|^2 amplitude, fftshifted.
+        |FFT| amplitude, fftshifted.
     """
+    warnings.warn(
+        "vis.kspace.compute_k_space is deprecated. "
+        "Use osiris_toolkit.compute.fft.compute_k_space instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     data = grid.data
     if data.ndim != 2:
         raise ValueError(f"Expected 2-D data, got shape {data.shape}")
     nx, ny = data.shape
-
     dx = (grid.axes[0].max - grid.axes[0].min) / nx
     dy = (grid.axes[1].max - grid.axes[1].min) / ny
-
-    kx = 2.0 * np.pi * np.fft.fftfreq(nx, d=dx)
-    ky = 2.0 * np.pi * np.fft.fftfreq(ny, d=dy)
-
-    fft_result = np.fft.fft2(data)
-    spectrum = np.abs(np.fft.fftshift(fft_result)) * (nx * ny / 4.0)
-
-    kx_k0 = np.fft.fftshift(kx) / omega0_norm
-    ky_k0 = np.fft.fftshift(ky) / omega0_norm
-
-    return kx_k0, ky_k0, spectrum
+    return _compute_k_space(data, dx, dy, omega0_norm)
 
 
 def plot_k_space(
@@ -118,7 +120,10 @@ def plot_k_space(
             f"Field {quantity!r} not found at iteration {iteration}"
         )
 
-    kx_k0, ky_k0, spectrum = compute_k_space(grid, omega0_norm)
+    nx, ny = grid.data.shape
+    dx = (grid.axes[0].max - grid.axes[0].min) / nx
+    dy = (grid.axes[1].max - grid.axes[1].min) / ny
+    kx_k0, ky_k0, spectrum = _compute_k_space(grid.data, dx, dy, omega0_norm)
 
     if log_scale:
         spectrum = np.log(np.maximum(spectrum, 1e-30))

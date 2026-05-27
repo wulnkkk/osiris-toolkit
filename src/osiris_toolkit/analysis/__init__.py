@@ -1,6 +1,15 @@
 """Data analysis — statistical and physics-domain computations."""
 
+from __future__ import annotations
+
+import warnings
+from functools import cached_property
+
+from osiris_toolkit.analysis.density import DensityAnalyzer
 from osiris_toolkit.analysis.emf import EMFAnalyzer
+from osiris_toolkit.analysis.kspace import KSpaceAnalyzer
+from osiris_toolkit.analysis.phasespace import PhasespaceAnalyzer
+from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
 from osiris_toolkit.analysis.species import SpeciesAnalyzer
 from osiris_toolkit.analysis.stats import (
     describe,
@@ -14,27 +23,49 @@ from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 
-class Analyzer:
-    """Unified analysis entry point bound to a Simulation.
-
-    Provides sub-analyzers for each diagnostic type with auto-discovery
-    of available data.
+class PostAnalysisHub:
+    """Lazy-loading hub for all diagnostic analyzers.
 
     Parameters
     ----------
     sim : Simulation
-        The loaded simulation output directory.
-    converter : UnitConverter | None
-        Unit converter. If None and sim has a bound deck, one is
-        auto-created.
+    converter : UnitConverter or None
+    """
 
-    Examples
-    --------
-    >>> from osiris_toolkit import Simulation, Analyzer
-    >>> sim = Simulation("/path/to/output")
-    >>> ana = Analyzer(sim)
-    >>> ana.emf.total_em_energy(iteration=50)
-    >>> ana.species.density_profile("electrons", "charge", iteration=50)
+    def __init__(self, sim: Simulation, converter: UnitConverter | None = None) -> None:
+        self._sim = sim
+        self._converter = converter
+
+    @cached_property
+    def emf(self) -> EMFAnalyzer:
+        return EMFAnalyzer(self._sim, self._converter)
+
+    @cached_property
+    def scattering(self) -> ScatteringAnalyzer:
+        return ScatteringAnalyzer(self._sim, self._converter)
+
+    @cached_property
+    def density(self) -> DensityAnalyzer:
+        return DensityAnalyzer(self._sim, self._converter)
+
+    @cached_property
+    def species(self) -> SpeciesAnalyzer:
+        return SpeciesAnalyzer(self._sim, self._converter)
+
+    @cached_property
+    def phasespace(self) -> PhasespaceAnalyzer:
+        return PhasespaceAnalyzer(self._sim, self._converter)
+
+    @cached_property
+    def kspace(self) -> KSpaceAnalyzer:
+        return KSpaceAnalyzer(self._sim, self._converter)
+
+
+class Analyzer:
+    """DEPRECATED: Use ``PostProcessor`` from ``osiris_toolkit.postproc`` instead.
+
+    This class is kept for backward compatibility and will be removed in a
+    future version.
     """
 
     def __init__(
@@ -42,20 +73,22 @@ class Analyzer:
         sim: Simulation,
         converter: UnitConverter | None = None,
     ) -> None:
+        warnings.warn(
+            "Analyzer is deprecated. Use PostProcessor from osiris_toolkit.postproc.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._sim = sim
         self._converter = converter
 
     @property
     def emf(self) -> EMFAnalyzer:
-        """EMF-specific analysis."""
         return EMFAnalyzer(self._sim, self._converter)
 
     @property
     def species(self) -> SpeciesAnalyzer:
-        """Species and density analysis."""
         return SpeciesAnalyzer(self._sim, self._converter)
 
-    # Convenience statics (no converter needed)
     describe = staticmethod(describe)
     mean = staticmethod(mean)
     rms = staticmethod(rms)
@@ -68,6 +101,11 @@ __all__ = [
     "Analyzer",
     "EMFAnalyzer",
     "SpeciesAnalyzer",
+    "DensityAnalyzer",
+    "ScatteringAnalyzer",
+    "KSpaceAnalyzer",
+    "PhasespaceAnalyzer",
+    "PostAnalysisHub",
     "describe",
     "mean",
     "minmax",

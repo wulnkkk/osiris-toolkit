@@ -5,17 +5,17 @@ Converted from the MATLAB script ``rushetoushefene.m``.  Integrates
 side-scattered, and back-scattered energy fractions as functions of time.
 """
 
-from dataclasses import dataclass, field
+import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.analysis._result_types import ScatteringResult  # re-export
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
-from .kspace import compute_k_space
 
 DEFAULT_MASKS = {
     "incident": {
@@ -51,68 +51,8 @@ DEFAULT_MASKS = {
 }
 
 
-@dataclass
-class ScatteringResult:
-    """Container for scattering analysis results.
-
-    Attributes
-    ----------
-    iterations : list of int
-        Iteration numbers analysed.
-    times : list of float
-        Simulation times (normalised).
-    scattered_fraction : list of float
-        Scattered energy / incident energy at each step.
-    side_scatter_fraction : list of float
-        Side-scattered energy / incident energy at each step.
-    back_scatter_fraction : list of float
-        Back-scattered energy / incident energy at each step.
-    quantity : str
-        Field quantity analysed.
-    mask_info : dict
-        Copy of the k-space mask definitions used.
-    """
-
-    iterations: list[int] = field(default_factory=list)
-    times: list[float] = field(default_factory=list)
-    scattered_fraction: list[float] = field(default_factory=list)
-    side_scatter_fraction: list[float] = field(default_factory=list)
-    back_scatter_fraction: list[float] = field(default_factory=list)
-    quantity: str = ""
-    mask_info: dict = field(default_factory=dict)
-
-
-def _mask_energy(
-    spectrum: np.ndarray,
-    kx_k0: np.ndarray,
-    ky_k0: np.ndarray,
-    kx_range: tuple[float, float],
-    ky_range: tuple[float, float],
-) -> float:
-    """Integrate |spectrum|^2 over a rectangular k-space mask.
-
-    Parameters
-    ----------
-    spectrum : 2-D array
-        FFT amplitude from ``compute_k_space``.
-    kx_k0, ky_k0 : 1-D arrays
-        k/k0 coordinate arrays.
-    kx_range, ky_range : (float, float)
-        Mask boundaries in k/k0 units.
-
-    Returns
-    -------
-    float
-        Sum of |spectrum|^2 within the mask region.
-    """
-    kx_mask = (kx_k0 / (2 * np.pi) >= kx_range[0]) & (
-        kx_k0 / (2 * np.pi) <= kx_range[1]
-    )
-    ky_mask = (ky_k0 / (2 * np.pi) >= ky_range[0]) & (
-        ky_k0 / (2 * np.pi) <= ky_range[1]
-    )
-    region = spectrum[np.ix_(kx_mask, ky_mask)]
-    return float(np.sum(region**2))
+# ScatteringResult is re-exported from osiris_toolkit.analysis._result_types
+# _mask_energy is re-exported from osiris_toolkit.compute.integrate
 
 
 def analyze_scattering(
@@ -127,6 +67,10 @@ def analyze_scattering(
 ) -> ScatteringResult:
     """Analyse k-space scattering energy fractions over time.
 
+    .. deprecated::
+        Use ``ScatteringAnalyzer`` from ``osiris_toolkit.analysis.scattering``
+        instead. This function is kept for backward compatibility.
+
     Parameters
     ----------
     quantity : str
@@ -134,11 +78,9 @@ def analyze_scattering(
     sim_path : str or Path
         Path to the simulation output directory.
     iterations : list of int or None
-        Iteration numbers to process.  If None, all available iterations
-        for *quantity* are used.
+        Iteration numbers to process.
     masks : dict or None
-        Custom k-space mask definitions.  If None, ``DEFAULT_MASKS`` is
-        used.
+        Custom k-space mask definitions.
     omega0_norm : float
         Laser frequency in normalised units.
     verbose : bool
@@ -149,93 +91,23 @@ def analyze_scattering(
     ScatteringResult
         Time series of energy fractions.
     """
+    warnings.warn(
+        "vis.scattering.analyze_scattering is deprecated. "
+        "Use osiris_toolkit.analysis.scattering.ScatteringAnalyzer instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
+
     sim_obj = load_sim(sim_path, sim=sim)
-    if masks is None:
-        masks = DEFAULT_MASKS
-
-    if iterations is None:
-        entries = sim_obj._fields.get(quantity, [])
-        iterations = sorted({e.iteration for e in entries})
-
-    if not iterations:
-        raise ValueError(f"No data found for quantity {quantity!r}")
-
-    result = ScatteringResult(quantity=quantity, mask_info=dict(masks))
-
-    for it in iterations:
-        grid = sim_obj.get_field(quantity, it)
-        if grid is None:
-            continue
-
-        kx_k0, ky_k0, spectrum = compute_k_space(grid, omega0_norm)
-
-        inc = _mask_energy(
-            spectrum,
-            kx_k0,
-            ky_k0,
-            masks["incident"]["kx_range"],
-            masks["incident"]["ky_range"],
-        )
-
-        sct = _mask_energy(
-            spectrum,
-            kx_k0,
-            ky_k0,
-            masks["scattered"]["kx_range"],
-            masks["scattered"]["ky_range"],
-        )
-
-        side1 = _mask_energy(
-            spectrum,
-            kx_k0,
-            ky_k0,
-            masks["side_scatter_1"]["kx_range"],
-            masks["side_scatter_1"]["ky_range"],
-        )
-        side2 = _mask_energy(
-            spectrum,
-            kx_k0,
-            ky_k0,
-            masks["side_scatter_2"]["kx_range"],
-            masks["side_scatter_2"]["ky_range"],
-        )
-
-        back1 = _mask_energy(
-            spectrum,
-            kx_k0,
-            ky_k0,
-            masks["back_scatter_1"]["kx_range"],
-            masks["back_scatter_1"]["ky_range"],
-        )
-        back2 = _mask_energy(
-            spectrum,
-            kx_k0,
-            ky_k0,
-            masks["back_scatter_2"]["kx_range"],
-            masks["back_scatter_2"]["ky_range"],
-        )
-
-        result.iterations.append(it)
-        result.times.append(grid.time)
-        result.scattered_fraction.append(
-            sct / inc if inc > 0 else 0.0
-        )
-        result.side_scatter_fraction.append(
-            (side1 + side2) / inc if inc > 0 else 0.0
-        )
-        result.back_scatter_fraction.append(
-            (back1 + back2) / inc if inc > 0 else 0.0
-        )
-
-        if verbose:
-            print(
-                f"  iteration={it:06d}  t={grid.time:.1f}  "
-                f"scat={result.scattered_fraction[-1]:.4f}  "
-                f"side={result.side_scatter_fraction[-1]:.4f}  "
-                f"back={result.back_scatter_fraction[-1]:.4f}"
-            )
-
-    return result
+    analyzer = ScatteringAnalyzer(sim_obj)
+    return analyzer.analyze(
+        quantity=quantity,
+        iterations=iterations,
+        masks=masks,
+        omega0_norm=omega0_norm,
+        verbose=verbose,
+    )
 
 
 def plot_scattering_fraction(

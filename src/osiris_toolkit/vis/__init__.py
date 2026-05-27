@@ -2,69 +2,87 @@
 
 from __future__ import annotations
 
+import warnings
+from functools import cached_property
 from pathlib import Path
 
-from matplotlib.figure import Figure
-
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.sim.catalog import OSIRIS_DIAGNOSTICS
 from osiris_toolkit.units import UnitConverter
 from osiris_toolkit.vis.batch import process_simulation
 from osiris_toolkit.vis.composite import plot_composite
 from osiris_toolkit.vis.density import plot_density
+from osiris_toolkit.vis.energy import plot_energy_timeline, plot_poynting, plot_spectrum
 from osiris_toolkit.vis.field import plot_all_fields, plot_field
 from osiris_toolkit.vis.kspace import plot_k_space
 from osiris_toolkit.vis.phasespace import plot_phasespace
-from osiris_toolkit.vis.scattering import analyze_scattering, plot_scattering_fraction
+from osiris_toolkit.vis.scattering import plot_scattering_fraction
 
 
-class VisEngine:
-    """Unified visualization entry point bound to a Simulation.
-
-    Provides sub-plotters for each diagnostic type and a generic
-    ``plot()`` method for agent-friendly access.
+class PostVisHub:
+    """Lazy-loading hub for all visualization sub-modules.
 
     Parameters
     ----------
     sim : Simulation
-        The loaded simulation output.
-    converter : UnitConverter | None
-        Unit converter. Auto-created from sim's bound deck if available.
-
-    Examples
-    --------
-    >>> from osiris_toolkit import Simulation
-    >>> from osiris_toolkit.vis import VisEngine
-    >>> sim = Simulation("/path/to/output")
-    >>> vis = VisEngine(sim)
-    >>> vis.plot("EMF", quantity="e1", iteration=50, x_unit="um")
+    converter : UnitConverter or None
     """
 
-    def __init__(
-        self,
-        sim: Simulation,
-        converter: UnitConverter | None = None,
-    ) -> None:
+    def __init__(self, sim: Simulation, converter: UnitConverter | None = None) -> None:
         self._sim = sim
         self._converter = converter
 
-    @property
-    def converter(self) -> UnitConverter | None:
-        return self._converter
+    # -- field -----------------------------------------------------------
 
-    # -- generic agent-friendly interface -------------------------------
+    def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
+        return plot_field(
+            sim=self._sim, converter=self._converter,
+            quantity=quantity, iteration=iteration, **kwargs,
+        )
+
+    def plot_all_fields(self, iteration: int, **kwargs) -> None:
+        return plot_all_fields(
+            sim=self._sim, converter=self._converter,
+            iteration=iteration, **kwargs,
+        )
+
+    @cached_property
+    def field(self):
+        """Convenience namespace for field plotting."""
+        return _FieldVis(self)
+
+    # -- energy ----------------------------------------------------------
+
+    plot_energy_timeline = staticmethod(plot_energy_timeline)
+    plot_spectrum = staticmethod(plot_spectrum)
+    plot_poynting = staticmethod(plot_poynting)
+
+    @cached_property
+    def energy(self):
+        """Convenience namespace for energy/spectrum plotting."""
+        return _EnergyVis(self)
+
+    # -- density, phasespace, kspace -------------------------------------
+
+    def plot_density(self, species: str, iteration: int, quantity: str = "charge", **kwargs) -> Path | None:
+        return plot_density(
+            sim=self._sim, converter=self._converter,
+            species=species, iteration=iteration, quantity=quantity, **kwargs,
+        )
+
+    def plot_phasespace(self, ps_name: str, species: str, iteration: int, **kwargs) -> Path | None:
+        return plot_phasespace(
+            sim=self._sim, converter=self._converter,
+            ps_name=ps_name, species=species, iteration=iteration, **kwargs,
+        )
+
+    def plot_k_space(self, quantity: str, iteration: int, **kwargs) -> Path | None:
+        return plot_k_space(
+            sim=self._sim, converter=self._converter,
+            quantity=quantity, iteration=iteration, **kwargs,
+        )
 
     def plot(self, kind: str, **kwargs) -> Path | None:
-        """Plot a diagnostic type with keyword arguments.
-
-        Parameters
-        ----------
-        kind : str
-            Diagnostic kind name (e.g. "EMF", "DENSITY", "PHASESPACE").
-        **kwargs
-            Passed to the specific plotting function. Common keys:
-            quantity, iteration, species, x_unit, y_unit, output.
-        """
+        """Generic plot by diagnostic kind name."""
         kind = kind.upper()
         if kind == "EMF":
             return plot_field(sim=self._sim, converter=self._converter, **kwargs)
@@ -75,101 +93,91 @@ class VisEngine:
         elif kind == "KSPACE":
             return plot_k_space(sim=self._sim, converter=self._converter, **kwargs)
         else:
-            # Generic: try to read the diagnostic kind directly
-            diag_kind = OSIRIS_DIAGNOSTICS.get(kind)
-            if diag_kind is None:
-                raise ValueError(
-                    f"Unknown diagnostic kind {kind!r}. "
-                    f"Known: {sorted(OSIRIS_DIAGNOSTICS)}"
-                )
-            # Fallback to field plot for grid-based diagnostics
             quantity = kwargs.get("quantity")
             iteration = kwargs.get("iteration")
             if quantity and iteration is not None:
                 return plot_field(
                     sim=self._sim, converter=self._converter,
-                    quantity=quantity,
-                    iteration=iteration,
+                    quantity=quantity, iteration=iteration,
                     **{k: v for k, v in kwargs.items() if k not in ("quantity", "iteration")},
                 )
-            raise ValueError(
-                "quantity and iteration are required for generic plot"
-            )
+            raise ValueError(f"Unknown diagnostic kind {kind!r}")
 
-    # -- convenience shortcuts ------------------------------------------
+
+class _FieldVis:
+    def __init__(self, hub: PostVisHub) -> None:
+        self._hub = hub
+
+    def plot(self, quantity: str, iteration: int, **kwargs) -> Path | None:
+        return self._hub.plot_field(quantity=quantity, iteration=iteration, **kwargs)
+
+    def plot_all(self, iteration: int, **kwargs) -> None:
+        return self._hub.plot_all_fields(iteration=iteration, **kwargs)
+
+
+class _EnergyVis:
+    def __init__(self, hub: PostVisHub) -> None:
+        self._hub = hub
+
+    def timeline(self, results, **kwargs) -> Path | None:
+        return plot_energy_timeline(results, **kwargs)
+
+    def spectrum(self, result, **kwargs) -> Path | None:
+        return plot_spectrum(result, **kwargs)
+
+    def poynting(self, result, component="s1", **kwargs) -> Path | None:
+        return plot_poynting(result, component=component, **kwargs)
+
+
+class VisEngine:
+    """DEPRECATED: Use ``PostProcessor`` from ``osiris_toolkit.postproc``.
+
+    Kept for backward compatibility. Will be removed in a future version.
+    """
+
+    def __init__(
+        self,
+        sim: Simulation,
+        converter: UnitConverter | None = None,
+    ) -> None:
+        warnings.warn(
+            "VisEngine is deprecated. Use PostProcessor from osiris_toolkit.postproc.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self._sim = sim
+        self._converter = converter
+        self._hub = PostVisHub(sim, converter)
+
+    @property
+    def converter(self) -> UnitConverter | None:
+        return self._converter
+
+    def plot(self, kind: str, **kwargs) -> Path | None:
+        return self._hub.plot(kind, **kwargs)
 
     def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
-        return plot_field(
-            sim=self._sim, converter=self._converter,
-            quantity=quantity,
-            iteration=iteration,
-            **kwargs,
-        )
+        return self._hub.plot_field(quantity=quantity, iteration=iteration, **kwargs)
 
-    def plot_density(
-        self, species: str, iteration: int, quantity: str = "charge", **kwargs
-    ) -> Path | None:
-        return plot_density(
-            sim=self._sim, converter=self._converter,
-            species=species,
-            iteration=iteration,
-            quantity=quantity,
-            **kwargs,
-        )
+    def plot_density(self, species: str, iteration: int, quantity: str = "charge", **kwargs) -> Path | None:
+        return self._hub.plot_density(species=species, iteration=iteration, quantity=quantity, **kwargs)
 
-    def plot_phasespace(
-        self, ps_name: str, species: str, iteration: int, **kwargs
-    ) -> Path | None:
-        return plot_phasespace(
-            sim=self._sim, converter=self._converter,
-            ps_name=ps_name,
-            species=species,
-            iteration=iteration,
-            **kwargs,
-        )
+    def plot_phasespace(self, ps_name: str, species: str, iteration: int, **kwargs) -> Path | None:
+        return self._hub.plot_phasespace(ps_name=ps_name, species=species, iteration=iteration, **kwargs)
 
-    def plot_k_space(
-        self, quantity: str, iteration: int, **kwargs
-    ) -> Path | None:
-        return plot_k_space(
-            sim=self._sim, converter=self._converter,
-            quantity=quantity,
-            iteration=iteration,
-            **kwargs,
-        )
+    def plot_k_space(self, quantity: str, iteration: int, **kwargs) -> Path | None:
+        return self._hub.plot_k_space(quantity=quantity, iteration=iteration, **kwargs)
 
     def plot_composite(self, iteration: int, **kwargs) -> Path | None:
         return plot_composite(
             sim=self._sim, converter=self._converter,
-            iteration=iteration,
-            **kwargs,
+            iteration=iteration, **kwargs,
         )
 
     def batch(
-        self,
-        sim_name: str,
-        output_root: str | Path | None = None,
-        x_unit: str = "um",
-        y_unit: str = "um",
-        time_unit: str = "ps",
-        max_workers: int | None = None,
+        self, sim_name: str, output_root=None, x_unit="um", y_unit="um",
+        time_unit="ps", max_workers=None,
     ) -> None:
-        """Batch-process all diagnostic types.
-
-        Parameters
-        ----------
-        sim_name : str
-            Human-readable name used for the output subdirectory.
-        output_root : str, Path, or None
-            Root directory for all output.  If None, defaults to
-            ``self._sim.output_root`` (in-place under the sim directory).
-        x_unit, y_unit : str
-            Spatial axis units.
-        time_unit : str
-            Time unit for titles.
-        max_workers : int or None
-            Number of parallel workers.  ``None`` runs sequentially.
-        """
         return process_simulation(
             sim_path=str(self._sim.path),
             sim_name=sim_name,
@@ -183,13 +191,16 @@ class VisEngine:
 
 __all__ = [
     "VisEngine",
+    "PostVisHub",
     "plot_field",
     "plot_all_fields",
     "plot_density",
     "plot_phasespace",
     "plot_composite",
     "plot_k_space",
-    "analyze_scattering",
     "plot_scattering_fraction",
+    "plot_energy_timeline",
+    "plot_spectrum",
+    "plot_poynting",
     "process_simulation",
 ]

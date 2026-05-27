@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import numpy as np
 
-from osiris_toolkit.sim import Simulation
-from osiris_toolkit.sim.diagnostics import GridData
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.compute.fft import compute_k_space
+
+from ._protocol import DiagnosticAnalyzer
+from ._result_types import EMDynamicsResult, EMSpectrumResult, FieldEnergyResult, PoyntingResult
 
 
-class EMFAnalyzer:
+class EMFAnalyzer(DiagnosticAnalyzer):
     """Electromagnetic field analysis for a simulation.
 
     Parameters
@@ -17,37 +18,32 @@ class EMFAnalyzer:
     sim : Simulation
         The loaded simulation output directory.
     converter : UnitConverter | None
-        Converter for normalized-to-physical units. If None, results
-        are in normalized units.
+        Converter for normalized-to-physical units.
     """
 
-    def __init__(self, sim: Simulation, converter: UnitConverter | None = None) -> None:
-        self._sim = sim
-        self._converter = converter
+    diagnostic_kind = "EMF"
+
+    def list_available(self) -> list[str]:
+        return self._sim.list_fields()
 
     # -- energy ----------------------------------------------------------
 
-    def field_energy(
-        self, quantity: str, iteration: int
-    ) -> tuple[GridData, float]:
-        """Read a field quantity and compute its integrated |E|^2 energy.
-
-        Returns (grid_data, total_energy).
-        """
+    def field_energy(self, quantity: str, iteration: int) -> FieldEnergyResult:
+        """Read a field quantity and compute its integrated |E|^2 energy."""
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:
             raise ValueError(f"No data for {quantity} at iteration {iteration}")
         total = float(np.sum(grid.data ** 2))
-        return grid, total
+        return FieldEnergyResult(
+            quantity=quantity,
+            iteration=iteration,
+            time=grid.time,
+            total_energy=total,
+            grid=grid,
+        )
 
-    def total_em_energy(self, iteration: int) -> dict[str, float]:
-        """Compute total E^2, B^2, and E^2+B^2 energies at a given iteration.
-
-        Returns a dict like::
-
-            {"e_energy": ..., "b_energy": ..., "em_energy": ...}
-        """
-        result: dict[str, float] = {}
+    def em_dynamics(self, iteration: int) -> EMDynamicsResult:
+        """Compute total E^2, B^2, and E^2+B^2 energies at one iteration."""
         e_energy = 0.0
         b_energy = 0.0
 
@@ -61,55 +57,53 @@ class EMFAnalyzer:
             if grid is not None:
                 b_energy += float(np.sum(grid.data ** 2))
 
-        result["e_energy"] = e_energy
-        result["b_energy"] = b_energy
-        result["em_energy"] = e_energy + b_energy
-        return result
+        # pick up time from the first available field
+        time = 0.0
+        for q in ("e1", "e2", "e3", "b1", "b2", "b3"):
+            grid = self._sim.get_field(q, iteration)
+            if grid is not None:
+                time = grid.time
+                break
+
+        return EMDynamicsResult(
+            iteration=iteration,
+            time=time,
+            e2_total=e_energy,
+            b2_total=b_energy,
+            total=e_energy + b_energy,
+        )
 
     # -- spectrum --------------------------------------------------------
 
-    def spectrum(
-        self, quantity: str, iteration: int
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Compute the 2D FFT power spectrum of a field quantity.
-
-        Returns (kx, ky, kx_shifted, ky_shifted, spectrum).
-
-        kx, ky axes are in units of 2*pi / grid_length.
-        Spectrum is |FFT| (magnitude, not power).
-        """
+    def spectrum(self, quantity: str, iteration: int) -> EMSpectrumResult:
+        """Compute 2-D FFT amplitude spectrum."""
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:
             raise ValueError(f"No data for {quantity} at iteration {iteration}")
 
         data = grid.data
-        nx, ny = data.shape[:2] if data.ndim >= 2 else (data.shape[0], 1)
+        if data.ndim < 2:
+            raise ValueError(f"spectrum requires 2-D data, got shape {data.shape}")
 
-        # Compute physical k axes
-        if grid.axes:
-            dx = (grid.axes[0].max - grid.axes[0].min) / nx
-            dy = (grid.axes[1].max - grid.axes[1].min) / ny if data.ndim >= 2 else dx
-        else:
-            dx = dy = 1.0
+        nx, ny = data.shape
+        dx = (grid.axes[0].max - grid.axes[0].min) / nx
+        dy = (grid.axes[1].max - grid.axes[1].min) / ny
 
-        kx = 2 * np.pi * np.fft.fftfreq(nx, dx)
-        ky = 2 * np.pi * np.fft.fftfreq(ny, dy)
+        kx_k0, ky_k0, spectrum = compute_k_space(data, dx, dy)
 
-        fft = np.abs(np.fft.fftshift(np.fft.fft2(data)))
-        kx_s = np.fft.fftshift(kx)
-        ky_s = np.fft.fftshift(ky)
-
-        return kx_s, ky_s, fft
+        return EMSpectrumResult(
+            quantity=quantity,
+            iteration=iteration,
+            time=grid.time,
+            kx_k0=kx_k0,
+            ky_k0=ky_k0,
+            spectrum=spectrum,
+        )
 
     # -- Poynting flux ---------------------------------------------------
 
-    def poynting(
-        self, iteration: int
-    ) -> np.ndarray | None:
-        """Compute Poynting vector S = E x B at a given iteration.
-
-        Returns a 3-tuple (S1, S2, S3) of GridData or numpy arrays.
-        """
+    def poynting(self, iteration: int) -> PoyntingResult | None:
+        """Compute Poynting vector S = E x B at a given iteration."""
         e1_g = self._sim.get_field("e1", iteration)
         e2_g = self._sim.get_field("e2", iteration)
         e3_g = self._sim.get_field("e3", iteration)
@@ -117,7 +111,7 @@ class EMFAnalyzer:
         b2_g = self._sim.get_field("b2", iteration)
         b3_g = self._sim.get_field("b3", iteration)
 
-        if None in (e1_g, b1_g):
+        if any(g is None for g in (e1_g, e2_g, e3_g, b1_g, b2_g, b3_g)):
             return None
 
         e1, e2, e3 = e1_g.data, e2_g.data, e3_g.data
@@ -127,4 +121,10 @@ class EMFAnalyzer:
         s2 = e3 * b1 - e1 * b3
         s3 = e1 * b2 - e2 * b1
 
-        return np.array([s1, s2, s3])
+        return PoyntingResult(
+            iteration=iteration,
+            time=e1_g.time,
+            s1=s1,
+            s2=s2,
+            s3=s3,
+        )
