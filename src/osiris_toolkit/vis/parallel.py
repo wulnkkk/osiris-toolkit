@@ -10,6 +10,9 @@ import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
+import matplotlib
+matplotlib.use("Agg")
+
 from osiris_toolkit.parallel._cluster import (
     detect_available_workers,
     detect_job_array,
@@ -34,6 +37,8 @@ def _worker_plot_field(
 ) -> str:
     """Worker: plot one field frame.  Returns output path."""
     limit_blas_threads(1)
+    import matplotlib as _mpl
+    _mpl.use("Agg")
     from osiris_toolkit.vis.field import plot_field
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
@@ -56,6 +61,8 @@ def _worker_plot_k_space(
 ) -> str:
     """Worker: plot one k-space frame.  Returns output path."""
     limit_blas_threads(1)
+    import matplotlib as _mpl
+    _mpl.use("Agg")
     from osiris_toolkit.vis.kspace import plot_k_space
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
@@ -80,6 +87,8 @@ def _worker_plot_density(
 ) -> str:
     """Worker: plot one density frame.  Returns output path."""
     limit_blas_threads(1)
+    import matplotlib as _mpl
+    _mpl.use("Agg")
     from osiris_toolkit.vis.density import plot_density
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None

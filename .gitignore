@@ -83,3 +83,11 @@ data/
 *.tmp
 *.log
 *.lock~
+
+# HPC test artifacts
+**/tests/hpc/**/slurm-*
+**/tests/hpc/_fails.txt
+**/tests/hpc/quick_vis_test.py
+**/tests/hpc/submit_quick_vis.sh
+**/tests/hpc/submit_orchestrator.sh
+**/tests/hpc/run_all_console.log
