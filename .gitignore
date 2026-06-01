@@ -84,6 +84,9 @@ data/
 *.log
 *.lock~
 
+# Codegraph index
+.codegraph/
+
 # HPC test artifacts
 **/tests/hpc/**/slurm-*
 **/tests/hpc/_fails.txt
