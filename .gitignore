@@ -87,6 +87,9 @@ data/
 # Codegraph index
 .codegraph/
 
+# Claude Code
+.claude/
+
 # HPC test artifacts
 **/tests/hpc/**/slurm-*
 **/tests/hpc/_fails.txt
