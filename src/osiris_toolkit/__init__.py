@@ -1,6 +1,6 @@
 """osiris-toolkit: Comprehensive toolkit for OSIRIS PIC simulation."""
 
-__version__ = "0.7.1"
+__version__ = "0.8.0"
 
 from osiris_toolkit.compute import (
     compute_k_space,

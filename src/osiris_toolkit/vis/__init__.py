@@ -8,11 +8,18 @@ from pathlib import Path
 
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.vis.animation import animate_field
 from osiris_toolkit.vis.batch import process_simulation
 from osiris_toolkit.vis.colormap import register_cmaps, symmetrical_colormap
+from osiris_toolkit.vis.comparison import plot_difference, plot_overlay
 from osiris_toolkit.vis.composite import plot_composite
 from osiris_toolkit.vis.density import plot_density
 from osiris_toolkit.vis.energy import plot_energy_timeline, plot_poynting, plot_spectrum
+from osiris_toolkit.vis.energy_summary import (
+    plot_energy_timeseries,
+    plot_poynting_vector,
+    plot_spectrum_colormap,
+)
 from osiris_toolkit.vis.field import plot_all_fields, plot_field
 from osiris_toolkit.vis.kspace import plot_k_space
 from osiris_toolkit.vis.phasespace import plot_phasespace
@@ -193,6 +200,7 @@ class VisEngine:
 __all__ = [
     "VisEngine",
     "PostVisHub",
+    "animate_field",
     "plot_field",
     "plot_all_fields",
     "plot_density",
@@ -200,9 +208,14 @@ __all__ = [
     "plot_composite",
     "plot_k_space",
     "plot_scattering_fraction",
+    "plot_difference",
+    "plot_overlay",
     "plot_energy_timeline",
+    "plot_energy_timeseries",
     "plot_spectrum",
+    "plot_spectrum_colormap",
     "plot_poynting",
+    "plot_poynting_vector",
     "process_simulation",
     "register_cmaps",
     "symmetrical_colormap",
