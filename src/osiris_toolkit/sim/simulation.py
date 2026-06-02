@@ -15,13 +15,16 @@ import numpy as np
 
 from osiris_toolkit.io._reader import read_grid, read_info, read_particles, read_tracks
 from osiris_toolkit.sim.diagnostics import (
+    FieldInfo,
     GridAxis,
     GridData,
     HistoryData,
     ParticleData,
+    ParticleInfo,
     PhasespaceData,
     TimingsData,
     TrackData,
+    TrackInfo,
 )
 
 # ---------------------------------------------------------------------------
@@ -862,7 +865,6 @@ class Simulation:
         -------
         FieldInfo or None
         """
-        from osiris_toolkit.sim.diagnostics import FieldInfo
         entries = self._fields.get(quantity, [])
         for e in entries:
             if e.iteration == iteration:
@@ -910,7 +912,6 @@ class Simulation:
         -------
         ParticleInfo or None
         """
-        from osiris_toolkit.sim.diagnostics import ParticleInfo
         entries = self._raw.get(species, [])
         for e in entries:
             if e.iteration == iteration:
@@ -944,7 +945,6 @@ class Simulation:
         -------
         TrackInfo or None
         """
-        from osiris_toolkit.sim.diagnostics import TrackInfo
         path = self._tracks.get(name)
         if path is None:
             return None

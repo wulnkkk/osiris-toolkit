@@ -58,11 +58,11 @@ def format_report(report: EstimationReport) -> str:
             lines.append(f"  Species #{i+1}{name_str}: {ppc_str} = {ppc_total} ppc")
         lines.append(f"  Total particles:       {p.total_particles:,}")
     else:
-        lines.append(f"  Species:               none (num_species=0)")
+        lines.append("  Species:               none (num_species=0)")
     if p.vpml_bnd_size > 0:
         lines.append(f"  PML:                   {p.vpml_bnd_size} cells, {p.n_pml_boundaries} boundaries")
     if p.if_move:
-        lines.append(f"  Moving window:         enabled")
+        lines.append("  Moving window:         enabled")
     if p.if_collide:
         lines.append(f"  Collisions:            {p.n_collide} pair(s)")
     prec_label = "single" if p.field_precision_bytes == 4 else "double"
@@ -103,10 +103,10 @@ def format_report(report: EstimationReport) -> str:
     if r.notes:
         for n in r.notes:
             lines.append(f"  [i] {n}")
-    lines.append(f"")
-    lines.append(f"  NOTE: Runtime estimates are order-of-magnitude only.")
-    lines.append(f"  Actual performance depends on hardware, compiler optimizations,")
-    lines.append(f"  and simulation-specific factors (ionization, moving window, etc).")
+    lines.append("")
+    lines.append("  NOTE: Runtime estimates are order-of-magnitude only.")
+    lines.append("  Actual performance depends on hardware, compiler optimizations,")
+    lines.append("  and simulation-specific factors (ionization, moving window, etc).")
 
     # Disk Space
     lines.append("")
@@ -114,15 +114,15 @@ def format_report(report: EstimationReport) -> str:
     if d.emf_n_dumps > 0:
         lines.append(f"  EMF dumps:             {_fmt_size(d.emf_dump_mb)} x{d.emf_n_dumps:,} = {d.emf_total_gb:.2f} GB")
     else:
-        lines.append(f"  EMF dumps:             disabled")
+        lines.append("  EMF dumps:             disabled")
     if d.raw_n_dumps > 0:
         lines.append(f"  Raw particle dumps:    {_fmt_size(d.raw_dump_mb)} x{d.raw_n_dumps:,} = {d.raw_total_gb:.2f} GB")
     else:
-        lines.append(f"  Raw particle dumps:    disabled")
+        lines.append("  Raw particle dumps:    disabled")
     if d.restart_n_dumps > 0:
         lines.append(f"  Restart dumps:         {_fmt_size(d.restart_dump_mb)} x{d.restart_n_dumps:,} = {d.restart_total_gb:.2f} GB")
     else:
-        lines.append(f"  Restart dumps:         disabled")
+        lines.append("  Restart dumps:         disabled")
     lines.append(f"  TOTAL output:           {d.total_gb:.2f} GB")
     if d.notes:
         for n in d.notes:

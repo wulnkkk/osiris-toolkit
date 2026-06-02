@@ -2,29 +2,6 @@
 
 __version__ = "0.7.0"
 
-from osiris_toolkit.sim import (
-    DiagKind,
-    Field,
-    FieldInfo,
-    GridAxis,
-    GridData,
-    HistoryData,
-    OSIRIS_DIAGNOSTICS,
-    ParticleData,
-    ParticleInfo,
-    PhasespaceData,
-    Simulation,
-    TimingsData,
-    TrackData,
-    TrackInfo,
-)
-from osiris_toolkit.io import (
-    list_records,
-    read_grid,
-    read_info,
-    read_particles,
-    read_tracks,
-)
 from osiris_toolkit.compute import (
     compute_k_space,
     line_integrate,
@@ -33,8 +10,31 @@ from osiris_toolkit.compute import (
     spectral_power,
     trapz_2d,
 )
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.io import (
+    list_records,
+    read_grid,
+    read_info,
+    read_particles,
+    read_tracks,
+)
 from osiris_toolkit.postproc import PostProcessor
+from osiris_toolkit.sim import (
+    OSIRIS_DIAGNOSTICS,
+    DiagKind,
+    Field,
+    FieldInfo,
+    GridAxis,
+    GridData,
+    HistoryData,
+    ParticleData,
+    ParticleInfo,
+    PhasespaceData,
+    Simulation,
+    TimingsData,
+    TrackData,
+    TrackInfo,
+)
+from osiris_toolkit.units import UnitConverter
 
 __all__ = [
     "__version__",

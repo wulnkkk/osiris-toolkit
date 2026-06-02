@@ -1,6 +1,5 @@
 """Resource estimation for OSIRIS simulation input decks."""
 
-from osiris_toolkit.resource._params import ResourceParams
 from osiris_toolkit.resource._estimator import (
     DiskEstimate,
     EstimationReport,
@@ -8,6 +7,7 @@ from osiris_toolkit.resource._estimator import (
     ResourceEstimator,
     RuntimeEstimate,
 )
+from osiris_toolkit.resource._params import ResourceParams
 from osiris_toolkit.resource._report import format_report
 
 __all__ = [

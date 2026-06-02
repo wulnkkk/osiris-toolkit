@@ -12,6 +12,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 
 from osiris_toolkit.parallel._cluster import (

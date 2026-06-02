@@ -205,6 +205,7 @@ def plot_all_fields(
     y_unit: str = "auto",
     time_unit: str = "auto",
     output: str | Path | None = None,
+    overwrite: bool = False,
 ) -> None:
     """Plot all available field components in a multi-panel figure.
 
