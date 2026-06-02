@@ -1,6 +1,9 @@
 """Visualise electromagnetic field components (E1, E2, E3, B1, B2, B3)."""
 
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -260,7 +263,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.field SIM_PATH [ITERATION]"
         )
         sys.exit(1)
@@ -276,4 +279,4 @@ if __name__ == "__main__":
         x_unit="um", y_unit="um", time_unit="ps",
         output="field_e1.png",
     )
-    print("Done -- see field_e1.png")
+    logger.info("Done -- see field_e1.png")
