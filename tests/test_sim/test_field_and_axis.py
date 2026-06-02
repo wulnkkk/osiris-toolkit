@@ -27,6 +27,11 @@ class TestGridAxis:
         assert ax.index_to_value(0) == 0.0
         assert ax.index_to_value(1) == 1.0
 
+    def test_index_to_value_raises_without_npoints(self):
+        ax = GridAxis(min=0.0, max=10.0)
+        with pytest.raises(ValueError, match="npoints"):
+            ax.index_to_value(5.0)
+
     def test_npoints_default_zero(self):
         ax = GridAxis()
         assert ax.npoints == 0
@@ -56,6 +61,12 @@ class TestFieldOperators:
         result = f - 1.0
         np.testing.assert_array_equal(result.data, np.array([4.0, 2.0]))
 
+    def test_sub_field(self):
+        f1 = Field(data=np.array([5.0, 3.0]))
+        f2 = Field(data=np.array([1.0, 2.0]))
+        result = f1 - f2
+        np.testing.assert_array_equal(result.data, np.array([4.0, 1.0]))
+
     def test_mul_scalar(self):
         f = Field(data=np.array([1.0, 2.0]))
         result = f * 3.0
@@ -71,6 +82,12 @@ class TestFieldOperators:
         f = Field(data=np.array([6.0, 3.0]))
         result = f / 3.0
         np.testing.assert_array_equal(result.data, np.array([2.0, 1.0]))
+
+    def test_truediv_field(self):
+        f1 = Field(data=np.array([6.0, 8.0]))
+        f2 = Field(data=np.array([2.0, 4.0]))
+        result = f1 / f2
+        np.testing.assert_array_equal(result.data, np.array([3.0, 2.0]))
 
     def test_pow(self):
         f = Field(data=np.array([1.0, 2.0, 3.0]))
@@ -118,6 +135,13 @@ class TestFieldOperators:
         assert len(result.axes) == 1
         assert result.axes[0].name == "x1"
 
+    def test_copy_meta_does_not_share_axes(self):
+        ax = GridAxis(name="x1", min=0.0, max=1.0, npoints=2)
+        f1 = Field(data=np.array([1.0, 2.0]), axes=[ax])
+        f2 = f1 + 1.0
+        f2.axes[0].name = "modified"
+        assert f1.axes[0].name == "x1"  # unchanged
+
 
 class TestFieldProperties:
     def test_ndim(self):
@@ -131,9 +155,19 @@ class TestFieldProperties:
         f = Field(data=np.array([1.0, 2.0, 3.0]))
         assert f.mean() == 2.0
 
+    def test_mean_with_axis(self):
+        f = Field(data=np.array([[1.0, 2.0], [3.0, 4.0]]))
+        result = f.mean(axis=0)
+        np.testing.assert_array_equal(result, np.array([2.0, 3.0]))
+
     def test_std(self):
         f = Field(data=np.array([1.0, 1.0, 1.0]))
         assert f.std() == 0.0
+
+    def test_std_with_axis(self):
+        f = Field(data=np.array([[1.0, 2.0], [3.0, 4.0]]))
+        result = f.std(axis=0)
+        np.testing.assert_array_equal(result, np.array([1.0, 1.0]))
 
 
 class TestFieldGetitem:
@@ -153,6 +187,20 @@ class TestFieldGetitem:
         f = Field(data=np.arange(9.0).reshape(3, 3))
         result = f[5:10, 5:10]
         assert result.data.size == 0
+
+    def test_empty_slice_preserves_field_type(self):
+        f = Field(data=np.arange(9.0).reshape(3, 3))
+        result = f[5:10, 5:10]
+        assert isinstance(result, Field)
+
+    def test_mixed_scalar_slice_getitem(self):
+        f = Field(data=np.arange(12.0).reshape(3, 4),
+                  axes=[GridAxis(name="x1", min=0, max=2, npoints=3),
+                        GridAxis(name="x2", min=0, max=3, npoints=4)])
+        result = f[0, 1:3]
+        assert isinstance(result, Field)
+        assert result.data.ndim == 1
+        np.testing.assert_array_equal(result.data, np.array([1.0, 2.0]))
 
 
 class TestBackwardCompatibility:

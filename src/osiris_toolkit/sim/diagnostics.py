@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -88,7 +89,7 @@ class Field:
         """Return a new Field with the same metadata but different data."""
         return Field(
             data=data,
-            axes=self.axes,
+            axes=copy.deepcopy(self.axes),
             iteration=self.iteration,
             time=self.time,
             label=self.label,
@@ -166,25 +167,40 @@ class Field:
             key = (key,)
 
         new_axes: list[GridAxis] = []
+        # Track which dimension of sliced_data corresponds to which original axis
+        sliced_dim = 0
         for i, k in enumerate(key):
-            if i < len(self.axes) and isinstance(k, slice):
+            if i >= len(self.axes):
+                break
+            if isinstance(k, slice):
+                # This axis is preserved in sliced_data
                 ax = self.axes[i]
+                # Clamp slice bounds to valid axis range
+                npoints_ax = ax.npoints if ax.npoints > 0 else self.data.shape[i]
                 start = k.start if k.start is not None else 0
-                stop_val = k.stop if k.stop is not None else (
-                    ax.npoints if ax.npoints > 0 else sliced_data.shape[i]
-                )
-                new_npoints = sliced_data.shape[i]
-                new_min = ax.index_to_value(float(start)) if ax.npoints > 0 else float(start)
-                stop_idx = min(stop_val - 1, max(0.0, float(ax.npoints - 1))) if ax.npoints > 0 else stop_val - 1
-                new_max = ax.index_to_value(stop_idx) if ax.npoints > 0 else stop_idx
+                stop_val = k.stop if k.stop is not None else npoints_ax
+                # Clamp to valid range
+                start = max(0, min(start, npoints_ax))
+                stop_val = max(0, min(stop_val, npoints_ax))
+
+                new_npoints = sliced_data.shape[sliced_dim] if sliced_dim < sliced_data.ndim else 0
+
+                if new_npoints > 0 and ax.npoints > 0:
+                    new_min = ax.index_to_value(float(start))
+                    end_idx = float(max(start, stop_val - 1))
+                    new_max = ax.index_to_value(end_idx)
+                else:
+                    new_min = float(start) if ax.npoints <= 0 else ax.min
+                    new_max = float(stop_val) if ax.npoints <= 0 else ax.max
+
                 new_axes.append(GridAxis(
                     name=ax.name, type=ax.type,
                     min=new_min, max=new_max,
                     label=ax.label, units=ax.units,
                     npoints=new_npoints,
                 ))
-            elif i < len(self.axes):
-                pass  # scalar index removes this axis
+                sliced_dim += 1
+            # scalar index: axis is removed (skip)
 
         return Field(
             data=sliced_data,
@@ -209,13 +225,15 @@ class Field:
 
     # --- Convenience ---
 
-    def mean(self, **kwargs: Any) -> float:
+    def mean(self, **kwargs: Any) -> float | np.ndarray:
         """Mean of the data array."""
-        return float(self.data.mean(**kwargs))
+        result = self.data.mean(**kwargs)
+        return float(result) if result.ndim == 0 else result
 
-    def std(self, **kwargs: Any) -> float:
+    def std(self, **kwargs: Any) -> float | np.ndarray:
         """Standard deviation of the data array."""
-        return float(self.data.std(**kwargs))
+        result = self.data.std(**kwargs)
+        return float(result) if result.ndim == 0 else result
 
 
 # Backward compatibility alias
