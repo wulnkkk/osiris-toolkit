@@ -138,7 +138,7 @@ def plot_field(
         _vmax = converter.convert(vmax, qtype, value_unit)
 
     im = ax.imshow(
-        display_val.T if data.ndim == 2 else display_val.reshape(-1, 1),
+        display_val if data.ndim == 2 else display_val.reshape(-1, 1),
         origin="lower",
         aspect="auto",
         extent=extent,
@@ -263,7 +263,7 @@ def plot_all_fields(
                 else None
             )
         im = ax.imshow(
-            data.T, origin="lower", aspect="auto", extent=extent, cmap="RdBu_r"
+            data, origin="lower", aspect="auto", extent=extent, cmap="RdBu_r"
         )
         fig.colorbar(im, ax=ax)
         if converter is not None:
