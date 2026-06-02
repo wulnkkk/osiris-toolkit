@@ -38,10 +38,12 @@ All scripts use `<>` angle-bracket placeholders. Replace these before submitting
 
 | Placeholder | Meaning | Example |
 |-------------|---------|---------|
-| `<conda_env>` | Conda environment name | `osiris-toolkit` |
-| `<PROJECT_ROOT>` | Absolute path to osiris-toolkit/ | `/home/zty/pic-in-osiris/osiris-toolkit` |
+| `<conda_env>` | Conda environment name | `osiris-env` |
+| `<PROJECT_ROOT>` | Absolute path to osiris-toolkit/ | `/home/user/osiris-toolkit` |
 | `<SIM_DATA_DIR>` | Path to existing OSIRIS simulation output | `/scratch/sim-output/my-run/` |
 | `<partition>` | SLURM partition name | `compute` |
+| `<mpi_module>` | MPI module to load | `mpi/intelmpi/2021.1` |
+| `<slurm_user>` | SLURM user account name | `your_username` |
 
 ## Execution Order
 

@@ -15,9 +15,9 @@ from osiris_toolkit.resource import estimate_resources
 # Fill in paths to your completed OSIRIS simulation directories.
 # Each must contain an input deck (.in file).
 SIM_DIRS: list[str] = [
-    "<SIM_DATA_DIR>",
-    "<SIM_DATA_DIR>",
-    "<SIM_DATA_DIR>",
+    "<SIM_DIR_1>",
+    "<SIM_DIR_2>",
+    "<SIM_DIR_3>",
 ]
 
 # ── helpers ──

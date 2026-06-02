@@ -6,12 +6,12 @@ analysis/visualisation using mpi4py.
 ## Requirements
 
 - At least 2 compute nodes
-- Intel MPI (`module load <mpi_module_intel>`) or OpenMPI (`module load <mpi_module_openmpi>`)
+- Intel MPI or OpenMPI module available
 - mpi4py installed in the Conda environment
 
 ## How to Run
 
-1. Replace `<conda_env>`, `<PROJECT_ROOT>`, `<SIM_DATA_DIR>`, `<partition>`
+1. Replace `<conda_env>`, `<PROJECT_ROOT>`, `<SIM_DATA_DIR>`, `<partition>`, `<mpi_module>`
    in the submit script.
 2. Submit:
 

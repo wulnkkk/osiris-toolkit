@@ -1,7 +1,7 @@
 pipeline:
   - deck_parse:
-      path: "<SIM_DATA_DIR>/2d.in"
+      path: "<SIM_DIR>/input.in"
   - sim_load:
-      path: "<SIM_DATA_DIR>/"
+      path: "<SIM_DIR>/"
   - analyze:
       quantities: ["e1", "e2"]

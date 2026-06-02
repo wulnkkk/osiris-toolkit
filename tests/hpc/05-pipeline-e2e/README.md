@@ -10,7 +10,7 @@ on the cluster (network filesystem paths, minimal environment).
 
 ## How to Run
 
-1. Replace `<conda_env>`, `<PROJECT_ROOT>`, `<SIM_DATA_DIR>`, `<partition>`
+1. Replace `<conda_env>`, `<PROJECT_ROOT>`, `<partition>`
    in `submit.sh`.
 2. Edit `pipeline_test.yaml` and replace `<SIM_DIR>` with the simulation
    directory path.

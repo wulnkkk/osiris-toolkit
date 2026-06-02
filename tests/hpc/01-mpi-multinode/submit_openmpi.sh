@@ -7,7 +7,7 @@
 #SBATCH --output=slurm-%j.out
 #SBATCH --error=slurm-%j.err
 
-module load <mpi_module_openmpi>
+module load <mpi_module>
 
 source ~/miniconda3/etc/profile.d/conda.sh && conda activate <conda_env>
 cd <PROJECT_ROOT>
