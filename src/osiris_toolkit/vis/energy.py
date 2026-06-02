@@ -77,7 +77,7 @@ def plot_spectrum(
 
     fig, ax = plt.subplots(figsize=(10, 8))
     im = ax.imshow(
-        spectrum.T,
+        spectrum,
         origin="lower",
         aspect="auto",
         extent=[
@@ -120,7 +120,7 @@ def plot_poynting(
     data = {"s1": result.s1, "s2": result.s2, "s3": result.s3}[component]
 
     fig, ax = plt.subplots(figsize=(10, 8))
-    im = ax.imshow(data.T, origin="lower", aspect="auto", cmap=cmap)
+    im = ax.imshow(data, origin="lower", aspect="auto", cmap=cmap)
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label("Poynting flux (norm.)")
     ax.set_title(f"Poynting {component.upper()}  |  iteration={result.iteration}")
