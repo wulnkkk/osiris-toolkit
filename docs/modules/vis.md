@@ -29,6 +29,10 @@ VisEngine(sim, converter)
 | `composite.py` | `plot_composite()` — multi-panel overview |
 | `batch.py` | `process_simulation()` — batch all plots for all iterations (sequential) |
 | `parallel.py` | `batch_process_parallel()` — parallel batch via ProcessPoolExecutor |
+| `colormap.py` | `symmetrical_colormap()`, `register_cmaps()` — symmetric diverging colormaps (v0.8.0) |
+| `energy_summary.py` | `plot_energy_timeseries()`, `plot_spectrum_colormap()`, `plot_poynting_vector()` (v0.8.0) |
+| `comparison.py` | `plot_difference()`, `plot_overlay()` — field comparison plots (v0.8.0) |
+| `animation.py` | `animate_field()` — GIF/MP4 time-evolution animation (v0.8.0) |
 | `__init__.py` | `VisEngine` unified entry |
 
 ## Usage
@@ -136,3 +140,40 @@ osiris-toolkit vis batch ...             # WARNING (default)
 
 `batch_process_parallel()` now creates the `Simulation` once in the parent process and
 picles it to workers, eliminating redundant directory discovery per worker.
+
+## Field Float-Index Bilinear Interpolation (v0.8.0)
+
+`Field.__getitem__` supports float indices for bilinear interpolation:
+
+```python
+field = sim.get_field("e1", 44100)
+val = field[2000.5, 1800.3]      # float → bilinear at cell center
+line = field[:, 1800.5]            # mixed slice + float → 1D Field
+```
+
+## Comparison & Overlay Plots (v0.8.0)
+
+```python
+from osiris_toolkit.vis.comparison import plot_difference, plot_overlay
+
+plot_difference("e1", iter_a=0, iter_b=44100, sim=sim)
+plot_overlay(["e1", "b3"], iteration=44100, sim=sim, alpha=0.5)
+```
+
+## Animation (v0.8.0)
+
+```python
+from osiris_toolkit.vis.animation import animate_field
+
+animate_field("e1", sim=sim, output="evolution.gif", fps=10)
+```
+
+## Symmetric Colormaps (v0.8.0)
+
+```python
+from osiris_toolkit.vis.colormap import symmetrical_colormap, register_cmaps
+
+register_cmaps()
+plot_field("e1", 0, sim=sim, cmap="EField")
+plot_field("b3", 0, sim=sim, cmap="BField")
+```

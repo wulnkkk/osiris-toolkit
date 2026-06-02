@@ -10,6 +10,7 @@ Functions in this layer are reusable building blocks for `analysis/` and `vis/`.
 | `fft.py` | `compute_k_space()`, `spectral_power()` — 2-D FFT k-space transforms |
 | `integrate.py` | `mask_energy()`, `trapz_2d()`, `line_integrate()` — numerical integration |
 | `deposit.py` | `particles_to_grid()` — particle→grid deposition (NEW in v0.7.0) |
+| `transform.py` | `remap_field()`, `to_cylindrical()` — coordinate transforms (NEW in v0.8.0) |
 
 ## FFT
 
@@ -67,3 +68,17 @@ Returns a `Field` with deposited grid data.
 | `spline3` | 3 | 4 | Cubic B-spline — smoothest, most expensive |
 
 Numba acceleration: install `numba` as an optional dependency and set `use_numba=True` for JIT-compiled deposition kernels.
+
+## Coordinate Transforms (NEW in v0.8.0)
+
+```python
+from osiris_toolkit.compute import remap_field, to_cylindrical
+
+# Generic 2-D field remap to arbitrary axes
+remapped = remap_field(field, (r_axis, theta_axis), interpolation="bilinear")
+
+# Cartesian → polar convenience
+polar = to_cylindrical(field, nr=512, ntheta=360)
+```
+
+`remap_field` supports `"nearest"` and `"bilinear"` interpolation. `to_cylindrical` auto-computes the grid center as origin and the corner radius as `r_max` if not specified.
