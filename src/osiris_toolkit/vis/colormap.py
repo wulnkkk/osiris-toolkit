@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
+
+_CMAP_START = 0.3
 
 
 def symmetrical_colormap(
@@ -29,14 +33,24 @@ def symmetrical_colormap(
     -------
     LinearSegmentedColormap
     """
+    if n_colors <= 0:
+        raise ValueError(f"n_colors must be positive, got {n_colors}")
+
+    if n_colors < 4 and white_center:
+        warnings.warn(
+            f"n_colors={n_colors} with white_center=True — the returned colormap "
+            f"will have more colors than requested due to the white band",
+            stacklevel=2,
+        )
+
     import matplotlib.pyplot as plt
 
     half = n_colors // 2
     if white_center:
         half = max(1, half - 1)
 
-    pos = plt.colormaps[positive_cmap](np.linspace(0.3, 1.0, half))
-    neg = plt.colormaps[negative_cmap](np.linspace(1.0, 0.3, half))
+    pos = plt.colormaps[positive_cmap](np.linspace(_CMAP_START, 1.0, half))
+    neg = plt.colormaps[negative_cmap](np.linspace(1.0, _CMAP_START, half))
 
     if white_center:
         white = np.array([[1.0, 1.0, 1.0, 1.0]])
