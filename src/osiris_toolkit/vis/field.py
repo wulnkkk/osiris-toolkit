@@ -97,6 +97,27 @@ def plot_field(
     else:
         extent = None
 
+    # --- 1D data: line plot ---
+    if data.ndim == 1:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        if len(grid.axes) >= 1 and grid.axes[0].npoints > 0:
+            x_coord = np.linspace(grid.axes[0].min, grid.axes[0].max, len(display_val))
+        else:
+            x_coord = np.arange(len(display_val))
+
+        ax.plot(x_coord, display_val, linewidth=2, color="steelblue")
+        ax.grid(True, alpha=0.3)
+        if converter is not None:
+            ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
+            ax.set_ylabel(converter.get_label(qtype, value_unit))
+        else:
+            ax.set_xlabel(f"x1 [{grid.axes[0].units}]" if grid.axes and grid.axes[0].units else "x1")
+            ax.set_ylabel(f"{grid.label} [{grid.units}]" if grid.units else grid.label)
+        ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
+        save_or_show(fig, output)
+        return Path(output) if output else None
+
+    # --- 2D+ data: imshow ---
     fig, ax = plt.subplots(figsize=(10, 8))
 
     if log_scale and data.ndim == 2:
@@ -152,21 +173,25 @@ def plot_field(
             )
 
     # Title with time
-    if converter is not None:
-        t_disp = converter.convert(grid.time, "time", time_unit)
-        t_label = converter.get_label("time", time_unit)
-        ax.set_title(
-            f"{quantity.upper()}  |  iteration={iteration}"
-            f"  |  t={t_disp:.1f} {t_label}"
-        )
-    else:
-        ax.set_title(
-            f"{quantity.upper()}  |  iteration={iteration}"
-            f"  |  t={grid.time:.1f}"
-        )
+    ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
 
     save_or_show(fig, output)
     return Path(output) if output else None
+
+
+def _make_title(grid, quantity, iteration, converter, time_unit):
+    """Build a plot title with quantity, iteration, and time."""
+    if converter is not None:
+        t_disp = converter.convert(grid.time, "time", time_unit)
+        t_label = converter.get_label("time", time_unit)
+        return (
+            f"{quantity.upper()}  |  iteration={iteration}"
+            f"  |  t={t_disp:.1f} {t_label}"
+        )
+    return (
+        f"{quantity.upper()}  |  iteration={iteration}"
+        f"  |  t={grid.time:.1f}"
+    )
 
 
 def plot_all_fields(
