@@ -114,7 +114,7 @@ def plot_density(
         value_unit = "norm"
 
     im = ax.imshow(
-        display_data.T,
+        display_data,
         origin="lower",
         aspect="auto",
         extent=extent,
