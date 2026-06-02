@@ -21,8 +21,8 @@ VisEngine(sim, converter)
 | File | Role |
 |------|------|
 | `common.py` | `load_sim()`, `safe_log_norm()`, `save_or_show()` |
-| `field.py` | `plot_field()`, `plot_all_fields()` — 2D colormap |
-| `density.py` | `plot_density()` — log/linear, `plasma` colormap |
+| `field.py` | `plot_field()`, `plot_all_fields()` — 2D colormap + 1D line plots |
+| `density.py` | `plot_density()` — log/linear, `plasma` colormap + 1D support |
 | `phasespace.py` | `plot_phasespace()` — momentum-space distribution |
 | `kspace.py` | `compute_k_space()`, `plot_k_space()` — FFT spectrum with white-fade colormap |
 | `scattering.py` | `analyze_scattering()`, `plot_scattering_fraction()` — k-region energy analysis |
@@ -98,3 +98,41 @@ osiris-toolkit vis batch -o ./output -j 8 /data/sim MySim
 - **Agent-friendly**: `vis.plot("EMF", quantity="e1", iteration=50)` works for programmatic use.
 - **Parallel-ready**: `process_simulation()` accepts `max_workers`; when > 0, delegates to the
   parallel implementation. Workers are module-level functions (Windows `spawn` compatible).
+
+## 1D Data Rendering (v0.7.0)
+
+`plot_field()` and `plot_density()` detect 1-D data (e.g., lineouts, slab-averaged diagnostics)
+and render a line plot via `ax.plot()` instead of `ax.imshow()`:
+
+```python
+# 1D simulation output → automatic line plot
+plot_field("e1", iteration=0, sim=sim)
+```
+
+## Overwrite Protection (v0.7.0)
+
+All plot functions accept `overwrite=False` (default). When `False`, `save_or_show()` raises
+`FileExistsError` if the output file already exists:
+
+```python
+plot_field("e1", 0, sim=sim, output="out.png")            # raises if exists
+plot_field("e1", 0, sim=sim, output="out.png", overwrite=True)  # overwrites
+```
+
+CLI: `--overwrite` flag on `vis plot` and `vis batch`.
+
+## Logging (v0.7.0)
+
+Library code uses Python's `logging` module. Output goes to `stderr`.
+CLI verbose/quiet flags control the level:
+
+```bash
+osiris-toolkit --verbose vis batch ...   # DEBUG
+osiris-toolkit --quiet vis batch ...     # ERROR only
+osiris-toolkit vis batch ...             # WARNING (default)
+```
+
+## Parallel Performance (v0.7.0)
+
+`batch_process_parallel()` now creates the `Simulation` once in the parent process and
+picles it to workers, eliminating redundant directory discovery per worker.
