@@ -4,6 +4,7 @@ import pytest
 
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.sim.diagnostics import GridData
+from osiris_toolkit.sim.simulation import _FieldEntry, _REPORT_SUFFIXES, _parse_quantity
 
 
 class TestSimulationInit:
@@ -102,3 +103,44 @@ class TestGetDensity:
         sim = Simulation(tmp_sim_dir_density)
         grid = sim.get_density("electrons", "charge", iteration=999)
         assert grid is None
+
+
+class TestReportModifiers:
+    def test_parse_quantity_no_modifier(self):
+        assert _parse_quantity("e1") == ("e1", "")
+
+    def test_parse_quantity_savg(self):
+        assert _parse_quantity("e1_savg") == ("e1", "savg")
+
+    def test_parse_quantity_senv(self):
+        assert _parse_quantity("b3_senv") == ("b3", "senv")
+
+    def test_parse_quantity_line(self):
+        assert _parse_quantity("e2_line") == ("e2", "line")
+
+    def test_parse_quantity_slice(self):
+        assert _parse_quantity("density_slice") == ("density", "slice")
+
+    def test_parse_quantity_tavg(self):
+        assert _parse_quantity("e1_tavg") == ("e1", "tavg")
+
+    def test_field_entry_has_report_type(self):
+        from pathlib import Path
+        entry = _FieldEntry(
+            quantity="e1", label="", iteration=0,
+            path=Path("/tmp/test.zdf"), report_type="savg",
+        )
+        assert entry.report_type == "savg"
+
+    def test_field_entry_report_type_default(self):
+        from pathlib import Path
+        entry = _FieldEntry(
+            quantity="e1", label="", iteration=0,
+            path=Path("/tmp/test.zdf"),
+        )
+        assert entry.report_type == ""
+
+    def test_list_iterations_filters_report_type(self, tmp_sim_dir):
+        sim = Simulation(tmp_sim_dir)
+        iters = sim.list_iterations("e1")
+        assert len(iters) == 3  # all are plain (no modifier)

@@ -42,6 +42,39 @@ def _parse_iter_file(filename: str) -> tuple[str, int]:
     return m.group(1), int(m.group(2))
 
 
+# Known OSIRIS report type suffixes (detected from filename)
+_REPORT_SUFFIXES = {
+    "_savg": "savg",
+    "_senv": "senv",
+    "_line": "line",
+    "_slice": "slice",
+    "_tavg": "tavg",
+}
+
+
+def _parse_quantity(raw: str) -> tuple[str, str]:
+    """Parse a raw quantity string into (base_quantity, report_type).
+
+    OSIRIS report modifiers appear as suffixes on quantity names in
+    ZDF filenames (e.g. ``e1_savg-000100.zdf``).
+
+    Parameters
+    ----------
+    raw : str
+        Raw quantity string from filename parsing.
+
+    Returns
+    -------
+    tuple[str, str]
+        (base_quantity, report_type). report_type is "" if no modifier.
+    """
+    raw_lower = raw.lower()
+    for suffix, rtype in _REPORT_SUFFIXES.items():
+        if raw_lower.endswith(suffix):
+            return raw[:-len(suffix)], rtype
+    return raw, ""
+
+
 # ---------------------------------------------------------------------------
 # History file parser
 # ---------------------------------------------------------------------------
@@ -163,6 +196,7 @@ class _FieldEntry:
     label: str
     iteration: int
     path: Path
+    report_type: str = ""
 
 
 @dataclass
@@ -333,7 +367,8 @@ class Simulation:
         return result
 
     def _discover_fld(self, fld_dir: Path) -> None:
-        for quantity, zdf_file in self._zdf_files_with_quant(fld_dir):
+        for raw_quantity, zdf_file in self._zdf_files_with_quant(fld_dir):
+            quantity, report_type = _parse_quantity(raw_quantity)
             _, iteration = _parse_iter_file(zdf_file.name)
             self._fields.setdefault(quantity, []).append(
                 _FieldEntry(
@@ -341,11 +376,13 @@ class Simulation:
                     label="",
                     iteration=iteration,
                     path=zdf_file,
+                    report_type=report_type,
                 )
             )
 
     def _discover_chargecons(self, cc_dir: Path) -> None:
-        for quantity, zdf_file in self._zdf_files_with_quant(cc_dir):
+        for raw_quantity, zdf_file in self._zdf_files_with_quant(cc_dir):
+            quantity, report_type = _parse_quantity(raw_quantity)
             _, iteration = _parse_iter_file(zdf_file.name)
             self._chargecons.append(
                 _FieldEntry(
@@ -353,6 +390,7 @@ class Simulation:
                     label="",
                     iteration=iteration,
                     path=zdf_file,
+                    report_type=report_type,
                 )
             )
 
@@ -364,7 +402,8 @@ class Simulation:
                 continue
             species = sp_dir.name
             sp_entries: dict[str, list[_FieldEntry]] = {}
-            for quantity, zdf_file in self._zdf_files_with_quant(sp_dir):
+            for raw_quantity, zdf_file in self._zdf_files_with_quant(sp_dir):
+                quantity, report_type = _parse_quantity(raw_quantity)
                 _, iteration = _parse_iter_file(zdf_file.name)
                 sp_entries.setdefault(quantity, []).append(
                     _FieldEntry(
@@ -372,6 +411,7 @@ class Simulation:
                         label=species,
                         iteration=iteration,
                         path=zdf_file,
+                        report_type=report_type,
                     )
                 )
             target[species] = sp_entries
@@ -477,9 +517,29 @@ class Simulation:
         """Return available TIMINGS file names."""
         return sorted([p.name for p in self._timings])
 
-    def list_iterations(self, quantity: str) -> list[int]:
-        """Return available iteration numbers for a given field quantity."""
+    def list_iterations(
+        self, quantity: str, report_type: str | None = None
+    ) -> list[int]:
+        """Return available iteration numbers for a given field quantity.
+
+        Parameters
+        ----------
+        quantity : str
+            Field quantity name.
+        report_type : str or None, optional
+            Report modifier to filter by. If ``None`` (default), returns
+            only plain entries (no modifier). Set to a specific modifier
+            string (e.g. ``"savg"``) to filter.
+
+        Returns
+        -------
+        list[int]
+        """
         entries = self._fields.get(quantity, [])
+        if report_type is None:
+            entries = [e for e in entries if e.report_type == ""]
+        else:
+            entries = [e for e in entries if e.report_type == report_type]
         return [e.iteration for e in entries]
 
     @property
@@ -502,45 +562,139 @@ class Simulation:
     # Data accessors
     # ------------------------------------------------------------------
 
-    def get_field(self, quantity: str, iteration: int) -> GridData | None:
-        """Read field diagnostic for given quantity and iteration."""
+    def get_field(
+        self, quantity: str, iteration: int, report_type: str | None = None
+    ) -> GridData | None:
+        """Read field diagnostic for given quantity and iteration.
+
+        Parameters
+        ----------
+        quantity : str
+            Field quantity name.
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by. If ``None`` (default), returns
+            only plain entries (no modifier). Set to a specific modifier
+            string (e.g. ``"savg"``) to filter.
+
+        Returns
+        -------
+        GridData or None
+        """
         entries = self._fields.get(quantity, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
     def get_density(
-        self, species: str, quantity: str, iteration: int
+        self,
+        species: str,
+        quantity: str,
+        iteration: int,
+        report_type: str | None = None,
     ) -> GridData | None:
-        """Read density diagnostic for given species, quantity, and iteration."""
+        """Read density diagnostic for given species, quantity, and iteration.
+
+        Parameters
+        ----------
+        species : str
+            Species name.
+        quantity : str
+            Quantity name.
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by.
+
+        Returns
+        -------
+        GridData or None
+        """
         sp = self._density.get(species, {})
         entries = sp.get(quantity, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
     def get_cell_avg(
-        self, species: str, quantity: str, iteration: int
+        self,
+        species: str,
+        quantity: str,
+        iteration: int,
+        report_type: str | None = None,
     ) -> GridData | None:
-        """Read cell-average diagnostic."""
+        """Read cell-average diagnostic.
+
+        Parameters
+        ----------
+        species : str
+            Species name.
+        quantity : str
+            Quantity name.
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by.
+
+        Returns
+        -------
+        GridData or None
+        """
         sp = self._cell_avg.get(species, {})
         entries = sp.get(quantity, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
     def get_udist(
-        self, species: str, quantity: str, iteration: int
+        self,
+        species: str,
+        quantity: str,
+        iteration: int,
+        report_type: str | None = None,
     ) -> GridData | None:
-        """Read u-distribution diagnostic."""
+        """Read u-distribution diagnostic.
+
+        Parameters
+        ----------
+        species : str
+            Species name.
+        quantity : str
+            Quantity name.
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by.
+
+        Returns
+        -------
+        GridData or None
+        """
         sp = self._udist.get(species, {})
         entries = sp.get(quantity, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
     def get_phasespace(
@@ -599,30 +753,92 @@ class Simulation:
             return "mixed"
         return "unknown"
 
-    def get_chargecons(self, iteration: int) -> GridData | None:
-        """Read charge conservation diagnostic."""
+    def get_chargecons(
+        self, iteration: int, report_type: str | None = None
+    ) -> GridData | None:
+        """Read charge conservation diagnostic.
+
+        Parameters
+        ----------
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by.
+
+        Returns
+        -------
+        GridData or None
+        """
         for e in self._chargecons:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
-    def get_wall(self, name: str, iteration: int) -> GridData | None:
-        """Read wall diagnostic by name and iteration."""
+    def get_wall(
+        self, name: str, iteration: int, report_type: str | None = None
+    ) -> GridData | None:
+        """Read wall diagnostic by name and iteration.
+
+        Parameters
+        ----------
+        name : str
+            Wall diagnostic name.
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by.
+
+        Returns
+        -------
+        GridData or None
+        """
         entries = self._wall.get(name, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
     def get_ion(
-        self, species: str, quantity: str, iteration: int
+        self,
+        species: str,
+        quantity: str,
+        iteration: int,
+        report_type: str | None = None,
     ) -> GridData | None:
-        """Read ionization diagnostic."""
+        """Read ionization diagnostic.
+
+        Parameters
+        ----------
+        species : str
+            Species name.
+        quantity : str
+            Quantity name.
+        iteration : int
+            Iteration number.
+        report_type : str or None, optional
+            Report modifier to filter by.
+
+        Returns
+        -------
+        GridData or None
+        """
         sp = self._ion.get(species, {})
         entries = sp.get(quantity, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_grid_zdf(e.path)
+                if report_type is None:
+                    if e.report_type == "":
+                        return self._read_grid_zdf(e.path)
+                elif e.report_type == report_type:
+                    return self._read_grid_zdf(e.path)
         return None
 
     # ------------------------------------------------------------------
