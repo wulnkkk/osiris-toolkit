@@ -87,7 +87,10 @@ def format_report(report: EstimationReport) -> str:
     lines.append(f"  Diagnostic buffers:     {_fmt_size(m.diag_buf_mb)}")
     lines.append(f"  TOTAL (per node):       {_fmt_size(m.total_mb)} ({m.total_gb:.2f} GB)")
     if m.total_gb > 0:
-        lines.append(f"  TOTAL (all nodes):      ~{_fmt_size(m.total_mb * p.total_nodes)} ({m.total_gb * p.total_nodes:.1f} GB)")
+        lines.append(
+            f"  TOTAL (all nodes):      ~{_fmt_size(m.total_mb * p.total_nodes)}"
+            f" ({m.total_gb * p.total_nodes:.1f} GB)"
+        )
     if m.notes:
         for n in m.notes:
             lines.append(f"  [i] {n}")
@@ -112,15 +115,24 @@ def format_report(report: EstimationReport) -> str:
     lines.append("")
     lines.append("--- Disk Space ---")
     if d.emf_n_dumps > 0:
-        lines.append(f"  EMF dumps:             {_fmt_size(d.emf_dump_mb)} x{d.emf_n_dumps:,} = {d.emf_total_gb:.2f} GB")
+        lines.append(
+            f"  EMF dumps:             {_fmt_size(d.emf_dump_mb)}"
+            f" x{d.emf_n_dumps:,} = {d.emf_total_gb:.2f} GB"
+        )
     else:
         lines.append("  EMF dumps:             disabled")
     if d.raw_n_dumps > 0:
-        lines.append(f"  Raw particle dumps:    {_fmt_size(d.raw_dump_mb)} x{d.raw_n_dumps:,} = {d.raw_total_gb:.2f} GB")
+        lines.append(
+            f"  Raw particle dumps:    {_fmt_size(d.raw_dump_mb)}"
+            f" x{d.raw_n_dumps:,} = {d.raw_total_gb:.2f} GB"
+        )
     else:
         lines.append("  Raw particle dumps:    disabled")
     if d.restart_n_dumps > 0:
-        lines.append(f"  Restart dumps:         {_fmt_size(d.restart_dump_mb)} x{d.restart_n_dumps:,} = {d.restart_total_gb:.2f} GB")
+        lines.append(
+            f"  Restart dumps:         {_fmt_size(d.restart_dump_mb)}"
+            f" x{d.restart_n_dumps:,} = {d.restart_total_gb:.2f} GB"
+        )
     else:
         lines.append("  Restart dumps:         disabled")
     lines.append(f"  TOTAL output:           {d.total_gb:.2f} GB")

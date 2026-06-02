@@ -9,8 +9,6 @@ import logging
 import warnings
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -19,6 +17,8 @@ from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_MASKS = {
     "incident": {

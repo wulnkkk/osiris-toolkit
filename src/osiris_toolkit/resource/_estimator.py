@@ -112,7 +112,12 @@ class ResourceEstimator:
             n_cells_node = ngrid // nodes
             cells_per_dim = []
             for i in range(ndim):
-                cells_per_dim.append(max(1, params.nx_p[i] // params.node_number[i] if i < len(params.node_number) else params.nx_p[i]))
+                n_cells = (
+                    params.nx_p[i] // params.node_number[i]
+                    if i < len(params.node_number)
+                    else params.nx_p[i]
+                )
+                cells_per_dim.append(max(1, n_cells))
         else:
             n_cells_node = ngrid
             cells_per_dim = list(params.nx_p)
@@ -194,7 +199,7 @@ class ResourceEstimator:
         ngrid = params.ngrid_total
         total_parts = params.total_particles
         cores = params.total_nodes * params.n_threads
-        ndim = params.ndim
+        _ndim = params.ndim  # reserved for future use
 
         if cores == 0:
             cores = 1

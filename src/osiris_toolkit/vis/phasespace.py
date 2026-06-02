@@ -3,14 +3,14 @@
 import logging
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import matplotlib.pyplot as plt
 
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, safe_log_norm, save_or_show
+
+logger = logging.getLogger(__name__)
 
 
 def plot_phasespace(
