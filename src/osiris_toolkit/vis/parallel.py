@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 # ── Worker functions (module-level, pickle-safe) ──────────────────────
 
 def _worker_plot_field(
-    sim_path: str,
+    sim: Simulation,
     iteration: int,
     quantity: str,
     output: str,
@@ -45,7 +45,6 @@ def _worker_plot_field(
     from osiris_toolkit.vis.field import plot_field
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
-    sim = Simulation(sim_path)
     plot_field(
         quantity=quantity, iteration=iteration, sim=sim,
         converter=converter, x_unit=x_unit, y_unit=y_unit,
@@ -55,7 +54,7 @@ def _worker_plot_field(
 
 
 def _worker_plot_k_space(
-    sim_path: str,
+    sim: Simulation,
     iteration: int,
     quantity: str,
     output: str,
@@ -69,7 +68,6 @@ def _worker_plot_k_space(
     from osiris_toolkit.vis.kspace import plot_k_space
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
-    sim = Simulation(sim_path)
     plot_k_space(
         quantity=quantity, iteration=iteration, sim=sim,
         converter=converter, time_unit=time_unit, output=output,
@@ -78,7 +76,7 @@ def _worker_plot_k_space(
 
 
 def _worker_plot_density(
-    sim_path: str,
+    sim: Simulation,
     iteration: int,
     species: str,
     output: str,
@@ -95,7 +93,6 @@ def _worker_plot_density(
     from osiris_toolkit.vis.density import plot_density
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
-    sim = Simulation(sim_path)
     plot_density(
         species=species, iteration=iteration, sim=sim,
         converter=converter, x_unit=x_unit, y_unit=y_unit,
@@ -127,6 +124,8 @@ def batch_process_parallel(
         output_root = sim.output_root
     else:
         output_root = Path(output_root)
+
+    sim = Simulation(sim_path)  # discover ONCE, pickle to workers
 
     converter_omega_p0: float | None = None
     try:
@@ -187,7 +186,7 @@ def batch_process_parallel(
                 out = str(field_dir / f"{qty}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_field, sim_path, it, qty, out,
+                        _worker_plot_field, sim, it, qty, out,
                         **base_kwargs,
                     )
                 ] = f"field {qty} it={it}"
@@ -197,7 +196,7 @@ def batch_process_parallel(
                 out = str(kspace_dir / f"kspace_{qty}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_k_space, sim_path, it, qty, out,
+                        _worker_plot_k_space, sim, it, qty, out,
                         time_unit=time_unit,
                         converter_omega_p0=converter_omega_p0,
                     )

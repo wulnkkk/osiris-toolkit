@@ -19,11 +19,10 @@ from osiris_toolkit.sim import Simulation
 # ── Worker functions (module-level, pickle-safe) ──────────────────────
 
 def _worker_field_energy(
-    sim_path: str, iteration: int, quantity: str,
+    sim: Simulation, iteration: int, quantity: str,
 ) -> dict:
     """Worker: compute total field energy for one iteration."""
     limit_blas_threads(1)
-    sim = Simulation(sim_path)
     grid = sim.get_field(quantity, iteration)
     if grid is None:
         return {"iteration": iteration, "time": -1.0, "energy": float("nan")}
@@ -35,12 +34,11 @@ def _worker_field_energy(
 
 
 def _worker_describe(
-    sim_path: str, iteration: int, quantity: str,
+    sim: Simulation, iteration: int, quantity: str,
 ) -> dict:
     """Worker: compute describe() statistics for one iteration."""
     limit_blas_threads(1)
     import numpy as np
-    sim = Simulation(sim_path)
     grid = sim.get_field(quantity, iteration)
     if grid is None:
         return {"iteration": iteration, "error": "no data"}
@@ -78,7 +76,7 @@ def _run_analysis_parallel(
 
     with ProcessPoolExecutor(max_workers=max_workers, mp_context=ctx) as ex:
         futures = [
-            ex.submit(worker_fn, str(sim._path), it, **worker_kwargs)
+            ex.submit(worker_fn, sim, it, **worker_kwargs)
             for it in my_iters
         ]
         results = [f.result() for f in futures]
