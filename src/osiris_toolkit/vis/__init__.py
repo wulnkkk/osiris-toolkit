@@ -9,6 +9,7 @@ from pathlib import Path
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 from osiris_toolkit.vis.batch import process_simulation
+from osiris_toolkit.vis.colormap import register_cmaps, symmetrical_colormap
 from osiris_toolkit.vis.composite import plot_composite
 from osiris_toolkit.vis.density import plot_density
 from osiris_toolkit.vis.energy import plot_energy_timeline, plot_poynting, plot_spectrum
@@ -203,4 +204,6 @@ __all__ = [
     "plot_spectrum",
     "plot_poynting",
     "process_simulation",
+    "register_cmaps",
+    "symmetrical_colormap",
 ]
