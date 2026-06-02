@@ -292,3 +292,51 @@ class TimingsData:
     events: list[str] = field(default_factory=list)
     columns: list[str] = field(default_factory=list)
     data: dict[str, np.ndarray] = field(default_factory=dict)
+
+
+@dataclass
+class FieldInfo:
+    """Lightweight field metadata — no data array loaded.
+
+    Read via :meth:`Simulation.info_field`.
+    """
+
+    quantity: str = ""
+    iteration: int = 0
+    time: float = 0.0
+    label: str = ""
+    units: str = ""
+    ndim: int = 0
+    shape: tuple[int, ...] = ()
+    axes: list[GridAxis] = field(default_factory=list)
+    report_type: str = ""
+
+
+@dataclass
+class ParticleInfo:
+    """Lightweight particle metadata — no data arrays loaded.
+
+    Read via :meth:`Simulation.info_raw`.
+    """
+
+    species: str = ""
+    iteration: int = 0
+    time: float = 0.0
+    label: str = ""
+    nparts: int = 0
+    quants: list[str] = field(default_factory=list)
+
+
+@dataclass
+class TrackInfo:
+    """Lightweight track metadata — no data arrays loaded.
+
+    Read via :meth:`Simulation.info_tracks`.
+    """
+
+    name: str = ""
+    label: str = ""
+    ntracks: int = 0
+    ndump: int = 0
+    niter: int = 0
+    quants: list[str] = field(default_factory=list)

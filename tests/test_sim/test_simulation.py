@@ -144,3 +144,24 @@ class TestReportModifiers:
         sim = Simulation(tmp_sim_dir)
         iters = sim.list_iterations("e1")
         assert len(iters) == 3  # all are plain (no modifier)
+
+
+class TestInfoField:
+    def test_info_field_returns_metadata(self, tmp_sim_dir):
+        sim = Simulation(tmp_sim_dir)
+        info = sim.info_field("e1", 0)
+        assert info is not None
+        assert info.quantity == "e1"
+        assert info.iteration == 0
+        assert info.ndim == 2
+        assert info.shape == (8, 8)
+
+    def test_info_field_nonexistent_quantity(self, tmp_sim_dir):
+        sim = Simulation(tmp_sim_dir)
+        info = sim.info_field("nonexistent", 0)
+        assert info is None
+
+    def test_info_field_wrong_iteration(self, tmp_sim_dir):
+        sim = Simulation(tmp_sim_dir)
+        info = sim.info_field("e1", 99999)
+        assert info is None
