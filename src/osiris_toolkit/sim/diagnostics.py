@@ -252,6 +252,7 @@ class Field:
                 # current_dim stays — subsequent axes shift left
                 continue
             # Float index: bilinear interpolation along this axis
+            k = max(0.0, min(float(k), n - 1))
             i0 = int(np.floor(k))
             i1 = min(i0 + 1, n - 1)
             w1 = k - i0

@@ -270,3 +270,13 @@ class TestFieldFloatIndexing:
         result = grid_32x32[:, 15.5]
         assert result.ndim == 1
         assert result.data.shape[0] == 32
+
+    def test_negative_float_clamped(self, grid_2d):
+        """Negative float index is clamped to 0."""
+        result = grid_2d[-0.5, 0.0]
+        assert abs(float(result) - 1.0) < 1e-10
+
+    def test_above_range_float_clamped(self, grid_2d):
+        """Float index beyond range is clamped to max."""
+        result = grid_2d[1.8, 0.0]
+        assert abs(float(result) - 3.0) < 1e-10
