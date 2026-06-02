@@ -100,7 +100,7 @@ def plot_phasespace(
         extent = None
 
     im = ax.imshow(
-        data.T,
+        data,
         origin="lower",
         aspect="auto",
         extent=extent,
