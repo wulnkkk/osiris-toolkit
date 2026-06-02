@@ -116,7 +116,7 @@ def plot_composite(
                     else None
                 )
             im = ax.imshow(
-                data.T,
+                data,
                 origin="lower",
                 aspect="auto",
                 extent=extent,
@@ -162,7 +162,7 @@ def plot_composite(
                 else None
             )
         im = ax.imshow(
-            data.T,
+            data,
             origin="lower",
             aspect="auto",
             extent=extent,
@@ -219,7 +219,7 @@ def plot_composite(
             else:
                 extent = None
             im = ax.imshow(
-                data.T,
+                data,
                 origin="lower",
                 aspect="auto",
                 extent=extent,
