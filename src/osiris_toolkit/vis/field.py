@@ -1,6 +1,9 @@
 """Visualise electromagnetic field components (E1, E2, E3, B1, B2, B3)."""
 
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,6 +31,7 @@ def plot_field(
     vmax: float | None = None,
     cmap: str = "RdBu_r",
     output: str | Path | None = None,
+    overwrite: bool = False,
 ) -> Path | None:
     """Plot a 2-D field component at a given iteration.
 
@@ -94,6 +98,27 @@ def plot_field(
     else:
         extent = None
 
+    # --- 1D data: line plot ---
+    if data.ndim == 1:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        if len(grid.axes) >= 1 and grid.axes[0].npoints > 0:
+            x_coord = np.linspace(grid.axes[0].min, grid.axes[0].max, len(display_val))
+        else:
+            x_coord = np.arange(len(display_val))
+
+        ax.plot(x_coord, display_val, linewidth=2, color="steelblue")
+        ax.grid(True, alpha=0.3)
+        if converter is not None:
+            ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
+            ax.set_ylabel(converter.get_label(qtype, value_unit))
+        else:
+            ax.set_xlabel(f"x1 [{grid.axes[0].units}]" if grid.axes and grid.axes[0].units else "x1")
+            ax.set_ylabel(f"{grid.label} [{grid.units}]" if grid.units else grid.label)
+        ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
+        save_or_show(fig, output, overwrite=overwrite)
+        return Path(output) if output else None
+
+    # --- 2D+ data: imshow ---
     fig, ax = plt.subplots(figsize=(10, 8))
 
     if log_scale and data.ndim == 2:
@@ -149,21 +174,25 @@ def plot_field(
             )
 
     # Title with time
+    ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
+
+    save_or_show(fig, output, overwrite=overwrite)
+    return Path(output) if output else None
+
+
+def _make_title(grid, quantity, iteration, converter, time_unit):
+    """Build a plot title with quantity, iteration, and time."""
     if converter is not None:
         t_disp = converter.convert(grid.time, "time", time_unit)
         t_label = converter.get_label("time", time_unit)
-        ax.set_title(
+        return (
             f"{quantity.upper()}  |  iteration={iteration}"
             f"  |  t={t_disp:.1f} {t_label}"
         )
-    else:
-        ax.set_title(
-            f"{quantity.upper()}  |  iteration={iteration}"
-            f"  |  t={grid.time:.1f}"
-        )
-
-    save_or_show(fig, output)
-    return Path(output) if output else None
+    return (
+        f"{quantity.upper()}  |  iteration={iteration}"
+        f"  |  t={grid.time:.1f}"
+    )
 
 
 def plot_all_fields(
@@ -253,14 +282,14 @@ def plot_all_fields(
 
     fig.suptitle(f"All field components -- iteration {iteration}", fontsize=14)
     fig.tight_layout()
-    save_or_show(fig, output)
+    save_or_show(fig, output, overwrite=overwrite)
 
 
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.field SIM_PATH [ITERATION]"
         )
         sys.exit(1)
@@ -276,4 +305,4 @@ if __name__ == "__main__":
         x_unit="um", y_unit="um", time_unit="ps",
         output="field_e1.png",
     )
-    print("Done -- see field_e1.png")
+    logger.info("Done -- see field_e1.png")

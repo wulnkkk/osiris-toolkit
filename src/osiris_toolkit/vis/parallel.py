@@ -5,6 +5,7 @@ saves PNG, and closes.  File writes target deterministic paths:
 ``{output_dir}/{qty}_{iter:06d}.png`` — no locking needed.
 """
 
+import logging
 import multiprocessing
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -23,10 +24,12 @@ from osiris_toolkit.parallel._cluster import (
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
+logger = logging.getLogger(__name__)
+
 # ── Worker functions (module-level, pickle-safe) ──────────────────────
 
 def _worker_plot_field(
-    sim_path: str,
+    sim: Simulation,
     iteration: int,
     quantity: str,
     output: str,
@@ -42,7 +45,6 @@ def _worker_plot_field(
     from osiris_toolkit.vis.field import plot_field
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
-    sim = Simulation(sim_path)
     plot_field(
         quantity=quantity, iteration=iteration, sim=sim,
         converter=converter, x_unit=x_unit, y_unit=y_unit,
@@ -52,7 +54,7 @@ def _worker_plot_field(
 
 
 def _worker_plot_k_space(
-    sim_path: str,
+    sim: Simulation,
     iteration: int,
     quantity: str,
     output: str,
@@ -66,7 +68,6 @@ def _worker_plot_k_space(
     from osiris_toolkit.vis.kspace import plot_k_space
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
-    sim = Simulation(sim_path)
     plot_k_space(
         quantity=quantity, iteration=iteration, sim=sim,
         converter=converter, time_unit=time_unit, output=output,
@@ -75,7 +76,7 @@ def _worker_plot_k_space(
 
 
 def _worker_plot_density(
-    sim_path: str,
+    sim: Simulation,
     iteration: int,
     species: str,
     output: str,
@@ -92,7 +93,6 @@ def _worker_plot_density(
     from osiris_toolkit.vis.density import plot_density
 
     converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
-    sim = Simulation(sim_path)
     plot_density(
         species=species, iteration=iteration, sim=sim,
         converter=converter, x_unit=x_unit, y_unit=y_unit,
@@ -125,6 +125,8 @@ def batch_process_parallel(
     else:
         output_root = Path(output_root)
 
+    sim = Simulation(sim_path)  # discover ONCE, pickle to workers
+
     converter_omega_p0: float | None = None
     try:
         from osiris_toolkit.units.params import SimulationParams
@@ -138,7 +140,7 @@ def batch_process_parallel(
     available_fields = sim.list_fields()
     species_list = sim.list_species()
     if not available_fields:
-        print(f"[{sim_name}] No field data found.")
+        logger.info("[%s] No field data found.", sim_name)
         return
 
     iterations = sim.list_iterations(available_fields[0])
@@ -151,9 +153,9 @@ def batch_process_parallel(
         d.mkdir(parents=True, exist_ok=True)
 
     n_total = len(iterations)
-    print(
-        f"[{sim_name}] {n_total} iterations, {len(available_fields)} fields,"
-        f" {len(species_list)} species (parallel)"
+    logger.info(
+        "[%s] %d iterations, %d fields, %d species (parallel)",
+        sim_name, n_total, len(available_fields), len(species_list),
     )
 
     # Cluster sharding
@@ -184,7 +186,7 @@ def batch_process_parallel(
                 out = str(field_dir / f"{qty}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_field, sim_path, it, qty, out,
+                        _worker_plot_field, sim, it, qty, out,
                         **base_kwargs,
                     )
                 ] = f"field {qty} it={it}"
@@ -194,7 +196,7 @@ def batch_process_parallel(
                 out = str(kspace_dir / f"kspace_{qty}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_k_space, sim_path, it, qty, out,
+                        _worker_plot_k_space, sim, it, qty, out,
                         time_unit=time_unit,
                         converter_omega_p0=converter_omega_p0,
                     )
@@ -216,16 +218,16 @@ def batch_process_parallel(
             try:
                 future.result()
             except Exception as exc:
-                print(f"  [{sim_name}] {label}: {exc}")
+                logger.info("  [%s] %s: %s", sim_name, label, exc)
             done += 1
             if done % 50 == 0:
-                print(f"  [{sim_name}] {done}/{len(futures)} tasks done")
+                logger.info("  [%s] %d/%d tasks done", sim_name, done, len(futures))
 
     total = time.time() - t_start
-    print(f"[{sim_name}] Parallel phase done, elapsed {total:.0f}s.")
+    logger.info("[%s] Parallel phase done, elapsed %.0fs.", sim_name, total)
 
     # ── Scattering analysis (cross-iteration, runs sequentially) ──
-    print(f"[{sim_name}] Scattering analysis...")
+    logger.info("[%s] Scattering analysis...", sim_name)
     for qty in ["e1", "e2", "e3"]:
         if qty not in available_fields:
             continue
@@ -248,8 +250,8 @@ def batch_process_parallel(
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )
-            print(f"  [{sim_name}] scattering {qty} done")
+            logger.info("  [%s] scattering %s done", sim_name, qty)
         except Exception as exc:
-            print(f"  [{sim_name}] scattering {qty}: {exc}")
+            logger.info("  [%s] scattering %s: %s", sim_name, qty, exc)
 
-    print(f"[{sim_name}] All done, elapsed {time.time() - t_start:.0f}s.")
+    logger.info("[%s] All done, elapsed %.0fs.", sim_name, time.time() - t_start)

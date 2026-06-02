@@ -1,6 +1,9 @@
 """Generate a multi-panel composite overview of the simulation state."""
 
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -260,7 +263,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.composite SIM_PATH [ITERATION]"
         )
         sys.exit(1)
@@ -277,6 +280,6 @@ if __name__ == "__main__":
             x_unit="um", y_unit="um", time_unit="ps",
             output="composite.png",
         )
-        print("Done -- see composite.png")
+        logger.info("Done -- see composite.png")
     else:
-        print("No data found.")
+        logger.info("No data found.")

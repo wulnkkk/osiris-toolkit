@@ -5,6 +5,7 @@ Converted from the MATLAB scripts ``Filter_scattered_wave.m`` and
 dimensionless k/k0 space (no unit conversion needed for the axes).
 """
 
+import logging
 import warnings
 from pathlib import Path
 
@@ -16,6 +17,8 @@ from osiris_toolkit.sim import GridData, Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
+
+logger = logging.getLogger(__name__)
 
 
 def compute_k_space(
@@ -225,7 +228,7 @@ def batch_k_space(
     for it in iterations:
         grid = sim.get_field(quantity, it)
         if grid is None:
-            print(f"  skipping {quantity} iteration={it} -- not found")
+            logger.info("  skipping %s iteration=%s -- not found", quantity, it)
             continue
         out = output_dir / f"k_{quantity}_{it:06d}.jpg"
         plot_k_space(
@@ -236,14 +239,14 @@ def batch_k_space(
             output=out,
             **kwargs,
         )
-        print(f"  saved {out}")
+        logger.info("  saved %s", out)
 
 
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.kspace SIM_PATH [ITERATION]"
         )
         sys.exit(1)
@@ -259,4 +262,4 @@ if __name__ == "__main__":
             "e1", it, sim_path=sim_path, converter=converter,
             time_unit="ps", output="k_space_e1.png",
         )
-        print("Done -- see k_space_e1.png")
+        logger.info("Done -- see k_space_e1.png")

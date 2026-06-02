@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+
 from osiris_toolkit.compute.fft import compute_k_space
 from osiris_toolkit.compute.integrate import mask_energy
 
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import ScatteringResult
+
+logger = logging.getLogger(__name__)
 
 # Default k-space mask definitions (preserved from original vis/scattering.py)
 DEFAULT_MASKS: dict = {
@@ -148,9 +152,9 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
             )
 
             if verbose:
-                print(
-                    f"  iteration={it:06d}  t={grid.time:.1f}  "
-                    f"scat={result.scattered_fraction[-1]:.4f}"
+                logger.info(
+                    "  iteration=%06d  t=%.1f  scat=%.4f",
+                    it, grid.time, result.scattered_fraction[-1],
                 )
 
         return result

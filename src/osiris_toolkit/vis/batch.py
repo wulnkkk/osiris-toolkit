@@ -4,6 +4,7 @@ Generates visualisation images with physical units for all time steps.
 Output is organised by simulation name under an output root directory.
 """
 
+import logging
 import time
 from pathlib import Path
 
@@ -14,6 +15,8 @@ from .density import plot_density
 from .field import plot_field
 from .kspace import plot_k_space
 from .scattering import analyze_scattering, plot_scattering_fraction
+
+logger = logging.getLogger(__name__)
 
 FIELD_QUANTS = ["e1", "e2", "e3", "b1", "b2", "b3"]
 
@@ -26,6 +29,7 @@ def process_simulation(
     y_unit: str = "um",
     time_unit: str = "ps",
     max_workers: int | None = None,
+    overwrite: bool = False,
 ) -> None:
     """Run all visualisation and analysis pipelines on a single simulation.
 
@@ -82,8 +86,8 @@ def process_simulation(
         pass
 
     if converter is None:
-        print(f"[{sim_name}] Warning: could not determine omega_p0;"
-              f" using normalised units")
+        logger.info("[%s] Warning: could not determine omega_p0;"
+                    " using normalised units", sim_name)
 
     base = output_root / sim_name
     field_dir = base / "fields"
@@ -96,18 +100,18 @@ def process_simulation(
     available_fields = sim.list_fields()
     species_list = sim.list_species()
     if not available_fields:
-        print(f"[{sim_name}] No field data found.")
+        logger.info("[%s] No field data found.", sim_name)
         return
     if not species_list:
-        print(f"[{sim_name}] No species data found.")
+        logger.info("[%s] No species data found.", sim_name)
 
     iterations = sim.list_iterations(available_fields[0])
     n_total = len(iterations)
-    print(
-        f"[{sim_name}] {n_total} iterations, {len(available_fields)} fields,"
-        f" {len(species_list)} species"
+    logger.info(
+        "[%s] %d iterations, %d fields, %d species",
+        sim_name, n_total, len(available_fields), len(species_list),
     )
-    print(f"[{sim_name}] Output directory: {base.resolve()}")
+    logger.info("[%s] Output directory: %s", sim_name, base.resolve())
 
     for idx, it in enumerate(iterations):
         t_iter = time.time()
@@ -125,7 +129,7 @@ def process_simulation(
                     output=str(field_dir / f"{qty}_{it:06d}.png"),
                 )
             except Exception as exc:
-                print(f"  [{sim_name}] field {qty} iter={it}: {exc}")
+                logger.info("  [%s] field %s iter=%s: %s", sim_name, qty, it, exc)
 
         # --- k-space plots (delegate to kspace.py) ---
         for qty in available_fields:
@@ -138,7 +142,7 @@ def process_simulation(
                     output=str(kspace_dir / f"kspace_{qty}_{it:06d}.png"),
                 )
             except Exception as exc:
-                print(f"  [{sim_name}] k-space {qty} iter={it}: {exc}")
+                logger.info("  [%s] k-space %s iter=%s: %s", sim_name, qty, it, exc)
 
         # --- Density plots (delegate to density.py) ---
         for sp in species_list:
@@ -153,17 +157,17 @@ def process_simulation(
                     output=str(density_dir / f"density_{sp}_{it:06d}.png"),
                 )
             except Exception as exc:
-                print(f"  [{sim_name}] density {sp} iter={it}: {exc}")
+                logger.info("  [%s] density %s iter=%s: %s", sim_name, sp, it, exc)
 
         elapsed = time.time() - t_iter
         eta = elapsed * (n_total - idx - 1)
-        print(
-            f"  [{sim_name}] iter={it:06d} ({idx + 1}/{n_total})"
-            f" done {elapsed:.1f}s, ETA {eta:.0f}s"
+        logger.info(
+            "  [%s] iter=%06d (%d/%d) done %.1fs, ETA %.0fs",
+            sim_name, it, idx + 1, n_total, elapsed, eta,
         )
 
     # --- Scattering analysis (delegate to scattering.py) ---
-    print(f"[{sim_name}] Scattering analysis...")
+    logger.info("[%s] Scattering analysis...", sim_name)
     for qty in ["e1", "e2", "e3"]:
         if qty not in available_fields:
             continue
@@ -179,12 +183,12 @@ def process_simulation(
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )
-            print(f"  [{sim_name}] scattering {qty} done")
+            logger.info("  [%s] scattering %s done", sim_name, qty)
         except Exception as exc:
-            print(f"  [{sim_name}] scattering {qty}: {exc}")
+            logger.info("  [%s] scattering %s: %s", sim_name, qty, exc)
 
     total = time.time() - t_start
-    print(f"[{sim_name}] All done, elapsed {total:.0f}s.")
+    logger.info("[%s] All done, elapsed %.0fs.", sim_name, total)
 
 
 def main() -> None:
@@ -228,12 +232,12 @@ def main() -> None:
     for i in range(0, len(args.sims), 2):
         sim_path = args.sims[i]
         sim_name = args.sims[i + 1]
-        print("=" * 60)
-        print(f"Batch processing: {sim_name}")
-        print("=" * 60)
+        logger.info("=" * 60)
+        logger.info("Batch processing: %s", sim_name)
+        logger.info("=" * 60)
         process_simulation(sim_path, sim_name, output_root=args.output_dir,
                            max_workers=args.max_workers)
-        print()
+        logger.info("")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,9 @@
 """Visualise particle species density diagnostics."""
 
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -166,7 +169,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.density SIM_PATH [ITERATION]"
         )
         sys.exit(1)
@@ -176,7 +179,7 @@ if __name__ == "__main__":
     sim = load_sim(sim_path)
     converter = get_converter(sim)
     species_list = sim.list_species()
-    print(f"Available species: {species_list}")
+    logger.info("Available species: %s", species_list)
     if species_list:
         sp = species_list[0]
         sp_entries = sim._density.get(sp, {})
@@ -189,4 +192,4 @@ if __name__ == "__main__":
             x_unit="um", y_unit="um", time_unit="ps",
             output=f"density_{sp}.png",
         )
-        print(f"Done -- see density_{sp}.png")
+        logger.info("Done -- see density_%s.png", sp)

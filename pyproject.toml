@@ -1,6 +1,6 @@
 [project]
 name = "osiris-toolkit"
-version = "0.6.0"
+version = "0.7.0"
 description = "Comprehensive toolkit for OSIRIS PIC simulation: input deck parsing, data extraction, unit conversion, analysis, and visualization"
 readme = "README.md"
 license = { text = "MIT" }

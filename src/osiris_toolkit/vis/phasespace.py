@@ -1,6 +1,9 @@
 """Visualise phase-space diagnostic data (e.g. p1-p2, x1-p1)."""
 
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt
 
@@ -145,7 +148,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.phasespace SIM_PATH [ITERATION]"
         )
         sys.exit(1)
@@ -165,4 +168,4 @@ if __name__ == "__main__":
             p_unit="MeV/c", time_unit="ps",
             output=f"phasespace_{ps_name}_{sp}.png",
         )
-        print(f"Done -- see phasespace_{ps_name}_{sp}.png")
+        logger.info("Done -- see phasespace_%s_%s.png", ps_name, sp)

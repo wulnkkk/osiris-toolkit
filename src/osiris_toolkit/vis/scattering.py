@@ -5,8 +5,11 @@ Converted from the MATLAB script ``rushetoushefene.m``.  Integrates
 side-scattered, and back-scattered energy fractions as functions of time.
 """
 
+import logging
 import warnings
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -184,7 +187,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
+        logger.info(
             "Usage: python -m osiris_toolkit.vis.scattering SIM_PATH [QUANTITY]"
         )
         sys.exit(1)
@@ -195,14 +198,14 @@ if __name__ == "__main__":
     sim = load_sim(sim_path)
     converter = get_converter(sim)
 
-    print(f"Analysing {quantity} ({sim_path})...")
+    logger.info("Analysing %s (%s)...", quantity, sim_path)
 
     all_iters = sim.list_iterations(quantity)
-    print(f"  {len(all_iters)} iterations total")
+    logger.info("  %s iterations total", len(all_iters))
 
     result = analyze_scattering(quantity, sim_path=sim_path, verbose=True)
     plot_scattering_fraction(
         result, converter=converter, time_unit="ps",
         output=f"scattering_{quantity}.png",
     )
-    print(f"Done -- see scattering_{quantity}.png")
+    logger.info("Done -- see scattering_%s.png", quantity)
