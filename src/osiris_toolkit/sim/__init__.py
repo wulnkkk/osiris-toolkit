@@ -2,6 +2,7 @@
 
 from osiris_toolkit.sim.catalog import OSIRIS_DIAGNOSTICS, DiagKind
 from osiris_toolkit.sim.diagnostics import (
+    Field,
     GridAxis,
     GridData,
     HistoryData,
@@ -14,6 +15,7 @@ from osiris_toolkit.sim.simulation import Simulation
 
 __all__ = [
     "Simulation",
+    "Field",
     "GridData",
     "GridAxis",
     "ParticleData",

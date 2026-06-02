@@ -637,7 +637,7 @@ class Simulation:
             return None
         axes = []
         if gi.has_axis:
-            for ax in gi.axes:
+            for i, ax in enumerate(gi.axes):
                 axes.append(
                     GridAxis(
                         name=ax.name,
@@ -646,6 +646,7 @@ class Simulation:
                         max=ax.max,
                         label=ax.label,
                         units=ax.units,
+                        npoints=gi.nx[i] if i < len(gi.nx) else 0,
                     )
                 )
         return GridData(
