@@ -58,9 +58,6 @@ docs/devlog/notes/
 # Local notes (analysis, test, execution reports — not committed)
 docs/note/
 
-# Superpowers plans and specs (auto-generated)
-docs/superpowers/
-
 # Documentation build
 docs/_build/
 site/
