@@ -257,8 +257,10 @@ def vis() -> None:
 @click.option("--quantity", "-q", default="e1", help="Quantity name.")
 @click.option("--iteration", "-i", type=int, default=0, help="Iteration number.")
 @click.option("--output", "-o", type=Path, default=None, help="Output file path.  Default: auto-generated under {sim}/figures/.")
+@click.option("--overwrite", is_flag=True, help="Overwrite existing output files.")
 def vis_plot(
-    directory: Path, kind: str, quantity: str, iteration: int, output: Path | None
+    directory: Path, kind: str, quantity: str, iteration: int,
+    output: Path | None, overwrite: bool,
 ) -> None:
     """Plot a single diagnostic frame."""
     from osiris_toolkit.sim import Simulation

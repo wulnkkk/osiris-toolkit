@@ -108,7 +108,11 @@ def safe_log_norm(
     return LogNorm(vmin=_vmin, vmax=_vmax)
 
 
-def save_or_show(fig: plt.Figure, filepath: str | Path | None = None) -> None:
+def save_or_show(
+    fig: plt.Figure,
+    filepath: str | Path | None = None,
+    overwrite: bool = False,
+) -> None:
     """Save the figure to file or display it interactively.
 
     Parameters
@@ -119,9 +123,17 @@ def save_or_show(fig: plt.Figure, filepath: str | Path | None = None) -> None:
         If provided, save the figure to this path (DPI 150, tight bbox).
         Parent directories are created automatically.
         If None, display the figure with ``plt.show()``.
+    overwrite : bool
+        If False (default), raise FileExistsError when *filepath*
+        already exists.  Set to True to silently overwrite.
     """
     if filepath:
         p = Path(filepath)
+        if p.exists() and not overwrite:
+            raise FileExistsError(
+                f"Output file {p} already exists. "
+                f"Use overwrite=True to replace."
+            )
         p.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(str(p), dpi=150, bbox_inches="tight")
         logger.info("Saved to %s", p)

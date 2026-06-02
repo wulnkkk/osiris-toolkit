@@ -29,6 +29,7 @@ def process_simulation(
     y_unit: str = "um",
     time_unit: str = "ps",
     max_workers: int | None = None,
+    overwrite: bool = False,
 ) -> None:
     """Run all visualisation and analysis pipelines on a single simulation.
 

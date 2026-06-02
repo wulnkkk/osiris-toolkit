@@ -31,6 +31,7 @@ def plot_field(
     vmax: float | None = None,
     cmap: str = "RdBu_r",
     output: str | Path | None = None,
+    overwrite: bool = False,
 ) -> Path | None:
     """Plot a 2-D field component at a given iteration.
 
@@ -114,7 +115,7 @@ def plot_field(
             ax.set_xlabel(f"x1 [{grid.axes[0].units}]" if grid.axes and grid.axes[0].units else "x1")
             ax.set_ylabel(f"{grid.label} [{grid.units}]" if grid.units else grid.label)
         ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
-        save_or_show(fig, output)
+        save_or_show(fig, output, overwrite=overwrite)
         return Path(output) if output else None
 
     # --- 2D+ data: imshow ---
@@ -175,7 +176,7 @@ def plot_field(
     # Title with time
     ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
 
-    save_or_show(fig, output)
+    save_or_show(fig, output, overwrite=overwrite)
     return Path(output) if output else None
 
 
@@ -281,7 +282,7 @@ def plot_all_fields(
 
     fig.suptitle(f"All field components -- iteration {iteration}", fontsize=14)
     fig.tight_layout()
-    save_or_show(fig, output)
+    save_or_show(fig, output, overwrite=overwrite)
 
 
 if __name__ == "__main__":
