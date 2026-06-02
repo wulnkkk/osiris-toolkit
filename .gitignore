@@ -55,6 +55,9 @@ coverage.xml
 # Development logs — personal notes only (version release logs are tracked)
 docs/devlog/notes/
 
+# Local notes (analysis, test, execution reports — not committed)
+docs/note/
+
 # Superpowers plans and specs (auto-generated)
 docs/superpowers/
 
@@ -89,6 +92,7 @@ data/
 
 # Claude Code
 .claude/
+CLAUDE.md
 
 # HPC test artifacts
 **/tests/hpc/**/slurm-*
