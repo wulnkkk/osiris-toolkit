@@ -1,7 +1,8 @@
 """Tests for sim.diagnostics — GridAxis methods and Field operators."""
 import numpy as np
 import pytest
-from osiris_toolkit.sim.diagnostics import GridAxis, Field, GridData
+
+from osiris_toolkit.sim.diagnostics import Field, GridAxis, GridData
 
 
 class TestGridAxis:
@@ -215,3 +216,57 @@ class TestBackwardCompatibility:
     def test_isinstance_griddata(self):
         f = Field(data=np.array([1.0]))
         assert isinstance(f, GridData)
+
+
+# ── fixtures for float-indexing tests ──────────────────────
+
+@pytest.fixture
+def grid_2d():
+    """2x2 Field for bilinear interpolation tests."""
+    data = np.array([[1.0, 2.0], [3.0, 4.0]])
+    axes = [
+        GridAxis(name="x1", min=0.0, max=1.0, npoints=2),
+        GridAxis(name="x2", min=0.0, max=1.0, npoints=2),
+    ]
+    return Field(data=data, axes=axes)
+
+
+@pytest.fixture
+def grid_32x32():
+    """32x32 Field for slice + float interpolation tests."""
+    data = np.arange(32.0 * 32.0).reshape(32, 32)
+    axes = [
+        GridAxis(name="x1", min=0.0, max=31.0, npoints=32),
+        GridAxis(name="x2", min=0.0, max=31.0, npoints=32),
+    ]
+    return Field(data=data, axes=axes)
+
+
+class TestFieldFloatIndexing:
+    def test_float_scalar_bilinear(self, grid_2d):
+        """Float index triggers bilinear interpolation."""
+        result = grid_2d[0.5, 0.5]
+        # grid_2d: 2x2 [[1,2],[3,4]] → bilinear at center = 2.5
+        assert abs(float(result) - 2.5) < 1e-10
+
+    def test_float_scalar_corner(self, grid_2d):
+        """Float index at exact int position returns that point."""
+        result = grid_2d[0.0, 1.0]
+        assert abs(float(result) - 2.0) < 1e-10
+
+    def test_float_mixed_int_float(self, grid_2d):
+        """Mixed int + float where both are scalar → returns float."""
+        result = grid_2d[0, 0.5]
+        # At x1=0, x2=0.5: interpolate between grid_2d[0,0]=1 and grid_2d[0,1]=2
+        assert abs(float(result) - 1.5) < 1e-10
+
+    def test_int_slice_still_works(self, grid_2d):
+        """Integer indexing preserved (no regression)."""
+        result = grid_2d[0:2, 0:2]
+        assert result.shape == (2, 2)
+
+    def test_float_line_slice(self, grid_32x32):
+        """Slice + float returns 1D Field."""
+        result = grid_32x32[:, 15.5]
+        assert result.ndim == 1
+        assert result.data.shape[0] == 32
