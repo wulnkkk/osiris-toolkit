@@ -12,12 +12,22 @@ from osiris_toolkit import __version__
 
 @click.group()
 @click.version_option(__version__, prog_name="osiris-toolkit")
-def main() -> None:
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging (DEBUG level).")
+@click.option("--quiet", "-q", is_flag=True, help="Suppress non-error output (ERROR level).")
+def main(verbose: bool, quiet: bool) -> None:
     """osiris-toolkit — comprehensive toolkit for OSIRIS PIC simulations.
 
     Covers input deck parsing, simulation data extraction, unit conversion,
     analysis, and visualization.
     """
+    import logging
+
+    from osiris_toolkit._logging import configure
+
+    if verbose:
+        configure(logging.DEBUG)
+    elif quiet:
+        configure(logging.ERROR)
 
 
 # ---------------------------------------------------------------------------

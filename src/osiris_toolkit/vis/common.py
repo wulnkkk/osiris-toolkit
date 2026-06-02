@@ -1,5 +1,6 @@
 """Shared utility functions for OSIRIS visualization scripts."""
 
+import logging
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -8,6 +9,8 @@ from matplotlib.colors import LogNorm
 
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
+
+logger = logging.getLogger(__name__)
 
 
 def load_sim(
@@ -121,7 +124,7 @@ def save_or_show(fig: plt.Figure, filepath: str | Path | None = None) -> None:
         p = Path(filepath)
         p.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(str(p), dpi=150, bbox_inches="tight")
-        print(f"Saved to {p}")
+        logger.info("Saved to %s", p)
     else:
         plt.show()
     plt.close(fig)
