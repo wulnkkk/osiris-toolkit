@@ -150,7 +150,7 @@ def plot_k_space(
     )
 
     im = ax.imshow(
-        spectrum.T,
+        spectrum,
         origin="lower",
         aspect="auto",
         extent=[
