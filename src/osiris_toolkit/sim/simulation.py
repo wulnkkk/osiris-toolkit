@@ -233,14 +233,22 @@ class Simulation:
         self,
         path: str | Path,
         output_root: str | Path | None = None,
+        config: "OsirisConfig | None" = None,
     ) -> None:
         self._path = Path(path).absolute()
         if not self._path.is_dir():
             raise NotADirectoryError(f"Not a directory: {self._path}")
 
+        # Config: explicit param > global singleton
+        from osiris_toolkit.config import OsirisConfig
+
+        self.config = config if config is not None else OsirisConfig.get().copy_with()
+
         self._output_root = (
             Path(output_root).absolute()
             if output_root is not None
+            else self.config.output_root
+            if self.config.output_root is not None
             else self._path / "figures"
         )
 
