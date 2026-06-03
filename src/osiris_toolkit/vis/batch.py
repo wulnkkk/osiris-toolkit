@@ -6,7 +6,9 @@ Output is organised by simulation name under an output root directory.
 
 import logging
 import time
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
@@ -21,6 +23,48 @@ logger = logging.getLogger(__name__)
 FIELD_QUANTS = ["e1", "e2", "e3", "b1", "b2", "b3"]
 
 
+@dataclass
+class ProgressEvent:
+    """Emitted by process_simulation() after each iteration.
+
+    Attributes
+    ----------
+    iteration : int
+        Current iteration number.
+    total : int
+        Total number of iterations.
+    elapsed : float
+        Time spent on the current iteration (seconds).
+    eta : float
+        Estimated remaining time (seconds).
+    """
+    iteration: int
+    total: int
+    elapsed: float
+    eta: float
+
+
+@dataclass
+class BatchResult:
+    """Returned by process_simulation() after completion.
+
+    Attributes
+    ----------
+    sim_name : str
+        Human-readable simulation name.
+    files : list of Path
+        All generated output file paths.
+    elapsed : float
+        Total wall-clock time (seconds).
+    errors : list of str
+        Non-fatal error messages collected during processing.
+    """
+    sim_name: str
+    files: list[Path]
+    elapsed: float
+    errors: list[str]
+
+
 def process_simulation(
     sim_path: str | Path,
     sim_name: str,
@@ -30,7 +74,9 @@ def process_simulation(
     time_unit: str = "ps",
     max_workers: int | None = None,
     overwrite: bool = False,
-) -> None:
+    *,
+    progress_callback: Callable[[ProgressEvent], None] | None = None,
+) -> BatchResult:
     """Run all visualisation and analysis pipelines on a single simulation.
 
     Creates the following directory structure under *output_root*/*sim_name*::
@@ -57,16 +103,28 @@ def process_simulation(
     max_workers : int or None
         Number of parallel workers.  If positive, delegates to the parallel
         implementation.  ``None`` (default) runs sequentially.
+    progress_callback : callable or None
+        Optional callback invoked after each iteration with a
+        :class:`ProgressEvent`.
     """
     if max_workers is not None and max_workers > 0:
         from osiris_toolkit.vis.parallel import batch_process_parallel
-        return batch_process_parallel(
+        batch_process_parallel(
             sim_path, sim_name, output_root,
             x_unit=x_unit, y_unit=y_unit, time_unit=time_unit,
             max_workers=max_workers,
         )
+        return BatchResult(
+            sim_name=sim_name,
+            files=[],
+            elapsed=0.0,
+            errors=["Parallel path does not yet support BatchResult details"],
+        )
 
     t_start = time.time()
+
+    all_files: list[Path] = []
+    all_errors: list[str] = []
 
     sim = Simulation(sim_path)
     if output_root is None:
@@ -101,7 +159,9 @@ def process_simulation(
     species_list = sim.list_species()
     if not available_fields:
         logger.info("[%s] No field data found.", sim_name)
-        return
+        return BatchResult(
+            sim_name=sim_name, files=[], elapsed=time.time() - t_start, errors=[]
+        )
     if not species_list:
         logger.info("[%s] No species data found.", sim_name)
 
@@ -119,7 +179,7 @@ def process_simulation(
         # --- Field plots (delegate to field.py) ---
         for qty in available_fields:
             try:
-                plot_field(
+                fpath = plot_field(
                     quantity=qty,
                     iteration=it,
                     sim=sim, converter=converter,
@@ -128,26 +188,32 @@ def process_simulation(
                     time_unit=time_unit,
                     output=str(field_dir / f"{qty}_{it:06d}.png"),
                 )
+                if fpath is not None:
+                    all_files.append(fpath)
             except Exception as exc:
                 logger.info("  [%s] field %s iter=%s: %s", sim_name, qty, it, exc)
+                all_errors.append(f"field {qty} iter={it}: {exc}")
 
         # --- k-space plots (delegate to kspace.py) ---
         for qty in available_fields:
             try:
-                plot_k_space(
+                fpath = plot_k_space(
                     quantity=qty,
                     iteration=it,
                     sim=sim, converter=converter,
                     time_unit=time_unit,
                     output=str(kspace_dir / f"kspace_{qty}_{it:06d}.png"),
                 )
+                if fpath is not None:
+                    all_files.append(fpath)
             except Exception as exc:
                 logger.info("  [%s] k-space %s iter=%s: %s", sim_name, qty, it, exc)
+                all_errors.append(f"k-space {qty} iter={it}: {exc}")
 
         # --- Density plots (delegate to density.py) ---
         for sp in species_list:
             try:
-                plot_density(
+                fpath = plot_density(
                     species=sp,
                     iteration=it,
                     sim=sim, converter=converter,
@@ -156,8 +222,11 @@ def process_simulation(
                     time_unit=time_unit,
                     output=str(density_dir / f"density_{sp}_{it:06d}.png"),
                 )
+                if fpath is not None:
+                    all_files.append(fpath)
             except Exception as exc:
                 logger.info("  [%s] density %s iter=%s: %s", sim_name, sp, it, exc)
+                all_errors.append(f"density {sp} iter={it}: {exc}")
 
         elapsed = time.time() - t_iter
         eta = elapsed * (n_total - idx - 1)
@@ -165,6 +234,14 @@ def process_simulation(
             "  [%s] iter=%06d (%d/%d) done %.1fs, ETA %.0fs",
             sim_name, it, idx + 1, n_total, elapsed, eta,
         )
+
+        if progress_callback is not None:
+            progress_callback(ProgressEvent(
+                iteration=it,
+                total=n_total,
+                elapsed=elapsed,
+                eta=elapsed * (n_total - idx - 1),
+            ))
 
     # --- Scattering analysis (delegate to scattering.py) ---
     logger.info("[%s] Scattering analysis...", sim_name)
@@ -177,18 +254,27 @@ def process_simulation(
                 sim=sim,
                 verbose=False,
             )
-            plot_scattering_fraction(
+            fpath = plot_scattering_fraction(
                 result,
                 converter=converter,
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )
+            if fpath is not None:
+                all_files.append(fpath)
             logger.info("  [%s] scattering %s done", sim_name, qty)
         except Exception as exc:
             logger.info("  [%s] scattering %s: %s", sim_name, qty, exc)
+            all_errors.append(f"scattering {qty}: {exc}")
 
     total = time.time() - t_start
     logger.info("[%s] All done, elapsed %.0fs.", sim_name, total)
+    return BatchResult(
+        sim_name=sim_name,
+        files=all_files,
+        elapsed=total,
+        errors=all_errors,
+    )
 
 
 def main() -> None:
