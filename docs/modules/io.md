@@ -1,7 +1,8 @@
-# io — ZDF Binary Reader & Parallel I/O
+# io — ZDF & HDF5 Binary Reader & Parallel I/O
 
-Clean-room implementation of the ZDF (Zipped Diagnostic Format) binary reader. Stateless,
-thread-safe, parallel-ready. Contains no code derived from the ZPIC/OSIRIS reference implementation.
+Clean-room implementation of the ZDF (Zipped Diagnostic Format) and HDF5 binary readers.
+Stateless, thread-safe, parallel-ready. The ZDF reader contains no code derived from the
+ZPIC/OSIRIS reference implementation.
 
 ## Architecture
 
@@ -27,11 +28,12 @@ _parallel.py
 | `_format.py` | ZDF binary constants: magic, record type IDs, dtype maps (functional facts of the protocol) |
 | `_types.py` | Lightweight dataclasses: `ZdfRecord`, `ZdfIteration`, `ZdfGridInfo`, `ZdfPartInfo`, `ZdfTrackInfo` |
 | `_reader.py` | Stateless reader functions: `read_grid()`, `read_particles()`, `read_tracks()`, `read_info()` |
+| `_reader_hdf5.py` | Stateless HDF5 reader functions: same signatures as `_reader.py`, using `h5py` |
 | `_parallel.py` | `read_many(paths, reader_fn, max_workers)` — concurrent batch reads |
 
 ## Format Coverage
 
-This module supports **ZDF (Zipped Diagnostic Format) only**. HDF5 output is not supported.
+This module supports both **ZDF** and **HDF5** output formats produced by OSIRIS.
 
 | Aspect | Status |
 |--------|--------|
@@ -40,22 +42,36 @@ This module supports **ZDF (Zipped Diagnostic Format) only**. HDF5 output is not
 | ZDF tracks-2 files | Fully supported (TRACKS diagnostics) |
 | ZDF record versions | v0, v1, v2 all supported |
 | Flat / nested directory layouts | Both auto-discovered |
-| HDF5 output | Not supported |
+| HDF5 grid files | Fully supported (via `_reader_hdf5.py`) |
+| HDF5 particles files | Fully supported |
+| HDF5 tracks files | Fully supported |
+| HDF5 `SIMULATION` metadata | Supported (`ZdfFileInfo.simulation_info`) |
 
-OSIRIS uses ZDF as its default output format. If your simulation is configured to output HDF5,
-switch to ZDF by setting in the input deck:
+## HDF5 Support (v0.12.0+)
+
+OSIRIS can output simulation data in HDF5 format when compiled with HDF5 libraries.
+The toolkit reads both ZDF and HDF5 formats transparently — `Simulation` automatically
+detects the format from the file extension (`.zdf` vs `.h5`).
+
+**Optional dependency**: `pip install osiris-toolkit[hdf5]`
+
+The HDF5 reader (`_reader_hdf5.py`) implements the same function signatures as the
+ZDF reader, producing identical `Zdf*` dataclass types. The `Simulation` layer dispatches
+to the correct reader based on file extension — no user configuration needed.
+
+**Key differences from ZDF**:
+- HDF5 files include a `SIMULATION` attribute (git version, compile time, input file content)
+  accessible via `ZdfFileInfo.simulation_info`
+- Data is stored as single HDF5 datasets rather than ZDF's CDSET chunked format
+- HDF5 files require `h5py >= 3.0` (optional dependency)
+
+If your simulation outputs HDF5 and you prefer ZDF, switch in the input deck:
 
 ```
 simulation {
     file_format = "zdf",
 }
 ```
-
-The `osiris-toolkit sim info` command automatically detects the output format and will
-warn if HDF5 files are detected.
-
-For a detailed assessment of format coverage, see
-[IO Coverage Evaluation](../devlog/io-osiris-coverage-evaluation.md).
 
 ## Usage
 
