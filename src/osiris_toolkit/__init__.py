@@ -1,6 +1,6 @@
 """osiris-toolkit: Comprehensive toolkit for OSIRIS PIC simulation."""
 
-__version__ = "0.9.0"
+__version__ = "0.10.0"
 
 from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.compute import (
@@ -18,6 +18,7 @@ from osiris_toolkit.io import (
     read_particles,
     read_tracks,
 )
+from osiris_toolkit.config import OsirisConfig
 from osiris_toolkit.postproc import PostProcessor
 from osiris_toolkit.sim import (
     OSIRIS_DIAGNOSTICS,
@@ -36,9 +37,11 @@ from osiris_toolkit.sim import (
     TrackInfo,
 )
 from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.vis.batch import BatchResult, ProgressEvent
 
 __all__ = [
     "__version__",
+    "BatchResult",
     "DiagKind",
     "Field",
     "FieldInfo",
@@ -46,10 +49,12 @@ __all__ = [
     "GridData",
     "HistoryData",
     "OSIRIS_DIAGNOSTICS",
+    "OsirisConfig",
     "ParticleData",
     "ParticleInfo",
     "PhasespaceData",
     "PostProcessor",
+    "ProgressEvent",
     "Simulation",
     "TimingsData",
     "TrackData",
