@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from osiris_toolkit.compute.fft import compute_k_space
+from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
 
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import EMDynamicsResult, EMSpectrumResult, FieldEnergyResult, PoyntingResult
@@ -32,7 +33,7 @@ class EMFAnalyzer(DiagnosticAnalyzer):
         """Read a field quantity and compute its integrated |E|^2 energy."""
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:
-            raise ValueError(f"No data for {quantity} at iteration {iteration}")
+            raise DataNotFoundError(f"No data for {quantity} at iteration {iteration}")
         total = float(np.sum(grid.data ** 2))
         return FieldEnergyResult(
             quantity=quantity,
@@ -79,11 +80,11 @@ class EMFAnalyzer(DiagnosticAnalyzer):
         """Compute 2-D FFT amplitude spectrum."""
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:
-            raise ValueError(f"No data for {quantity} at iteration {iteration}")
+            raise DataNotFoundError(f"No data for {quantity} at iteration {iteration}")
 
         data = grid.data
         if data.ndim < 2:
-            raise ValueError(f"spectrum requires 2-D data, got shape {data.shape}")
+            raise ShapeError(f"spectrum requires 2-D data, got shape {data.shape}")
 
         nx, ny = data.shape
         dx = (grid.axes[0].max - grid.axes[0].min) / nx

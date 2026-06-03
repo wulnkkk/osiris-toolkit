@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from osiris_toolkit.exceptions import MissingParameterError
+
 
 @dataclass
 class SimulationParams:
@@ -66,7 +68,7 @@ class SimulationParams:
                 break
 
         if sim_section is None:
-            raise ValueError(
+            raise MissingParameterError(
                 "Missing 'simulation' section in deck. "
                 "Cannot determine omega_p0 for unit conversion."
             )
@@ -74,7 +76,7 @@ class SimulationParams:
         params = sim_section.get("params", {})
         omega_p0 = params.get("omega_p0")
         if omega_p0 is None:
-            raise ValueError(
+            raise MissingParameterError(
                 "Parameter 'omega_p0' not found in 'simulation' section. "
                 "This is required for unit conversion."
             )
@@ -84,7 +86,7 @@ class SimulationParams:
         omega_p0 = float(omega_p0)
 
         if omega_p0 <= 0:
-            raise ValueError(f"omega_p0 must be > 0, got {omega_p0}")
+            raise MissingParameterError(f"omega_p0 must be > 0, got {omega_p0}")
 
         n0 = params.get("n0")
         if n0 is not None:

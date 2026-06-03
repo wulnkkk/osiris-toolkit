@@ -1,7 +1,5 @@
 """Integration tests for PostProcessor."""
 
-import numpy as np
-import pytest
 
 
 class TestPostProcessor:
@@ -9,8 +7,8 @@ class TestPostProcessor:
 
     def test_construction(self, tmp_sim_dir):
         """PostProcessor can be constructed from a sim path."""
-        from osiris_toolkit.sim import Simulation
         from osiris_toolkit.postproc import PostProcessor
+        from osiris_toolkit.sim import Simulation
 
         sim = Simulation(str(tmp_sim_dir))
         pp = PostProcessor(sim)
@@ -19,8 +17,8 @@ class TestPostProcessor:
 
     def test_analyze_emf_field_energy(self, tmp_sim_dir):
         """analyze.emf.field_energy returns FieldEnergyResult."""
-        from osiris_toolkit.sim import Simulation
         from osiris_toolkit.postproc import PostProcessor
+        from osiris_toolkit.sim import Simulation
 
         sim = Simulation(str(tmp_sim_dir))
         pp = PostProcessor(sim)
@@ -32,8 +30,8 @@ class TestPostProcessor:
 
     def test_analyze_emf_em_dynamics(self, tmp_sim_dir):
         """analyze.emf.em_dynamics returns EMDynamicsResult."""
-        from osiris_toolkit.sim import Simulation
         from osiris_toolkit.postproc import PostProcessor
+        from osiris_toolkit.sim import Simulation
 
         sim = Simulation(str(tmp_sim_dir))
         pp = PostProcessor(sim)
@@ -44,8 +42,8 @@ class TestPostProcessor:
 
     def test_lazy_loading(self, tmp_sim_dir):
         """Repeated access to analyze/vis returns same instance."""
-        from osiris_toolkit.sim import Simulation
         from osiris_toolkit.postproc import PostProcessor
+        from osiris_toolkit.sim import Simulation
 
         sim = Simulation(str(tmp_sim_dir))
         pp = PostProcessor(sim)
@@ -60,8 +58,8 @@ class TestPostProcessor:
 
     def test_batch_runs(self, tmp_sim_dir, tmp_path):
         """pp.batch() produces expected output structure."""
-        from osiris_toolkit.sim import Simulation
         from osiris_toolkit.postproc import PostProcessor
+        from osiris_toolkit.sim import Simulation
 
         sim = Simulation(str(tmp_sim_dir))
         pp = PostProcessor(sim)

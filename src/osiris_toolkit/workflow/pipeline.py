@@ -15,6 +15,7 @@ from typing import Any
 import yaml
 
 from osiris_toolkit.deck.main import lint_deck_file, parse_deck_file
+from osiris_toolkit.exceptions import MissingParameterError, PipelineError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import SimulationParams, UnitConverter
 
@@ -60,19 +61,19 @@ class PipelineContext:
     def require_deck(self) -> dict:
         """Return deck or raise."""
         if self.deck is None:
-            raise RuntimeError("Pipeline: deck not loaded. Run DeckParseStep first.")
+            raise PipelineError("Pipeline: deck not loaded. Run DeckParseStep first.")
         return self.deck
 
     def require_sim(self) -> Simulation:
         """Return sim or raise."""
         if self.sim is None:
-            raise RuntimeError("Pipeline: Simulation not loaded. Run SimLoadStep first.")
+            raise PipelineError("Pipeline: Simulation not loaded. Run SimLoadStep first.")
         return self.sim
 
     def require_converter(self) -> UnitConverter:
         """Return converter or raise."""
         if self.converter is None:
-            raise RuntimeError("Pipeline: UnitConverter not built. Ensure deck is loaded.")
+            raise PipelineError("Pipeline: UnitConverter not built. Ensure deck is loaded.")
         return self.converter
 
 
@@ -110,7 +111,7 @@ class DeckParseStep(PipelineStep):
         ctx.deck = parse_deck_file(str(self._path))
         try:
             ctx.params = SimulationParams.from_deck(ctx.deck)
-        except ValueError:
+        except (ValueError, MissingParameterError):
             # omega_p0 not found — unit conversion will be unavailable
             ctx.params = None
         if ctx.params:
@@ -127,11 +128,11 @@ class DeckValidateStep(PipelineStep):
         ctx.require_deck()  # ensure deck is loaded
         # Lint requires a file path; re-read from disk
         if ctx.deck_path is None:
-            raise RuntimeError("DeckValidateStep requires deck_path in context.")
+            raise PipelineError("DeckValidateStep requires deck_path in context.")
         report = lint_deck_file(str(ctx.deck_path))
         if report.has_errors():
             issues = [f"[{i.rule_id}] {i.message}" for i in report.errors()]
-            raise RuntimeError(
+            raise PipelineError(
                 f"Deck validation failed with {len(issues)} error(s):\n  "
                 + "\n  ".join(issues)
             )
@@ -158,7 +159,7 @@ class SimLoadStep(PipelineStep):
                     deck = parse_deck_file(str(in_files[0]))
                     ctx.params = SimulationParams.from_deck(deck)
                     ctx.converter = UnitConverter.from_params(ctx.params)
-                except (ValueError, OSError):
+                except (ValueError, OSError, MissingParameterError):
                     pass
         return ctx
 
@@ -331,7 +332,7 @@ class Pipeline:
                         )
                     )
                 else:
-                    raise ValueError(
+                    raise PipelineError(
                         f"Unknown pipeline step: {step_name!r}. "
                         "Known: deck_parse, deck_validate, sim_load, analyze, visualize"
                     )

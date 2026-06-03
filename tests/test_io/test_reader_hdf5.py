@@ -2,6 +2,8 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import FormatError
+
 h5py = pytest.importorskip("h5py", reason="h5py not installed")
 
 
@@ -263,7 +265,7 @@ class TestErrorHandling:
 
         path = tmp_path / "not_hdf5.h5"
         path.write_text("not an HDF5 file")
-        with pytest.raises(ValueError, match="Not a valid HDF5 file"):
+        with pytest.raises(FormatError, match="Not a valid HDF5 file"):
             read_info(str(path))
 
     def test_missing_type_attr(self, tmp_path):
@@ -272,7 +274,7 @@ class TestErrorHandling:
         path = tmp_path / "test.h5"
         with h5py.File(path, "w") as _f:
             pass
-        with pytest.raises(ValueError, match="Missing TYPE attribute"):
+        with pytest.raises(FormatError, match="Missing TYPE attribute"):
             read_info(str(path))
 
     def test_unknown_file_type(self, tmp_path):
@@ -281,5 +283,5 @@ class TestErrorHandling:
         path = tmp_path / "test.h5"
         with h5py.File(path, "w") as f:
             f.attrs["TYPE"] = np.bytes_("unknown_type")
-        with pytest.raises(ValueError, match="Unknown HDF5 file type"):
+        with pytest.raises(FormatError, match="Unknown HDF5 file type"):
             read_info(str(path))

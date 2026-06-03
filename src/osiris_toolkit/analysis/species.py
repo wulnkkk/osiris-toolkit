@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit.exceptions import DataNotFoundError
+
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import (
     MomentumStatsResult,
@@ -34,13 +36,13 @@ class SpeciesAnalyzer(DiagnosticAnalyzer):
         """Energy histogram from raw particle data."""
         raw = self._sim.get_raw(species, iteration)
         if raw is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No raw particle data for species '{species}' at iteration {iteration}"
             )
 
         ene = raw.data.get("ene", raw.data.get("p"))
         if ene is None:
-            raise ValueError("No energy/kinetic energy quantity in raw data")
+            raise DataNotFoundError("No energy/kinetic energy quantity in raw data")
 
         counts, edges = np.histogram(np.abs(ene), bins=bins)
         centers = 0.5 * (edges[:-1] + edges[1:])
@@ -84,7 +86,7 @@ class SpeciesAnalyzer(DiagnosticAnalyzer):
         """
         raw = self._sim.get_raw(species, iteration)
         if raw is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No raw particle data for species '{species}' at iteration {iteration}"
             )
 

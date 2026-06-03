@@ -7,8 +7,6 @@ Usage:
 import os
 import sys
 
-import numpy as np
-
 from osiris_toolkit.parallel._cluster import (
     detect_mpi_rank,
     limit_blas_threads,
@@ -132,7 +130,7 @@ def main() -> None:
     SIM_DATA_PATH = sim_path
 
     print(f"{'='*60}")
-    print(f"Test 01: MPI Multi-Node Parallel")
+    print("Test 01: MPI Multi-Node Parallel")
     print(f"Rank: {comm_rank}, World size: {comm_size}")
     print(f"Data path: {SIM_DATA_PATH}")
     print(f"{'='*60}")

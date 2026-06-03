@@ -1,8 +1,6 @@
 """Unit tests for vis.batch.process_simulation."""
 
-from pathlib import Path
 
-import pytest
 
 
 class TestProcessSimulation:
@@ -46,6 +44,7 @@ class TestBatchResult:
     def test_returns_batch_result(self, tmp_path, monkeypatch):
         """process_simulation returns BatchResult with files and errors."""
         from unittest.mock import MagicMock, patch
+
         from osiris_toolkit.vis.batch import process_simulation
 
         sim_dir = tmp_path / "sim"
@@ -83,6 +82,7 @@ class TestProgressCallback:
     def test_callback_called_per_iteration(self, tmp_path):
         """progress_callback is called once per iteration."""
         from unittest.mock import MagicMock, patch
+
         from osiris_toolkit.vis.batch import process_simulation
 
         sim_dir = tmp_path / "sim"

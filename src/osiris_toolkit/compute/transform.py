@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit.exceptions import ShapeError
 from osiris_toolkit.sim.diagnostics import Field, GridAxis
 
 
@@ -29,11 +30,11 @@ def remap_field(
         Remapped field with axes set to *new_axes*.
     """
     if field.data.ndim != 2:
-        raise ValueError(f"Expected 2-D field, got shape {field.data.shape}")
+        raise ShapeError(f"Expected 2-D field, got shape {field.data.shape}")
 
     old_axes = field.axes
     if len(old_axes) < 2:
-        raise ValueError("Field must have at least 2 axes for remap")
+        raise ShapeError("Field must have at least 2 axes for remap")
 
     ny_out = new_axes[1].npoints
     nx_out = new_axes[0].npoints

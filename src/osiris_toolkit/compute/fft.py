@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit.exceptions import ShapeError
+
 
 def compute_k_space(
     data: np.ndarray,
@@ -32,7 +34,7 @@ def compute_k_space(
         |FFT| amplitude (not power), fftshifted.
     """
     if data.ndim != 2:
-        raise ValueError(f"Expected 2-D data, got shape {data.shape}")
+        raise ShapeError(f"Expected 2-D data, got shape {data.shape}")
     nx, ny = data.shape
 
     kx = 2.0 * np.pi * np.fft.fftfreq(nx, d=dx)

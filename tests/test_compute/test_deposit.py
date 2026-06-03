@@ -1,7 +1,9 @@
 """Tests for compute.deposit — particle-to-grid mapping."""
 import numpy as np
 import pytest
+
 from osiris_toolkit.compute.deposit import particles_to_grid
+from osiris_toolkit.exceptions import ValidationError
 from osiris_toolkit.sim.diagnostics import Field
 
 
@@ -67,7 +69,7 @@ class TestParticlesToGrid:
 
     def test_invalid_shape_function(self):
         positions = np.array([[0.0]])
-        with pytest.raises(ValueError, match="Unknown shape function"):
+        with pytest.raises(ValidationError, match="Unknown shape function"):
             particles_to_grid(positions, None, (3,), shape_function="invalid")
 
     def test_returns_field_with_axes(self):

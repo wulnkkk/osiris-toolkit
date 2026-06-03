@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import FormatError
 from osiris_toolkit.io._parallel import read_many, read_many_map
 from osiris_toolkit.io._reader import read_grid, read_info
 
@@ -61,7 +62,7 @@ class TestReadMany:
         write_invalid_zdf(tmp_path / "bad.zdf", magic_corrupt=True)
 
         paths = [tmp_path / "good.zdf", tmp_path / "bad.zdf"]
-        with pytest.raises(ValueError, match="Not a valid ZDF file"):
+        with pytest.raises(FormatError, match="Not a valid ZDF file"):
             read_many(paths, read_grid, max_workers=1)
 
     def test_read_many_on_error_return(self, tmp_path):

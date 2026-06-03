@@ -2,6 +2,7 @@
 
 import pytest
 
+from osiris_toolkit.exceptions import MissingParameterError
 from osiris_toolkit.resource._params import ResourceParams
 
 
@@ -43,7 +44,7 @@ class TestResourceParams:
             _make_section("time", {"tmax": 50.0}),
             _make_section("time_step", {"dt": 0.07}),
         ])
-        with pytest.raises(ValueError, match="grid"):
+        with pytest.raises(MissingParameterError, match="grid"):
             ResourceParams.from_deck(deck)
 
     def test_missing_tmax_raises(self):
@@ -51,7 +52,7 @@ class TestResourceParams:
             _make_section("grid", {"nx_p": [32, 32]}),
             _make_section("time_step", {"dt": 0.07}),
         ])
-        with pytest.raises(ValueError, match="time"):
+        with pytest.raises(MissingParameterError, match="time"):
             ResourceParams.from_deck(deck)
 
     def test_missing_dt_raises(self):
@@ -59,7 +60,7 @@ class TestResourceParams:
             _make_section("grid", {"nx_p": [32, 32]}),
             _make_section("time", {"tmax": 50.0}),
         ])
-        with pytest.raises(ValueError, match="dt"):
+        with pytest.raises(MissingParameterError, match="dt"):
             ResourceParams.from_deck(deck)
 
     def test_with_species(self):

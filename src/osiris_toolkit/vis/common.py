@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm
 
+from osiris_toolkit.exceptions import ConfigurationError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
@@ -40,9 +41,9 @@ def load_sim(
     if sim is not None:
         return sim
     if path is None:
-        raise ValueError("Either sim or a valid path is required.")
+        raise ConfigurationError("Either sim or a valid path is required.")
     if isinstance(path, str) and path.strip() == "":
-        raise ValueError("A simulation path is required.")
+        raise ConfigurationError("A simulation path is required.")
     return Simulation(path)
 
 

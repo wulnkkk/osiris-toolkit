@@ -1,7 +1,6 @@
 """Tests for vis.energy plotting functions."""
 
 import numpy as np
-import pytest
 
 from osiris_toolkit.analysis._result_types import (
     EMDynamicsResult,

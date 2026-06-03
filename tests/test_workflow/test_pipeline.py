@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from osiris_toolkit.exceptions import PipelineError
 from osiris_toolkit.workflow.pipeline import (
     DeckParseStep,
     DeckValidateStep,
@@ -35,12 +36,12 @@ class TestPipelineContext:
 
     def test_require_deck_raises(self) -> None:
         ctx = PipelineContext()
-        with pytest.raises(RuntimeError, match="deck not loaded"):
+        with pytest.raises(PipelineError, match="deck not loaded"):
             ctx.require_deck()
 
     def test_require_sim_raises(self) -> None:
         ctx = PipelineContext()
-        with pytest.raises(RuntimeError, match="Simulation not loaded"):
+        with pytest.raises(PipelineError, match="Simulation not loaded"):
             ctx.require_sim()
 
 
@@ -139,7 +140,9 @@ class TestPipelineDryRun:
     def test_dry_run_does_not_execute_steps(self):
         """dry_run=True skips step execution."""
         from osiris_toolkit.workflow.pipeline import (
-            Pipeline, PipelineContext, PipelineStep,
+            Pipeline,
+            PipelineContext,
+            PipelineStep,
         )
 
         executed = []
@@ -157,8 +160,11 @@ class TestPipelineDryRun:
     def test_dry_run_logs_step_name(self, caplog):
         """dry_run=True logs step names."""
         import logging
+
         from osiris_toolkit.workflow.pipeline import (
-            Pipeline, PipelineContext, PipelineStep,
+            Pipeline,
+            PipelineContext,
+            PipelineStep,
         )
 
         # Ensure the pipeline module logger propagates INFO to caplog
@@ -179,7 +185,9 @@ class TestPipelineDryRun:
     def test_normal_run_still_works(self):
         """dry_run=False (default) executes steps as before."""
         from osiris_toolkit.workflow.pipeline import (
-            Pipeline, PipelineContext, PipelineStep,
+            Pipeline,
+            PipelineContext,
+            PipelineStep,
         )
 
         executed = []

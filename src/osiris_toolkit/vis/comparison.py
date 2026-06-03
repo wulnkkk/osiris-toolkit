@@ -7,6 +7,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.exceptions import DataNotFoundError, ValidationError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 from osiris_toolkit.vis.common import get_converter, load_sim, save_or_show
@@ -49,7 +50,7 @@ def plot_difference(
     grid_a = sim_obj.get_field(quantity, iter_a)
     grid_b = sim_obj.get_field(quantity, iter_b)
     if grid_a is None or grid_b is None:
-        raise ValueError(f"Field {quantity!r} not found at requested iterations")
+        raise DataNotFoundError(f"Field {quantity!r} not found at requested iterations")
 
     diff = grid_b.data.astype(np.float64) - grid_a.data.astype(np.float64)
 
@@ -108,7 +109,7 @@ def plot_overlay(
     Path or None
     """
     if len(quantities) != 2:
-        raise ValueError("plot_overlay requires exactly 2 quantities")
+        raise ValidationError("plot_overlay requires exactly 2 quantities")
 
     sim_obj = load_sim(sim_path, sim=sim)
     if converter is None:
@@ -118,7 +119,7 @@ def plot_overlay(
     for q in quantities:
         g = sim_obj.get_field(q, iteration)
         if g is None:
-            raise ValueError(f"Field {q!r} not found at iteration {iteration}")
+            raise DataNotFoundError(f"Field {q!r} not found at iteration {iteration}")
         grids.append(g)
 
     g0, g1 = grids

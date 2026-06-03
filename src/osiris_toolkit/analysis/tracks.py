@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit.exceptions import DataNotFoundError
+
 from ._protocol import DiagnosticAnalyzer
 
 
@@ -37,7 +39,7 @@ class TracksAnalyzer(DiagnosticAnalyzer):
         """
         td = self._sim.get_tracks(name)
         if td is None:
-            raise ValueError(f"No track data for '{name}'")
+            raise DataNotFoundError(f"No track data for '{name}'")
 
         ene_idx = _find_quant(td.quants, "ene")
         return [track[:, ene_idx] for track in td.tracks]
@@ -61,7 +63,7 @@ class TracksAnalyzer(DiagnosticAnalyzer):
         """
         td = self._sim.get_tracks(name)
         if td is None:
-            raise ValueError(f"No track data for '{name}'")
+            raise DataNotFoundError(f"No track data for '{name}'")
 
         idx = _find_quant(td.quants, component)
         return [track[:, idx] for track in td.tracks]
@@ -76,6 +78,6 @@ def _find_quant(quants: list[str], target: str) -> int:
     for i, q in enumerate(quants):
         if q.lower() == target_lower:
             return i
-    raise ValueError(
+    raise DataNotFoundError(
         f"Quantity '{target}' not found in track quants: {quants}"
     )

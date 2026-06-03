@@ -18,6 +18,7 @@ from typing import BinaryIO
 
 import numpy as np
 
+from osiris_toolkit.exceptions import FormatError, UnsupportedVersionError
 from osiris_toolkit.io._format import (
     MAGIC,
     RecordType,
@@ -126,7 +127,7 @@ def _read_iteration(fh: BinaryIO, rec: ZdfRecord) -> ZdfIteration:
 def _read_grid_info(fh: BinaryIO, rec: ZdfRecord) -> ZdfGridInfo:
     ver = record_version(rec.id)
     if ver > 1:
-        raise ValueError(f"Unsupported grid_info version: {ver}")
+        raise UnsupportedVersionError(f"Unsupported grid_info version: {ver}")
 
     gi = ZdfGridInfo()
     gi.ndims = _read_uint32(fh)
@@ -152,7 +153,7 @@ def _read_grid_info(fh: BinaryIO, rec: ZdfRecord) -> ZdfGridInfo:
 def _read_part_info(fh: BinaryIO, rec: ZdfRecord) -> ZdfPartInfo:
     ver = record_version(rec.id)
     if ver > 2:
-        raise ValueError(f"Unsupported part_info version: {ver}")
+        raise UnsupportedVersionError(f"Unsupported part_info version: {ver}")
 
     pi = ZdfPartInfo()
     pi.label = _read_string(fh)
@@ -183,7 +184,7 @@ def _read_part_info(fh: BinaryIO, rec: ZdfRecord) -> ZdfPartInfo:
 def _read_track_info(fh: BinaryIO, rec: ZdfRecord) -> ZdfTrackInfo:
     ver = record_version(rec.id)
     if ver > 1:
-        raise ValueError(f"Unsupported track_info version: {ver}")
+        raise UnsupportedVersionError(f"Unsupported track_info version: {ver}")
 
     ti = ZdfTrackInfo()
     ti.label = _read_string(fh)
@@ -246,11 +247,11 @@ def _read_dataset(fh: BinaryIO, rec: ZdfRecord) -> np.ndarray | None:
     """Read a regular (non-chunked) dataset."""
     type_id = rec.id & 0xFFFF0000
     if type_id != RecordType.DATASET:
-        raise ValueError(f"Expected DATASET record, got {record_type_name(rec.id)}")
+        raise FormatError(f"Expected DATASET record, got {record_type_name(rec.id)}")
 
     ver = record_version(rec.id)
     if ver > 2:
-        raise ValueError(f"Unsupported dataset version: {ver}")
+        raise UnsupportedVersionError(f"Unsupported dataset version: {ver}")
 
     if ver >= 1:
         _id = _read_uint32(fh)  # dataset ID (not needed)
@@ -264,11 +265,11 @@ def _read_cdset(fh: BinaryIO, rec: ZdfRecord, rewind: bool = False) -> np.ndarra
     """Read a chunked dataset (CDSET_START → CDSET_CHUNK* → CDSET_END)."""
     type_id = rec.id & 0xFFFF0000
     if type_id != RecordType.CDSET_START:
-        raise ValueError(f"Expected CDSET_START record, got {record_type_name(rec.id)}")
+        raise FormatError(f"Expected CDSET_START record, got {record_type_name(rec.id)}")
 
     ver = record_version(rec.id)
     if ver > 1:
-        raise ValueError(f"Unsupported cdset version: {ver}")
+        raise UnsupportedVersionError(f"Unsupported cdset version: {ver}")
 
     _id = _read_uint32(fh)
     data_type_id, ndims, nx = _read_data_header(fh)
@@ -333,10 +334,10 @@ def _read_file_type(fh: BinaryIO) -> str:
     """
     rec = _read_record(fh)
     if rec is None:
-        raise ValueError("Unexpected EOF: missing TYPE record")
+        raise FormatError("Unexpected EOF: missing TYPE record")
     type_id = rec.id & 0xFFFF0000
     if type_id != RecordType.STRING:
-        raise ValueError(f"Expected TYPE (STRING) record, got {record_type_name(rec.id)}")
+        raise FormatError(f"Expected TYPE (STRING) record, got {record_type_name(rec.id)}")
     return _read_string(fh)
 
 
@@ -359,31 +360,31 @@ def read_info(path: str | Path) -> ZdfFileInfo:
         if file_type == "grid":
             rec = _read_record(fh)
             if rec is None:
-                raise ValueError("Unexpected EOF reading grid info")
+                raise FormatError("Unexpected EOF reading grid info")
             info.grid = _read_grid_info(fh, rec)
             rec = _read_record(fh)
             if rec is None:
-                raise ValueError("Unexpected EOF reading iteration")
+                raise FormatError("Unexpected EOF reading iteration")
             info.iteration = _read_iteration(fh, rec)
 
         elif file_type == "particles":
             rec = _read_record(fh)
             if rec is None:
-                raise ValueError("Unexpected EOF reading particle info")
+                raise FormatError("Unexpected EOF reading particle info")
             info.particles = _read_part_info(fh, rec)
             rec = _read_record(fh)
             if rec is None:
-                raise ValueError("Unexpected EOF reading iteration")
+                raise FormatError("Unexpected EOF reading iteration")
             info.iteration = _read_iteration(fh, rec)
 
         elif file_type == "tracks-2":
             rec = _read_record(fh)
             if rec is None:
-                raise ValueError("Unexpected EOF reading track info")
+                raise FormatError("Unexpected EOF reading track info")
             info.tracks = _read_track_info(fh, rec)
 
         else:
-            raise ValueError(f"Unknown ZDF file type: {file_type!r}")
+            raise FormatError(f"Unknown ZDF file type: {file_type!r}")
 
     return info
 
@@ -406,17 +407,17 @@ def read_grid(path: str | Path) -> tuple[np.ndarray, ZdfGridInfo, ZdfIteration]:
 
         rec = _read_record(fh)
         if rec is None:
-            raise ValueError("Unexpected EOF reading dataset")
+            raise FormatError("Unexpected EOF reading dataset")
         type_id = rec.id & 0xFFFF0000
         if type_id == RecordType.DATASET:
             data = _read_dataset(fh, rec)
         elif type_id == RecordType.CDSET_START:
             data = _read_cdset(fh, rec)
         else:
-            raise ValueError(f"Expected dataset, got {record_type_name(rec.id)}")
+            raise FormatError(f"Expected dataset, got {record_type_name(rec.id)}")
 
         if data is None:
-            raise ValueError("Failed to read grid dataset")
+            raise FormatError("Failed to read grid dataset")
 
     return data, gi, it
 
@@ -429,7 +430,7 @@ def read_particles(path: str | Path) -> tuple[dict[str, np.ndarray], ZdfPartInfo
 
         rec = _read_record(fh)
         if rec is None:
-            raise ValueError("Unexpected EOF reading particle info")
+            raise FormatError("Unexpected EOF reading particle info")
         pi = _read_part_info(fh, rec)
 
         rec = _read_record(fh)
@@ -462,13 +463,13 @@ def read_tracks(path: str | Path) -> tuple[list[np.ndarray], ZdfTrackInfo]:
 
         rec = _read_record(fh)
         if rec is None:
-            raise ValueError("Unexpected EOF reading track info")
+            raise FormatError("Unexpected EOF reading track info")
         ti = _read_track_info(fh, rec)
 
         # Read itermap
         rec = _read_record(fh)
         if rec is None or rec.name != "itermap":
-            raise ValueError("Expected itermap record")
+            raise FormatError("Expected itermap record")
         itermap = _read_cdset(fh, rec)
         if itermap is None:
             return [], ti
@@ -476,7 +477,7 @@ def read_tracks(path: str | Path) -> tuple[list[np.ndarray], ZdfTrackInfo]:
         # Read data (position is now after itermap CDSET_END)
         rec = _read_record(fh)
         if rec is None or rec.name != "data":
-            raise ValueError("Expected data record")
+            raise FormatError("Expected data record")
         track_data = _read_cdset(fh, rec)
         if track_data is None:
             return [], ti
@@ -534,6 +535,6 @@ def _check_magic(fh: BinaryIO) -> None:
     """Verify the ZDF magic number at the current file position."""
     magic = fh.read(4)
     if magic != MAGIC:
-        raise ValueError(
+        raise FormatError(
             f"Not a valid ZDF file: expected magic {MAGIC!r}, got {magic!r}"
         )

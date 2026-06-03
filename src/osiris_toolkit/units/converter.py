@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit.exceptions import UnitConversionError
 from osiris_toolkit.units.params import SimulationParams
 
 # Physical constants (SI)
@@ -219,7 +220,7 @@ class UnitConverter:
 
     def __init__(self, omega_p: float) -> None:
         if omega_p <= 0:
-            raise ValueError(f"omega_p must be > 0, got {omega_p}")
+            raise UnitConversionError(f"omega_p must be > 0, got {omega_p}")
         self.omega_p = omega_p
         self._scales = _build_scales(omega_p)
 
@@ -229,14 +230,14 @@ class UnitConverter:
         """Return the scale factor: result = normalized_value * scale."""
         q_scales = self._scales.get(quantity)
         if q_scales is None:
-            raise KeyError(
+            raise UnitConversionError(
                 f"Unknown quantity {quantity!r}. Known: {sorted(self._scales)}"
             )
         if unit == "auto":
             unit = _AUTO_UNITS.get(quantity, "norm")
         s = q_scales.get(unit)
         if s is None:
-            raise KeyError(
+            raise UnitConversionError(
                 f"Unknown unit {unit!r} for {quantity}. Known: {sorted(q_scales)}"
             )
         return s

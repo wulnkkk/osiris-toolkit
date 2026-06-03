@@ -105,7 +105,7 @@ def mode_vis(sim_path: str) -> None:
         print("[FATAL] No field data found")
         sys.exit(1)
 
-    print(f"[INFO] Mode: vis")
+    print("[INFO] Mode: vis")
     print(f"[INFO] Fields: {fields}")
     print(f"[INFO] Species: {species}")
 

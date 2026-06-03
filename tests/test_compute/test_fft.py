@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from osiris_toolkit.compute.fft import compute_k_space, spectral_power
+from osiris_toolkit.exceptions import ShapeError
 
 
 class TestComputeKSpace:
@@ -43,7 +44,7 @@ class TestComputeKSpace:
     def test_raises_on_1d(self):
         """1-D input raises ValueError."""
         data = np.random.randn(64)
-        with pytest.raises(ValueError, match="Expected 2-D"):
+        with pytest.raises(ShapeError, match="Expected 2-D"):
             compute_k_space(data, dx=0.1, dy=0.1)
 
     def test_monochromatic_wave(self):

@@ -10,6 +10,8 @@ from typing import Any
 
 import numpy as np
 
+from osiris_toolkit.exceptions import ShapeError, ValidationError
+
 
 @dataclass
 class GridAxis:
@@ -37,7 +39,7 @@ class GridAxis:
             Fractional grid index (0 to npoints-1).
         """
         if self.npoints <= 0:
-            raise ValueError(
+            raise ValidationError(
                 f"GridAxis.npoints not set for axis {self.name!r}; "
                 "cannot convert coordinates"
             )
@@ -60,7 +62,7 @@ class GridAxis:
             Physical coordinate.
         """
         if self.npoints <= 0:
-            raise ValueError(
+            raise ValidationError(
                 f"GridAxis.npoints not set for axis {self.name!r}; "
                 "cannot convert coordinates"
             )
@@ -101,7 +103,7 @@ class Field:
     def __add__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ValueError(
+                raise ShapeError(
                     f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
                 )
             return self._copy_meta(self.data + other.data)
@@ -113,7 +115,7 @@ class Field:
     def __sub__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ValueError(
+                raise ShapeError(
                     f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
                 )
             return self._copy_meta(self.data - other.data)
@@ -125,7 +127,7 @@ class Field:
     def __mul__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ValueError(
+                raise ShapeError(
                     f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
                 )
             return self._copy_meta(self.data * other.data)
@@ -137,7 +139,7 @@ class Field:
     def __truediv__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ValueError(
+                raise ShapeError(
                     f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
                 )
             return self._copy_meta(self.data / other.data)
@@ -625,7 +627,7 @@ def _eval_particle_expr(expr: str, data: dict[str, np.ndarray]) -> np.ndarray:
     except ImportError:
         pass
     except Exception as e:
-        raise ValueError(
+        raise ValidationError(
             f"Failed to evaluate filter expression {expr!r}: {e}"
         ) from e
 
@@ -635,6 +637,6 @@ def _eval_particle_expr(expr: str, data: dict[str, np.ndarray]) -> np.ndarray:
         mask = eval(expr, {"__builtins__": {}}, safe_locals)
         return np.asarray(mask, dtype=bool)
     except Exception as e:
-        raise ValueError(
+        raise ValidationError(
             f"Failed to evaluate filter expression {expr!r}: {e}"
         ) from e

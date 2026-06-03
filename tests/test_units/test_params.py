@@ -2,6 +2,7 @@
 
 import pytest
 
+from osiris_toolkit.exceptions import MissingParameterError, UnitConversionError
 from osiris_toolkit.units import SimulationParams, UnitConverter
 
 
@@ -21,11 +22,11 @@ class TestSimulationParams:
         assert params.gamma == 5.0
 
     def test_from_deck_missing_section(self) -> None:
-        with pytest.raises(ValueError, match="Missing 'simulation' section"):
+        with pytest.raises(MissingParameterError, match="Missing 'simulation' section"):
             SimulationParams.from_deck({"sections": []})
 
     def test_from_deck_missing_omega_p0(self) -> None:
-        with pytest.raises(ValueError, match="omega_p0"):
+        with pytest.raises(MissingParameterError, match="omega_p0"):
             SimulationParams.from_deck(
                 {"sections": [{"name": "simulation", "params": {}}]}
             )
@@ -63,10 +64,10 @@ class TestUnitConverter:
         assert uc.convert(1.0, "length", "auto") > 0
 
     def test_negative_omega_p_raises(self) -> None:
-        with pytest.raises(ValueError, match="omega_p"):
+        with pytest.raises(UnitConversionError, match="omega_p"):
             UnitConverter(-1.0)
 
     def test_unknown_quantity_raises(self) -> None:
         uc = UnitConverter(1.0e15)
-        with pytest.raises(KeyError):
+        with pytest.raises(UnitConversionError):
             uc.get_scale("nonexistent", "norm")

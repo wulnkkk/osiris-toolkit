@@ -2,6 +2,7 @@
 
 import pytest
 
+from osiris_toolkit.exceptions import FormatError
 from osiris_toolkit.io._format import (
     DTYPE_NAMES,
     DTYPE_TO_NUMPY,
@@ -68,7 +69,7 @@ class TestDtypeMapping:
         assert numpy_dtype(10) == "float64"
 
     def test_unknown_dtype_raises(self):
-        with pytest.raises(ValueError, match="Unknown ZDF data type ID"):
+        with pytest.raises(FormatError, match="Unknown ZDF data type ID"):
             numpy_dtype(999)
 
     def test_all_dtype_names_mapped(self):

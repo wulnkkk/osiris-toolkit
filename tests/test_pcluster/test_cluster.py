@@ -2,8 +2,6 @@
 
 import os
 
-import pytest
-
 from osiris_toolkit.parallel import (
     detect_available_workers,
     detect_job_array,

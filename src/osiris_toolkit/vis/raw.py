@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim.diagnostics import ParticleData
 
 from .common import save_or_show
@@ -52,7 +53,7 @@ def plot_raw_scatter(
     x = raw.data.get(x_axis)
     y = raw.data.get(y_axis)
     if x is None or y is None:
-        raise ValueError(
+        raise DataNotFoundError(
             f"Quantity '{x_axis}' or '{y_axis}' not in raw data. "
             f"Available: {list(raw.data.keys())}"
         )
@@ -237,7 +238,7 @@ def plot_raw_energy_spectrum(
     """
     ene = raw.data.get("ene", raw.data.get("p"))
     if ene is None or len(ene) == 0:
-        raise ValueError("No energy/kinetic energy quantity in raw data")
+        raise DataNotFoundError("No energy/kinetic energy quantity in raw data")
 
     ene_abs = np.abs(ene)
     pos = ene_abs[ene_abs > 0]
@@ -264,6 +265,6 @@ def plot_raw_energy_spectrum(
 def _require_quant(raw: ParticleData, name: str) -> None:
     """Raise ValueError if *name* is not in raw.data."""
     if name not in raw.data:
-        raise ValueError(
+        raise DataNotFoundError(
             f"Quantity '{name}' not in raw data. Available: {list(raw.data.keys())}"
         )

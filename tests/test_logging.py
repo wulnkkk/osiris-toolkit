@@ -1,8 +1,8 @@
 """Tests for _logging module."""
-import logging
 import json
-import pytest
-from osiris_toolkit._logging import get_logger, configure
+import logging
+
+from osiris_toolkit._logging import configure, get_logger
 
 
 class TestGetLogger:

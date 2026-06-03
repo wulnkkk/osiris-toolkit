@@ -4,7 +4,6 @@ Edit SIM_DIRS below to point to your completed simulation directories.
 Each directory must contain an input deck (.in file) and simulation output.
 """
 
-import os
 import sys
 from pathlib import Path
 

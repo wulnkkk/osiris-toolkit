@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import FormatError
 from osiris_toolkit.io._reader import (
     list_records,
     read_grid,
@@ -53,11 +54,11 @@ class TestReadGrid:
             read_grid(tmp_path / "nonexistent.zdf")
 
     def test_read_grid_corrupt_magic(self, tmp_zdf_corrupt_magic):
-        with pytest.raises(ValueError, match="Not a valid ZDF file"):
+        with pytest.raises(FormatError, match="Not a valid ZDF file"):
             read_grid(tmp_zdf_corrupt_magic)
 
     def test_read_grid_empty_file(self, tmp_zdf_empty):
-        with pytest.raises(ValueError):
+        with pytest.raises(FormatError):
             read_grid(tmp_zdf_empty)
 
 

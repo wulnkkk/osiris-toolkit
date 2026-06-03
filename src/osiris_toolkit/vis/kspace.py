@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from osiris_toolkit.compute.fft import compute_k_space as _compute_k_space
+from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
 from osiris_toolkit.sim import GridData, Simulation
 from osiris_toolkit.units import UnitConverter
 
@@ -55,7 +56,7 @@ def compute_k_space(
     )
     data = grid.data
     if data.ndim != 2:
-        raise ValueError(f"Expected 2-D data, got shape {data.shape}")
+        raise ShapeError(f"Expected 2-D data, got shape {data.shape}")
     nx, ny = data.shape
     dx = (grid.axes[0].max - grid.axes[0].min) / nx
     dy = (grid.axes[1].max - grid.axes[1].min) / ny
@@ -119,7 +120,7 @@ def plot_k_space(
 
     grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
-        raise ValueError(
+        raise DataNotFoundError(
             f"Field {quantity!r} not found at iteration {iteration}"
         )
 

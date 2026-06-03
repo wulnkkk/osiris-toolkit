@@ -12,6 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
+from osiris_toolkit.exceptions import FormatError, MissingDependencyError
 from osiris_toolkit.io._types import (
     ZdfAxis,
     ZdfFileInfo,
@@ -28,7 +29,7 @@ def _ensure_h5py():
     try:
         import h5py
     except ImportError:
-        raise ImportError(
+        raise MissingDependencyError(
             "h5py is required to read HDF5 files. "
             "Install with: pip install osiris-toolkit[hdf5]"
         )
@@ -149,13 +150,13 @@ def read_info(path: str | Path) -> ZdfFileInfo:
     try:
         f = h5py.File(path, "r")
     except OSError:
-        raise ValueError(f"Not a valid HDF5 file: {path}")
+        raise FormatError(f"Not a valid HDF5 file: {path}")
 
     with f:
         try:
             file_type = _read_str_attr(f, "TYPE")
         except KeyError:
-            raise ValueError(f"Missing TYPE attribute in HDF5 file: {path}")
+            raise FormatError(f"Missing TYPE attribute in HDF5 file: {path}")
 
         sim_info = _read_opt_str_attr(f, "SIMULATION")
         info = ZdfFileInfo(file_type=file_type, simulation_info=sim_info)
@@ -177,7 +178,7 @@ def read_info(path: str | Path) -> ZdfFileInfo:
                 info.tracks = _read_track_info_h5(f["TRACK_INFO"])
 
         else:
-            raise ValueError(f"Unknown HDF5 file type: {file_type!r} in {path}")
+            raise FormatError(f"Unknown HDF5 file type: {file_type!r} in {path}")
 
     return info
 
@@ -190,12 +191,12 @@ def read_grid(path: str | Path) -> tuple[np.ndarray, ZdfGridInfo, ZdfIteration]:
     try:
         f = h5py.File(path, "r")
     except OSError:
-        raise ValueError(f"Not a valid HDF5 file: {path}")
+        raise FormatError(f"Not a valid HDF5 file: {path}")
 
     with f:
         file_type = _read_str_attr(f, "TYPE")
         if file_type != "grid":
-            raise ValueError(f"Expected 'grid' file type, got {file_type!r}")
+            raise FormatError(f"Expected 'grid' file type, got {file_type!r}")
 
         gi = _read_grid_info_h5(f["GRID_INFO"])
         it = _read_iteration_h5(f["ITERATION"])
@@ -216,12 +217,12 @@ def read_particles(path: str | Path) -> tuple[dict[str, np.ndarray], ZdfPartInfo
     try:
         f = h5py.File(path, "r")
     except OSError:
-        raise ValueError(f"Not a valid HDF5 file: {path}")
+        raise FormatError(f"Not a valid HDF5 file: {path}")
 
     with f:
         file_type = _read_str_attr(f, "TYPE")
         if file_type != "particles":
-            raise ValueError(f"Expected 'particles' file type, got {file_type!r}")
+            raise FormatError(f"Expected 'particles' file type, got {file_type!r}")
 
         pi = _read_part_info_h5(f["PART_INFO"])
         it = _read_iteration_h5(f["ITERATION"])
@@ -244,12 +245,12 @@ def read_tracks(path: str | Path) -> tuple[list[np.ndarray], ZdfTrackInfo]:
     try:
         f = h5py.File(path, "r")
     except OSError:
-        raise ValueError(f"Not a valid HDF5 file: {path}")
+        raise FormatError(f"Not a valid HDF5 file: {path}")
 
     with f:
         file_type = _read_str_attr(f, "TYPE")
         if file_type != "tracks":
-            raise ValueError(f"Expected 'tracks' file type, got {file_type!r}")
+            raise FormatError(f"Expected 'tracks' file type, got {file_type!r}")
 
         ti = _read_track_info_h5(f["TRACK_INFO"])
 
@@ -294,7 +295,7 @@ def list_records(path: str | Path) -> list[ZdfRecord]:
     try:
         f = h5py.File(path, "r")
     except OSError:
-        raise ValueError(f"Not a valid HDF5 file: {path}")
+        raise FormatError(f"Not a valid HDF5 file: {path}")
 
     records: list[ZdfRecord] = []
 

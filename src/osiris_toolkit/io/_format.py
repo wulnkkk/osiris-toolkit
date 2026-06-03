@@ -11,6 +11,8 @@ constants of the binary protocol, empirically verified.
 
 from __future__ import annotations
 
+from osiris_toolkit.exceptions import FormatError
+
 # File magic number (ASCII "ZDF1")
 MAGIC = b"ZDF1"
 
@@ -109,5 +111,5 @@ def numpy_dtype(data_type_id: int) -> str:
     """Return the numpy dtype string for a ZDF data type ID."""
     dt = DTYPE_TO_NUMPY.get(data_type_id)
     if dt is None:
-        raise ValueError(f"Unknown ZDF data type ID: {data_type_id}")
+        raise FormatError(f"Unknown ZDF data type ID: {data_type_id}")
     return dt

@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from osiris_toolkit.compute.integrate import line_integrate
+from osiris_toolkit.exceptions import DataNotFoundError
 
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import DensityIntegralResult, DensityProfileResult
@@ -50,7 +51,7 @@ class DensityAnalyzer(DiagnosticAnalyzer):
         """
         grid = self._sim.get_density(species, quantity, iteration)
         if grid is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No {quantity} density for species '{species}' "
                 f"at iteration {iteration}"
             )
@@ -96,7 +97,7 @@ class DensityAnalyzer(DiagnosticAnalyzer):
         """
         grid = self._sim.get_density(species, quantity, iteration)
         if grid is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No {quantity} density for species '{species}' "
                 f"at iteration {iteration}"
             )

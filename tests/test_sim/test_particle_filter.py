@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import ValidationError
+
 
 def _make_test_data():
     from osiris_toolkit.sim.diagnostics import ParticleData
@@ -55,7 +57,7 @@ class TestParticleFilter:
     def test_filter_invalid_expr_raises(self):
         """filter with invalid expression raises ValueError."""
         raw = _make_test_data()
-        with pytest.raises(ValueError, match="Failed to evaluate"):
+        with pytest.raises(ValidationError, match="Failed to evaluate"):
             raw.filter("nonexistent_key > 0")
 
     def test_compress_returns_copy(self):

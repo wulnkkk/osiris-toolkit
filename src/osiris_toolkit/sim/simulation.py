@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from osiris_toolkit.exceptions import FormatError, MissingDependencyError
 from osiris_toolkit.sim.diagnostics import (
     FieldInfo,
     GridAxis,
@@ -44,7 +45,7 @@ def _parse_iter_file(filename: str) -> tuple[str, int]:
     """
     m = _ITER_FILE_RE.match(filename)
     if m is None:
-        raise ValueError(f"Unexpected ZDF filename format: {filename}")
+        raise FormatError(f"Unexpected ZDF filename format: {filename}")
     return m.group(1), int(m.group(2))
 
 
@@ -892,7 +893,7 @@ class Simulation:
             if e.iteration == iteration:
                 try:
                     zdf_info = self._read_info(e.path)
-                except (ValueError, OSError):
+                except (ValueError, OSError, FormatError, MissingDependencyError):
                     return None
                 if zdf_info.grid is None:
                     return None
@@ -939,7 +940,7 @@ class Simulation:
             if e.iteration == iteration:
                 try:
                     zdf_info = self._read_info(e.path)
-                except (ValueError, OSError):
+                except (ValueError, OSError, FormatError, MissingDependencyError):
                     return None
                 if zdf_info.particles is None:
                     return None

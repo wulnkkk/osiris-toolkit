@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from osiris_toolkit.compute.fft import compute_k_space
+from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
 
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import EMSpectrumResult
@@ -45,11 +46,11 @@ class KSpaceAnalyzer(DiagnosticAnalyzer):
         """
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:
-            raise ValueError(f"No data for {quantity} at iteration {iteration}")
+            raise DataNotFoundError(f"No data for {quantity} at iteration {iteration}")
 
         data = grid.data
         if data.ndim < 2:
-            raise ValueError(f"K-space requires 2-D data, got shape {data.shape}")
+            raise ShapeError(f"K-space requires 2-D data, got shape {data.shape}")
 
         nx, ny = data.shape
         dx = (grid.axes[0].max - grid.axes[0].min) / nx

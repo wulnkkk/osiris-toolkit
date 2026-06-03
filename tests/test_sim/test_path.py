@@ -1,6 +1,5 @@
 """Tests for Simulation path ownership and output_root."""
 
-from pathlib import Path
 
 from osiris_toolkit.sim import Simulation
 
@@ -14,7 +13,6 @@ def test_sim_path_is_absolute(tmp_path):
 
 def test_sim_path_from_relative(tmp_path, monkeypatch):
     """Relative path passed to Simulation becomes absolute."""
-    import os
     monkeypatch.chdir(str(tmp_path.parent))
     rel = tmp_path.name
     sim = Simulation(rel)

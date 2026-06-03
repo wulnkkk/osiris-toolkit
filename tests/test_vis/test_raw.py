@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import DataNotFoundError
+
 
 def _make_fake_raw(nparts=1000, seed=42):
     """Build a synthetic ParticleData for testing."""
@@ -93,9 +95,9 @@ class TestPlotRawEnergySpectrum:
 
     def test_empty_data_raises(self):
         """Raises ValueError when particle data has no energy."""
-        from osiris_toolkit.vis.raw import plot_raw_energy_spectrum
         from osiris_toolkit.sim.diagnostics import ParticleData
+        from osiris_toolkit.vis.raw import plot_raw_energy_spectrum
 
         raw = ParticleData(data={}, nparts=0)
-        with pytest.raises(ValueError, match="No energy"):
+        with pytest.raises(DataNotFoundError, match="No energy"):
             plot_raw_energy_spectrum(raw)

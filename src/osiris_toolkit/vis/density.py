@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
@@ -71,7 +72,7 @@ def plot_density(
 
     grid = sim_obj.get_density(species, quantity, iteration)
     if grid is None:
-        raise ValueError(
+        raise DataNotFoundError(
             f"Density for {species!r}/{quantity!r} not found"
             f" at iteration {iteration}."
         )

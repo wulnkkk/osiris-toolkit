@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import SymLogNorm
 
+from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
@@ -71,7 +72,7 @@ def plot_field(
 
     grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
-        raise ValueError(
+        raise DataNotFoundError(
             f"Field {quantity!r} not found at iteration {iteration}. "
             f"Available: {sim_obj.list_fields()}"
         )
@@ -231,7 +232,7 @@ def plot_all_fields(
     fields = sim_obj.list_fields()
     n = len(fields)
     if n == 0:
-        raise ValueError("No field diagnostics found.")
+        raise DataNotFoundError("No field diagnostics found.")
 
     cols = min(3, n)
     rows = (n + cols - 1) // cols

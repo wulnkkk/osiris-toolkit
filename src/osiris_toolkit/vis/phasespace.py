@@ -5,6 +5,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
@@ -66,7 +67,7 @@ def plot_phasespace(
 
     ps = sim_obj.get_phasespace(ps_name, species, iteration)
     if ps is None:
-        raise ValueError(
+        raise DataNotFoundError(
             f"Phasespace {ps_name!r}/{species!r} not found"
             f" at iteration {iteration}. "
             f"Available: {sim.list_phasespaces()}"
@@ -74,7 +75,7 @@ def plot_phasespace(
 
     data = ps.data
     if data.ndim < 2:
-        raise ValueError(
+        raise ShapeError(
             f"Expected 2-D phase-space data, got shape {data.shape}"
         )
 

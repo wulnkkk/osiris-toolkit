@@ -6,6 +6,7 @@ import warnings
 from functools import cached_property
 from pathlib import Path
 
+from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 from osiris_toolkit.vis.animation import animate_field
@@ -134,7 +135,7 @@ class PostVisHub:
                     quantity=quantity, iteration=iteration,
                     **{k: v for k, v in kwargs.items() if k not in ("quantity", "iteration")},
                 )
-            raise ValueError(f"Unknown diagnostic kind {kind!r}")
+            raise DataNotFoundError(f"Unknown diagnostic kind {kind!r}")
 
 
 class _FieldVis:
@@ -171,7 +172,7 @@ class _RawVis:
     def scatter(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No raw particle data for species '{species}' at iteration {iteration}"
             )
         return plot_raw_scatter(raw, **kwargs)
@@ -179,7 +180,7 @@ class _RawVis:
     def momentum(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No raw particle data for species '{species}' at iteration {iteration}"
             )
         return plot_raw_momentum(raw, **kwargs)
@@ -187,7 +188,7 @@ class _RawVis:
     def phasespace(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No raw particle data for species '{species}' at iteration {iteration}"
             )
         return plot_raw_phasespace(raw, **kwargs)
@@ -195,7 +196,7 @@ class _RawVis:
     def energy_spectrum(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise ValueError(
+            raise DataNotFoundError(
                 f"No raw particle data for species '{species}' at iteration {iteration}"
             )
         return plot_raw_energy_spectrum(raw, **kwargs)
@@ -210,19 +211,19 @@ class _TracksVis:
     def orbit(self, name: str, **kwargs) -> Path | None:
         td = self._hub._sim.get_tracks(name)
         if td is None:
-            raise ValueError(f"No track data for '{name}'")
+            raise DataNotFoundError(f"No track data for '{name}'")
         return plot_tracks_orbit(td, **kwargs)
 
     def energy(self, name: str, **kwargs) -> Path | None:
         td = self._hub._sim.get_tracks(name)
         if td is None:
-            raise ValueError(f"No track data for '{name}'")
+            raise DataNotFoundError(f"No track data for '{name}'")
         return plot_tracks_energy(td, **kwargs)
 
     def field(self, name: str, field_component: str, **kwargs) -> Path | None:
         td = self._hub._sim.get_tracks(name)
         if td is None:
-            raise ValueError(f"No track data for '{name}'")
+            raise DataNotFoundError(f"No track data for '{name}'")
         return plot_tracks_field(td, field_component, **kwargs)
 
 

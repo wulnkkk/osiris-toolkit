@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
+from osiris_toolkit.exceptions import MissingDependencyError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.vis.field import plot_field
 
@@ -58,7 +59,7 @@ def animate_field(
     try:
         import imageio
     except ImportError:
-        raise ImportError(
+        raise MissingDependencyError(
             "imageio is required for animation. Install with: pip install imageio"
         )
 

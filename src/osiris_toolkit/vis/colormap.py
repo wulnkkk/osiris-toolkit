@@ -7,6 +7,8 @@ import warnings
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
+from osiris_toolkit.exceptions import ValidationError
+
 _CMAP_START = 0.3
 
 
@@ -34,7 +36,7 @@ def symmetrical_colormap(
     LinearSegmentedColormap
     """
     if n_colors <= 0:
-        raise ValueError(f"n_colors must be positive, got {n_colors}")
+        raise ValidationError(f"n_colors must be positive, got {n_colors}")
 
     if n_colors < 4 and white_center:
         warnings.warn(

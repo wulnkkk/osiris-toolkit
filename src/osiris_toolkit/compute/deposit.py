@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit.exceptions import ValidationError
 from osiris_toolkit.sim.diagnostics import Field, GridAxis
 
 _HAS_NUMBA = False
@@ -54,7 +55,7 @@ def particles_to_grid(
         Deposited grid data.
     """
     if shape_function not in _SHAPE_FUNCTIONS:
-        raise ValueError(
+        raise ValidationError(
             f"Unknown shape function {shape_function!r}. "
             f"Choose from: {sorted(_SHAPE_FUNCTIONS)}"
         )
@@ -73,7 +74,7 @@ def particles_to_grid(
         weights_arr = np.asarray(weights, dtype=np.float64)
 
     if len(grid_shape) != ndim:
-        raise ValueError(
+        raise ValidationError(
             f"grid_shape has {len(grid_shape)} dims but positions "
             f"have {ndim} dims; they must match"
         )

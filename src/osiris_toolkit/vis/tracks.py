@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit.exceptions import DataNotFoundError, ValidationError
 from osiris_toolkit.sim.diagnostics import TrackData
 
 from .common import save_or_show
@@ -19,7 +20,7 @@ def _find_col(quants: list[str], target: str) -> int:
     for i, q in enumerate(quants):
         if q.lower() == t:
             return i
-    raise ValueError(
+    raise DataNotFoundError(
         f"Quantity '{target}' not found in track quants: {quants}"
     )
 
@@ -30,7 +31,7 @@ _VALID_PROJ = {"x1-x2", "x1-x3", "x2-x3"}
 def _resolve_proj(proj: str) -> tuple[str, str]:
     """Parse 'x1-x2' style projection into two column names."""
     if proj not in _VALID_PROJ:
-        raise ValueError(
+        raise ValidationError(
             f"Invalid projection '{proj}'. Expected one of: {sorted(_VALID_PROJ)}."
         )
     parts = proj.split("-")

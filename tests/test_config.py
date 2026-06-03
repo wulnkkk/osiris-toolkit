@@ -77,6 +77,7 @@ class TestSaveOrShowConfig:
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import pytest
+
         from osiris_toolkit.config import OsirisConfig
         from osiris_toolkit.vis.common import save_or_show
 

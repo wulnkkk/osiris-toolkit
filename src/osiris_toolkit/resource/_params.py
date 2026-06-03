@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from osiris_toolkit.exceptions import MissingParameterError
+
 
 def _extract_value(value, default=None):
     """Normalize a deck value: scalar, list, or wrapped dict with 'value' key."""
@@ -147,11 +149,11 @@ class ResourceParams:
         # --- Grid ---
         grid_sec = _find_section(sections, "grid")
         if grid_sec is None:
-            raise ValueError("Missing 'grid' section. Cannot determine grid dimensions.")
+            raise MissingParameterError("Missing 'grid' section. Cannot determine grid dimensions.")
         gparams = grid_sec.get("params", {})
         raw_nx = _extract_list(gparams.get("nx_p"))
         if raw_nx is None or not raw_nx or all(x == 0 for x in raw_nx):
-            raise ValueError("Parameter 'nx_p' is missing or all zeros in 'grid' section.")
+            raise MissingParameterError("Parameter 'nx_p' is missing or all zeros in 'grid' section.")
         nx_p = [int(x) for x in raw_nx]
         ndim = len(nx_p)
         ngrid_total = 1
@@ -161,18 +163,18 @@ class ResourceParams:
         # --- Time ---
         time_sec = _find_section(sections, "time")
         if time_sec is None:
-            raise ValueError("Missing 'time' section. Cannot determine tmax.")
+            raise MissingParameterError("Missing 'time' section. Cannot determine tmax.")
         tparams = time_sec.get("params", {})
         tmax = _extract_float(tparams.get("tmax"), 0.0)
         if tmax <= 0:
-            raise ValueError("Parameter 'tmax' is missing or <= 0 in 'time' section.")
+            raise MissingParameterError("Parameter 'tmax' is missing or <= 0 in 'time' section.")
 
         ts_sec = _find_section(sections, "time_step")
         dt = 0.0
         if ts_sec is not None:
             dt = _extract_float(ts_sec.get("params", {}).get("dt"), 0.0)
         if dt <= 0:
-            raise ValueError("Parameter 'dt' is missing or <= 0 in 'time_step' section.")
+            raise MissingParameterError("Parameter 'dt' is missing or <= 0 in 'time_step' section.")
         n_steps = int(tmax / dt)
 
         # --- MPI ---

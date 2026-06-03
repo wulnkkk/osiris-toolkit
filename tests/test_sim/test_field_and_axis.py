@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import ShapeError, ValidationError
 from osiris_toolkit.sim.diagnostics import Field, GridAxis, GridData
 
 
@@ -14,7 +15,7 @@ class TestGridAxis:
 
     def test_value_to_index_raises_without_npoints(self):
         ax = GridAxis(min=0.0, max=10.0)
-        with pytest.raises(ValueError, match="npoints"):
+        with pytest.raises(ValidationError, match="npoints"):
             ax.value_to_index(5.0)
 
     def test_index_to_value(self):
@@ -30,7 +31,7 @@ class TestGridAxis:
 
     def test_index_to_value_raises_without_npoints(self):
         ax = GridAxis(min=0.0, max=10.0)
-        with pytest.raises(ValueError, match="npoints"):
+        with pytest.raises(ValidationError, match="npoints"):
             ax.index_to_value(5.0)
 
     def test_npoints_default_zero(self):
@@ -54,7 +55,7 @@ class TestFieldOperators:
     def test_add_field_shape_mismatch(self):
         f1 = Field(data=np.array([1.0, 2.0]))
         f2 = Field(data=np.array([1.0, 2.0, 3.0]))
-        with pytest.raises(ValueError, match="Shape mismatch"):
+        with pytest.raises(ShapeError, match="Shape mismatch"):
             f1 + f2
 
     def test_sub_scalar(self):

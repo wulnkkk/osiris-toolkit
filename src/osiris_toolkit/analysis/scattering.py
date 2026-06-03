@@ -6,6 +6,7 @@ import logging
 
 from osiris_toolkit.compute.fft import compute_k_space
 from osiris_toolkit.compute.integrate import mask_energy
+from osiris_toolkit.exceptions import DataNotFoundError
 
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import ScatteringResult
@@ -96,7 +97,7 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
             iterations = sorted({e.iteration for e in entries})
 
         if not iterations:
-            raise ValueError(f"No data found for quantity {quantity!r}")
+            raise DataNotFoundError(f"No data found for quantity {quantity!r}")
 
         result = ScatteringResult(quantity=quantity, mask_info=dict(masks))
 

@@ -1,7 +1,7 @@
 """Tests for resource._estimator — calculation formulas."""
 
-from osiris_toolkit.resource._params import ResourceParams
 from osiris_toolkit.resource._estimator import ResourceEstimator
+from osiris_toolkit.resource._params import ResourceParams
 
 
 def _make_params(**overrides) -> ResourceParams:

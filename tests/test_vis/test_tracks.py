@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import DataNotFoundError, ValidationError
+
 
 def _make_fake_tracks(ntracks=3, niter=100, seed=42):
     """Build a synthetic TrackData with x1,x2,x3,p1,p2,p3,ene,time."""
@@ -43,11 +45,11 @@ class TestPlotTracksOrbit:
 
     def test_invalid_proj_raises(self):
         """Raises ValueError for invalid projection name."""
-        from osiris_toolkit.vis.tracks import plot_tracks_orbit
         from osiris_toolkit.sim.diagnostics import TrackData
+        from osiris_toolkit.vis.tracks import plot_tracks_orbit
 
         td = TrackData(tracks=[], quants=[], niter=0)
-        with pytest.raises(ValueError, match="Invalid projection"):
+        with pytest.raises(ValidationError, match="Invalid projection"):
             plot_tracks_orbit(td, "invalid-proj")
 
 
@@ -76,11 +78,11 @@ class TestPlotTracksEnergy:
 
     def test_no_ene_raises(self):
         """Raises ValueError when 'ene' is not in quants."""
-        from osiris_toolkit.vis.tracks import plot_tracks_energy
         from osiris_toolkit.sim.diagnostics import TrackData
+        from osiris_toolkit.vis.tracks import plot_tracks_energy
 
         td = TrackData(tracks=[], quants=["time", "x1"], niter=0)
-        with pytest.raises(ValueError, match="not found in track"):
+        with pytest.raises(DataNotFoundError, match="not found in track"):
             plot_tracks_energy(td)
 
 

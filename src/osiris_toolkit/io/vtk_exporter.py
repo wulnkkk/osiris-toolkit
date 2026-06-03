@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
+from osiris_toolkit.exceptions import MissingDependencyError
 from osiris_toolkit.sim.diagnostics import Field
 
 
@@ -47,7 +48,7 @@ def to_vtk(
     try:
         from pyevtk.hl import gridToVTK
     except ImportError:
-        raise ImportError(
+        raise MissingDependencyError(
             "pyevtk is required for VTK export. "
             "Install with: pip install osiris-toolkit[vtk]"
         )

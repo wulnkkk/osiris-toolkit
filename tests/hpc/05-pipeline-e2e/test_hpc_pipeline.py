@@ -4,7 +4,6 @@ Usage:
     python tests/hpc/05-pipeline-e2e/test_pipeline.py
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -58,7 +57,6 @@ def test_5_1_pipeline_execution() -> None:
 
 def test_5_2_path_resolution() -> None:
     """Verify that network filesystem paths resolve correctly."""
-    from osiris_toolkit.workflow.pipeline import Pipeline
 
     yaml_path = Path(__file__).parent / "pipeline_test.yaml"
     if not yaml_path.exists():

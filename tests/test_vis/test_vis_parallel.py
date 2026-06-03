@@ -1,6 +1,5 @@
 """Tests for vis.parallel batch processing."""
 
-import pytest
 
 
 class TestBatchProcessParallel:

@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+from osiris_toolkit.exceptions import UnitConversionError
 from osiris_toolkit.units import UnitConverter
 
 
@@ -17,11 +18,11 @@ class TestUnitConverterInit:
         assert uc is not None
 
     def test_init_zero_raises(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(UnitConversionError):
             UnitConverter(0.0)
 
     def test_init_negative_raises(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(UnitConversionError):
             UnitConverter(-1.0e15)
 
 
@@ -70,11 +71,11 @@ class TestConvert:
         assert len(result) == 3
 
     def test_convert_invalid_quantity(self, converter):
-        with pytest.raises(KeyError):
+        with pytest.raises(UnitConversionError):
             converter.convert(1.0, "invalid_quantity", "m")
 
     def test_convert_invalid_unit(self, converter):
-        with pytest.raises(KeyError):
+        with pytest.raises(UnitConversionError):
             converter.convert(1.0, "time", "invalid_unit")
 
 
@@ -102,7 +103,7 @@ class TestScales:
         assert s > 0
 
     def test_get_scale_invalid_quantity(self, converter):
-        with pytest.raises(KeyError):
+        with pytest.raises(UnitConversionError):
             converter.get_scale("invalid", "m")
 
 
