@@ -161,6 +161,9 @@ class TestPipelineDryRun:
             Pipeline, PipelineContext, PipelineStep,
         )
 
+        # Ensure the pipeline module logger propagates INFO to caplog
+        logging.getLogger("osiris_toolkit.workflow.pipeline").setLevel(logging.INFO)
+
         class DummyStep(PipelineStep):
             name = "dummy"
             def run(self, ctx):
