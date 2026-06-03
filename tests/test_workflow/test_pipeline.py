@@ -131,3 +131,61 @@ class TestPipelineYaml:
         finally:
             Path(tmp).unlink()
             Path(deck_path).unlink()
+
+
+class TestPipelineDryRun:
+    """Test Pipeline dry_run mode."""
+
+    def test_dry_run_does_not_execute_steps(self):
+        """dry_run=True skips step execution."""
+        from osiris_toolkit.workflow.pipeline import (
+            Pipeline, PipelineContext, PipelineStep,
+        )
+
+        executed = []
+        class CounterStep(PipelineStep):
+            name = "counter"
+            def run(self, ctx):
+                executed.append(1)
+                return ctx
+
+        ctx = PipelineContext(dry_run=True)
+        pipe = Pipeline([CounterStep()])
+        pipe.run(ctx)
+        assert len(executed) == 0
+
+    def test_dry_run_logs_step_name(self, caplog):
+        """dry_run=True logs step names."""
+        import logging
+        from osiris_toolkit.workflow.pipeline import (
+            Pipeline, PipelineContext, PipelineStep,
+        )
+
+        class DummyStep(PipelineStep):
+            name = "dummy"
+            def run(self, ctx):
+                return ctx
+
+        ctx = PipelineContext(dry_run=True)
+        pipe = Pipeline([DummyStep()])
+        with caplog.at_level(logging.INFO):
+            pipe.run(ctx)
+        assert any("DRY RUN" in m for m in caplog.messages)
+        assert any("dummy" in m for m in caplog.messages)
+
+    def test_normal_run_still_works(self):
+        """dry_run=False (default) executes steps as before."""
+        from osiris_toolkit.workflow.pipeline import (
+            Pipeline, PipelineContext, PipelineStep,
+        )
+
+        executed = []
+        class CounterStep(PipelineStep):
+            name = "counter"
+            def run(self, ctx):
+                executed.append(1)
+                return ctx
+
+        pipe = Pipeline([CounterStep()])
+        pipe.run(PipelineContext())
+        assert len(executed) == 1

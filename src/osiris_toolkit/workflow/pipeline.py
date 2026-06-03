@@ -55,6 +55,7 @@ class PipelineContext:
     sim: Simulation | None = None
     converter: UnitConverter | None = None
     extra: dict[str, Any] = field(default_factory=dict)
+    dry_run: bool = False
 
     def require_deck(self) -> dict:
         """Return deck or raise."""
@@ -259,11 +260,17 @@ class Pipeline:
         RuntimeError
             If any step fails.
         """
+        import logging
+        _log = logging.getLogger(__name__)
+
         if ctx is None:
             ctx = PipelineContext()
 
         for step in self._steps:
-            ctx = step.run(ctx)
+            if ctx.dry_run:
+                _log.info("[DRY RUN] Would execute: %s", step.name)
+            else:
+                ctx = step.run(ctx)
 
         return ctx
 
