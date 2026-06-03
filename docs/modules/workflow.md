@@ -65,6 +65,29 @@ print(ctx.sim.list_fields())
 
 - **Context as state bus**: `PipelineContext` is a dataclass passed between steps. Steps read from
   and write to it. No global state.
-- **Fail-fast**: `DeckValidateStep` raises `RuntimeError` on validation failure, halting the pipeline.
+- **Fail-fast**: `DeckValidateStep` raises `PipelineError` on validation failure, halting the pipeline.
 - **Current scope**: skeleton only. `AnalyzeStep` and `VisualizeStep` have minimal implementations.
   The framework is designed to grow with the project.
+
+## Pipeline Snapshots (v0.13.0)
+
+`PipelineContext` supports save/load for interrupt-resume workflows:
+
+```python
+from osiris_toolkit.workflow import PipelineContext
+
+ctx = PipelineContext(deck_path=Path("input.in"), sim_path=Path("output/"))
+ctx = pipe.run(ctx)
+
+# Save a checkpoint
+ctx.save_snapshot("checkpoint.json")
+
+# ... interrupt, restart process ...
+
+# Resume from checkpoint — rebuilds deck and sim from paths
+ctx2 = PipelineContext.load_snapshot("checkpoint.json")
+pipe.run(ctx2)  # continue from where you left off
+```
+
+Only non-runtime state is serialized (paths, dry_run, extra). Heavy objects
+(`deck`, `sim`, `converter`) are rebuilt from paths on load.

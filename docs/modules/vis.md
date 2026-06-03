@@ -242,3 +242,19 @@ def on_progress(event: ProgressEvent):
 result: BatchResult = process_simulation("/data/sim", "run01", progress_callback=on_progress)
 print(f"Generated {len(result.files)} files")
 ```
+
+## PostVisHub Cache Management (v0.13.0)
+
+`PostVisHub` caches namespace objects (`.field`, `.energy`, `.raw`, `.tracks`) via
+`functools.cached_property`. When reusing a Hub with a different Simulation or
+UnitConverter, call these methods to avoid stale references:
+
+```python
+hub = PostVisHub(sim, converter)
+
+# Switch converter and clear cached namespaces
+hub.set_converter(new_converter)
+
+# Or clear caches manually
+hub.invalidate_cache()
+```

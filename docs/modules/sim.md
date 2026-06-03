@@ -21,7 +21,7 @@ Simulation(path)
     ├── get_*()              Read with typed return (with report_type filter)
     └── info_*()             Metadata-only reads (no data loading)
             │
-            └── io._reader   Stateless ZDF functions
+            └── io._reader / io._reader_hdf5   Stateless ZDF & HDF5 functions (auto-dispatched)
 ```
 
 **Files:**
@@ -177,6 +177,28 @@ Add an entry to `catalog.py` in `OSIRIS_DIAGNOSTICS`:
 ```
 
 Then add the corresponding `_discover_*()` method and `get_*()` accessor to `Simulation`.
+
+## Format Transparency (v0.12.0)
+
+`Simulation` automatically discovers and reads both ZDF (`.zdf`) and HDF5 (`.h5`) files.
+No configuration needed — file extension determines the reader:
+
+```python
+sim = Simulation("/path/to/output")   # works for ZDF, HDF5, or mixed directories
+field = sim.get_field("e1", iteration=50)  # auto-dispatched
+```
+
+## Lightweight Serialization (v0.13.0)
+
+`Simulation` supports lightweight serialization for passing references between
+sub-tasks (e.g., AI agent workflows):
+
+```python
+state = sim.to_dict()                  # {"path": "/output/dir"}
+sim2 = Simulation.from_dict(state)     # rebuilds catalog from disk
+```
+
+Only the path is serialized — cached catalog data is cheaply rebuilt on load.
 
 ## Configuration (v0.10.0)
 
