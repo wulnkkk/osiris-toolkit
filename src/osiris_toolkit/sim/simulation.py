@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from osiris_toolkit.io._reader import read_grid, read_info, read_particles, read_tracks
 from osiris_toolkit.sim.diagnostics import (
     FieldInfo,
     GridAxis,
@@ -34,7 +33,7 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 # Naming convention: {quant}[-{label}]-{iter:06d}.zdf
 # ---------------------------------------------------------------------------
-_ITER_FILE_RE = re.compile(r"^(.+)-(\d{6})\.zdf$")
+_ITER_FILE_RE = re.compile(r"^(.+)-(\d{6})\.(?:zdf|h5)$")
 
 
 def _parse_iter_file(filename: str) -> tuple[str, int]:
@@ -348,24 +347,23 @@ class Simulation:
 
     @staticmethod
     def _zdf_files_in(dir_path: Path) -> list[Path]:
-        """Return .zdf files in *dir_path*, supporting flat and nested layouts.
-
-        Flat:   dir/*-000000.zdf
-        Nested: dir/<quant>/*-000000.zdf
-        """
-        flat = list(dir_path.glob("*.zdf"))
+        """Return ZDF and HDF5 data files in *dir_path*."""
+        flat_zdf = list(dir_path.glob("*.zdf"))
+        flat_h5 = list(dir_path.glob("*.h5"))
+        flat = flat_zdf + flat_h5
         if flat:
             return sorted(flat)
-        return sorted(dir_path.glob("*/*.zdf"))
+        nested_zdf = list(dir_path.glob("*/*.zdf"))
+        nested_h5 = list(dir_path.glob("*/*.h5"))
+        nested = nested_zdf + nested_h5
+        return sorted(nested)
 
     @staticmethod
     def _zdf_files_with_quant(dir_path: Path) -> list[tuple[str, Path]]:
-        """Return (quantity, file_path) pairs.
-
-        Discovers quantity from subdirectory name (nested layout)
-        or filename prefix (flat layout).
-        """
-        flat = list(dir_path.glob("*.zdf"))
+        """Return (quantity, file_path) pairs for ZDF and HDF5 files."""
+        flat_zdf = list(dir_path.glob("*.zdf"))
+        flat_h5 = list(dir_path.glob("*.h5"))
+        flat = flat_zdf + flat_h5
         if flat:
             result: list[tuple[str, Path]] = []
             for f in sorted(flat):
@@ -377,7 +375,10 @@ class Simulation:
         for quant_dir in sorted(dir_path.iterdir()):
             if not quant_dir.is_dir():
                 continue
-            for f in sorted(quant_dir.glob("*.zdf")):
+            files = sorted(
+                list(quant_dir.glob("*.zdf")) + list(quant_dir.glob("*.h5"))
+            )
+            for f in files:
                 result.append((quant_dir.name, f))
         return result
 
@@ -459,21 +460,25 @@ class Simulation:
                 continue
             species = sp_dir.name
             entries: list[_FieldEntry] = []
-            for zdf_file in sorted(sp_dir.glob("*.zdf")):
-                quant_label, iteration = _parse_iter_file(zdf_file.name)
+            for data_file in sorted(
+                list(sp_dir.glob("*.zdf")) + list(sp_dir.glob("*.h5"))
+            ):
+                quant_label, iteration = _parse_iter_file(data_file.name)
                 entries.append(
                     _FieldEntry(
                         quantity=quant_label,
                         label=species,
                         iteration=iteration,
-                        path=zdf_file,
+                        path=data_file,
                     )
                 )
             self._raw[species] = entries
 
     def _discover_tracks(self, tracks_dir: Path) -> None:
-        for zdf_file in sorted(tracks_dir.glob("*.zdf")):
-            self._tracks[zdf_file.stem] = zdf_file
+        for data_file in sorted(
+            list(tracks_dir.glob("*.zdf")) + list(tracks_dir.glob("*.h5"))
+        ):
+            self._tracks[data_file.stem] = data_file
 
     def _discover_wall(self, wall_dir: Path) -> None:
         for name_dir in wall_dir.iterdir():
@@ -481,14 +486,16 @@ class Simulation:
                 continue
             name = name_dir.name
             entries: list[_FieldEntry] = []
-            for zdf_file in sorted(name_dir.glob("*.zdf")):
-                quant_label, iteration = _parse_iter_file(zdf_file.name)
+            for data_file in sorted(
+                list(name_dir.glob("*.zdf")) + list(name_dir.glob("*.h5"))
+            ):
+                quant_label, iteration = _parse_iter_file(data_file.name)
                 entries.append(
                     _FieldEntry(
                         quantity=quant_label,
                         label=name,
                         iteration=iteration,
-                        path=zdf_file,
+                        path=data_file,
                     )
                 )
             self._wall[name] = entries
@@ -605,9 +612,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     def get_density(
@@ -640,9 +647,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     def get_cell_avg(
@@ -675,9 +682,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     def get_udist(
@@ -710,9 +717,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     def get_phasespace(
@@ -723,7 +730,7 @@ class Simulation:
         entries = ps.get(species, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_phasespace_zdf(e.path)
+                return self._read_phasespace(e.path)
         return None
 
     def get_raw(self, species: str, iteration: int) -> ParticleData | None:
@@ -731,7 +738,7 @@ class Simulation:
         entries = self._raw.get(species, [])
         for e in entries:
             if e.iteration == iteration:
-                return self._read_particle_zdf(e.path)
+                return self._read_particle(e.path)
         return None
 
     def get_tracks(self, name: str) -> TrackData | None:
@@ -739,7 +746,7 @@ class Simulation:
         path = self._tracks.get(name)
         if path is None:
             return None
-        return self._read_tracks_zdf(path)
+        return self._read_tracks(path)
 
     def get_history(self, name: str) -> HistoryData | None:
         """Read history text file by name."""
@@ -791,9 +798,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     def get_wall(
@@ -819,9 +826,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     def get_ion(
@@ -854,9 +861,9 @@ class Simulation:
             if e.iteration == iteration:
                 if report_type is None:
                     if e.report_type == "":
-                        return self._read_grid_zdf(e.path)
+                        return self._read_grid(e.path)
                 elif e.report_type == report_type:
-                    return self._read_grid_zdf(e.path)
+                    return self._read_grid(e.path)
         return None
 
     # ------------------------------------------------------------------
@@ -884,7 +891,7 @@ class Simulation:
         for e in entries:
             if e.iteration == iteration:
                 try:
-                    zdf_info = read_info(str(e.path))
+                    zdf_info = self._read_info(e.path)
                 except (ValueError, OSError):
                     return None
                 if zdf_info.grid is None:
@@ -931,7 +938,7 @@ class Simulation:
         for e in entries:
             if e.iteration == iteration:
                 try:
-                    zdf_info = read_info(str(e.path))
+                    zdf_info = self._read_info(e.path)
                 except (ValueError, OSError):
                     return None
                 if zdf_info.particles is None:
@@ -964,7 +971,7 @@ class Simulation:
         if path is None:
             return None
         try:
-            zdf_info = read_info(str(path))
+            zdf_info = self._read_info(path)
         except (ValueError, OSError):
             return None
         if zdf_info.tracks is None:
@@ -980,13 +987,27 @@ class Simulation:
         )
 
     # ------------------------------------------------------------------
-    # Internal ZDF readers
+    # Internal data readers (ZDF and HDF5, dispatched by file extension)
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _read_grid_zdf(path: Path) -> GridData | None:
+    def _read_info(path: Path):
+        """Read metadata from a ZDF or HDF5 file. Returns ZdfFileInfo or raises."""
+        if path.suffix == ".h5":
+            from osiris_toolkit.io._reader_hdf5 import read_info as _read_fn
+        else:
+            from osiris_toolkit.io._reader import read_info as _read_fn
+        return _read_fn(str(path))
+
+    @staticmethod
+    def _read_grid(path: Path) -> GridData | None:
+        """Read a grid file (ZDF or HDF5) into a GridData object."""
         try:
-            data, gi, it = read_grid(str(path))
+            if path.suffix == ".h5":
+                from osiris_toolkit.io._reader_hdf5 import read_grid as _read_grid_fn
+            else:
+                from osiris_toolkit.io._reader import read_grid as _read_grid_fn
+            data, gi, it = _read_grid_fn(str(path))
         except (ValueError, OSError):
             return None
         axes = []
@@ -1013,9 +1034,14 @@ class Simulation:
         )
 
     @staticmethod
-    def _read_particle_zdf(path: Path) -> ParticleData | None:
+    def _read_particle(path: Path) -> ParticleData | None:
+        """Read a particle file (ZDF or HDF5) into a ParticleData object."""
         try:
-            data, pi, it = read_particles(str(path))
+            if path.suffix == ".h5":
+                from osiris_toolkit.io._reader_hdf5 import read_particles as _read_fn
+            else:
+                from osiris_toolkit.io._reader import read_particles as _read_fn
+            data, pi, it = _read_fn(str(path))
         except (ValueError, OSError):
             return None
         return ParticleData(
@@ -1027,9 +1053,14 @@ class Simulation:
         )
 
     @staticmethod
-    def _read_phasespace_zdf(path: Path) -> PhasespaceData | None:
+    def _read_phasespace(path: Path) -> PhasespaceData | None:
+        """Read a phasespace file (ZDF or HDF5) into a PhasespaceData object."""
         try:
-            data, gi, it = read_grid(str(path))
+            if path.suffix == ".h5":
+                from osiris_toolkit.io._reader_hdf5 import read_grid as _read_fn
+            else:
+                from osiris_toolkit.io._reader import read_grid as _read_fn
+            data, gi, it = _read_fn(str(path))
         except (ValueError, OSError):
             return None
         axes: list[dict[str, str]] = []
@@ -1053,9 +1084,14 @@ class Simulation:
         )
 
     @staticmethod
-    def _read_tracks_zdf(path: Path) -> TrackData | None:
+    def _read_tracks(path: Path) -> TrackData | None:
+        """Read a tracks file (ZDF or HDF5) into a TrackData object."""
         try:
-            tracks, ti = read_tracks(str(path))
+            if path.suffix == ".h5":
+                from osiris_toolkit.io._reader_hdf5 import read_tracks as _read_fn
+            else:
+                from osiris_toolkit.io._reader import read_tracks as _read_fn
+            tracks, ti = _read_fn(str(path))
         except (ValueError, OSError):
             return None
         return TrackData(
