@@ -4,32 +4,31 @@ Directory discovery and typed access to OSIRIS simulation output. Traverses the 
 catalogs all diagnostic files, and provides typed read methods that return `Field`/`GridData`, `ParticleData`,
 `PhasespaceData`, etc.
 
-## Architecture
+## Architecture (v0.14.0)
+
+`Simulation` is built from a core class + two mixins:
 
 ```
-Simulation(path)
+Simulation(_DataAccessors, _InfoAccessors)
     │
-    ├── _discover()          Walk MS/, HIST/, TIMINGS/
-    │   ├── MS/FLD/      →   _fields    (with report_type detection)
-    │   ├── MS/DENSITY/  →   _density
-    │   ├── MS/PHA/      →   _phasespace
-    │   ├── MS/RAW/      →   _raw
-    │   ├── MS/TRACKS/   →   _tracks
-    │   └── ...
-    │
-    ├── list_*()             List available data (with report_type filter)
-    ├── get_*()              Read with typed return (with report_type filter)
-    └── info_*()             Metadata-only reads (no data loading)
-            │
-            └── io._reader / io._reader_hdf5   Stateless ZDF & HDF5 functions (auto-dispatched)
+    ├── simulation.py   (382 lines)   Core: __init__, _discover*, to_dict/from_dict, properties
+    ├── _accessors.py   (560 lines)   _DataAccessors mixin: all get_* / list_* / _read_* methods
+    ├── _info.py        (112 lines)   _InfoAccessors mixin: info_field / info_raw / info_tracks
+    └── _parse.py       (126 lines)   Filename parsing, report suffix detection, history/timings parsers
 ```
+
+Data model classes live in `_models.py` (foundation layer), re-exported through
+`diagnostics.py` (backward-compatible shim).
 
 **Files:**
 
 | File | Role |
 |------|------|
-| `simulation.py` | `Simulation` class: directory discovery, 11 typed accessors, history parser, metadata-only reads |
-| `diagnostics.py` | Data containers: `Field`/`GridData`, `GridAxis`, `ParticleData`, `PhasespaceData`, `TrackData`, `HistoryData`, `FieldInfo`, `ParticleInfo`, `TrackInfo` |
+| `simulation.py` | `Simulation` class: directory discovery, configuration, serialization |
+| `_accessors.py` | `_DataAccessors` mixin: all typed data accessors (`get_*`, `list_*`, `_read_*`) |
+| `_info.py` | `_InfoAccessors` mixin: metadata-only reads (`info_field`, `info_raw`, `info_tracks`) |
+| `_parse.py` | Filename/quantity parsing, report suffix detection, history/timings text parsers |
+| `diagnostics.py` | Re-export shim → `osiris_toolkit._models` (backward compatibility) |
 | `catalog.py` | Declarative `DiagKind` table: 12 diagnostic types with directory patterns, data classes, quantity lists |
 
 ## Diagnostic Types
@@ -176,7 +175,8 @@ Add an entry to `catalog.py` in `OSIRIS_DIAGNOSTICS`:
 ),
 ```
 
-Then add the corresponding `_discover_*()` method and `get_*()` accessor to `Simulation`.
+Then add the corresponding `_discover_*()` method to `Simulation` (in `simulation.py`) and
+`get_*()` accessor to `_DataAccessors` (in `_accessors.py`).
 
 ## Format Transparency (v0.12.0)
 

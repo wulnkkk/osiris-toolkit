@@ -6,14 +6,20 @@ No hardcoded paths — data comes from a `Simulation` object.
 ## Architecture
 
 ```
-VisEngine(sim, converter)
-    ├── .plot(kind, **kwargs)     Generic agent-friendly interface
-    ├── .plot_field()               → field.py
-    ├── .plot_density()             → density.py
-    ├── .plot_phasespace()          → phasespace.py
-    ├── .plot_k_space()             → kspace.py
-    ├── .plot_composite()           → composite.py
-    └── .batch()                    → batch.py (sequential) / parallel.py (parallel)
+PostVisHub(sim, converter)          ← primary interface (v0.9.0+)
+    ├── .field.plot()                → field.py
+    ├── .energy.timeline()           → energy.py
+    ├── .raw.scatter()               → raw.py
+    ├── .tracks.orbit()              → tracks.py
+    ├── .plot_field()                → field.py
+    ├── .plot_density()              → density.py
+    ├── .plot_phasespace()           → phasespace.py
+    ├── .plot_k_space()              → kspace.py
+    ├── .plot_composite()            → composite.py
+    └── .batch()                     → batch.py (sequential) / parallel.py (parallel)
+
+PostProcessor(sim_path, ...)        ← main entry point (v0.14.0+)
+    └── wraps PostVisHub + converter setup
 ```
 
 **Files:**
