@@ -46,6 +46,7 @@ Issues = "https://github.com/wulnkkk/osiris-toolkit/issues"
 
 [project.optional-dependencies]
 vtk = ["pyevtk>=1.6"]
+hdf5 = ["h5py>=3.0"]
 
 [dependency-groups]
 dev = [
