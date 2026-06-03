@@ -119,3 +119,12 @@ class TestZdfFileInfo:
         assert fi.file_type == "grid"
         assert fi.grid.ndims == 2
         assert fi.iteration.n == 0
+
+    def test_simulation_info_default_none(self):
+        fi = ZdfFileInfo()
+        assert fi.simulation_info is None
+
+    def test_simulation_info_with_value(self):
+        fi = ZdfFileInfo(file_type="grid", simulation_info="OSIRIS v1.0.0\nCompiled: 2025-01-01")
+        assert fi.file_type == "grid"
+        assert "OSIRIS" in fi.simulation_info

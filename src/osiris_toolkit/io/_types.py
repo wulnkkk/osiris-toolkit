@@ -77,9 +77,10 @@ class ZdfTrackInfo:
 
 @dataclass
 class ZdfFileInfo:
-    """Complete metadata for a ZDF file."""
+    """Complete metadata for a ZDF or HDF5 file."""
     file_type: str = ""                     # "grid", "particles", "tracks-2"
     grid: ZdfGridInfo | None = None
     particles: ZdfPartInfo | None = None
     tracks: ZdfTrackInfo | None = None
     iteration: ZdfIteration | None = None
+    simulation_info: str | None = None      # HDF5-only: git version, compile time, input file
