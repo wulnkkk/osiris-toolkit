@@ -110,3 +110,20 @@ class TemperatureResult:
     iteration: int
     time: float
     components: dict[str, float] = field(default_factory=dict)
+
+
+@dataclass
+class MomentumStatsResult:
+    """Per-axis momentum statistics from raw particle data."""
+
+    species: str
+    iteration: int
+    time: float
+    p1_mean: float
+    p1_std: float
+    p2_mean: float
+    p2_std: float
+    p3_mean: float
+    p3_std: float
+    anisotropy: float  # p1_std / p2_std for transverse directions
+    nparts: int
