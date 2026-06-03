@@ -12,9 +12,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit._models import GridData
 from osiris_toolkit.compute.fft import compute_k_space as _compute_k_space
 from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
-from osiris_toolkit.sim import GridData, Simulation
+from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show

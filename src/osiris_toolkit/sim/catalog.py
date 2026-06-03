@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from osiris_toolkit.sim.diagnostics import (
+from osiris_toolkit._models import (
     GridData,
     HistoryData,
     ParticleData,

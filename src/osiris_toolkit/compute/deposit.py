@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from osiris_toolkit._models import Field, GridAxis
 from osiris_toolkit.exceptions import ValidationError
-from osiris_toolkit.sim.diagnostics import Field, GridAxis
 
 _HAS_NUMBA = False
 try:

@@ -14,8 +14,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from osiris_toolkit.exceptions import FormatError, MissingDependencyError
-from osiris_toolkit.sim.diagnostics import (
+from osiris_toolkit._models import (
     FieldInfo,
     GridAxis,
     GridData,
@@ -27,6 +26,7 @@ from osiris_toolkit.sim.diagnostics import (
     TrackData,
     TrackInfo,
 )
+from osiris_toolkit.exceptions import FormatError, MissingDependencyError
 
 if TYPE_CHECKING:
     from osiris_toolkit.config import OsirisConfig

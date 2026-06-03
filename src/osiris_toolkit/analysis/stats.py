@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from osiris_toolkit.sim.diagnostics import GridData
+from osiris_toolkit._models import GridData
 
 
 def mean(data: GridData) -> float:

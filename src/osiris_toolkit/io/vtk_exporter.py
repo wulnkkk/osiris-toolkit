@@ -9,8 +9,8 @@ from pathlib import Path
 
 import numpy as np
 
+from osiris_toolkit._models import Field
 from osiris_toolkit.exceptions import MissingDependencyError
-from osiris_toolkit.sim.diagnostics import Field
 
 
 def to_vtk(

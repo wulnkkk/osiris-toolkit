@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from osiris_toolkit.sim.diagnostics import GridData
+from osiris_toolkit._models import GridData
 
 
 @dataclass

@@ -6,8 +6,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from osiris_toolkit._models import ParticleData
 from osiris_toolkit.exceptions import DataNotFoundError
-from osiris_toolkit.sim.diagnostics import ParticleData
 
 from .common import save_or_show
 
