@@ -23,6 +23,17 @@ from osiris_toolkit.vis.energy_summary import (
 from osiris_toolkit.vis.field import plot_all_fields, plot_field
 from osiris_toolkit.vis.kspace import plot_k_space
 from osiris_toolkit.vis.phasespace import plot_phasespace
+from osiris_toolkit.vis.raw import (
+    plot_raw_energy_spectrum,
+    plot_raw_momentum,
+    plot_raw_phasespace,
+    plot_raw_scatter,
+)
+from osiris_toolkit.vis.tracks import (
+    plot_tracks_energy,
+    plot_tracks_field,
+    plot_tracks_orbit,
+)
 from osiris_toolkit.vis.scattering import plot_scattering_fraction
 
 
@@ -68,6 +79,20 @@ class PostVisHub:
     def energy(self):
         """Convenience namespace for energy/spectrum plotting."""
         return _EnergyVis(self)
+
+    # -- raw particles ----------------------------------------------------
+
+    @cached_property
+    def raw(self):
+        """Convenience namespace for RAW particle plotting."""
+        return _RawVis(self)
+
+    # -- tracks -----------------------------------------------------------
+
+    @cached_property
+    def tracks(self):
+        """Convenience namespace for TRACKS trajectory plotting."""
+        return _TracksVis(self)
 
     # -- density, phasespace, kspace -------------------------------------
 
@@ -135,6 +160,70 @@ class _EnergyVis:
 
     def poynting(self, result, component="s1", **kwargs) -> Path | None:
         return plot_poynting(result, component=component, **kwargs)
+
+
+class _RawVis:
+    """RAW particle visualization namespace."""
+
+    def __init__(self, hub: PostVisHub) -> None:
+        self._hub = hub
+
+    def scatter(self, species: str, iteration: int, **kwargs) -> Path | None:
+        raw = self._hub._sim.get_raw(species, iteration)
+        if raw is None:
+            raise ValueError(
+                f"No raw particle data for species '{species}' at iteration {iteration}"
+            )
+        return plot_raw_scatter(raw, **kwargs)
+
+    def momentum(self, species: str, iteration: int, **kwargs) -> Path | None:
+        raw = self._hub._sim.get_raw(species, iteration)
+        if raw is None:
+            raise ValueError(
+                f"No raw particle data for species '{species}' at iteration {iteration}"
+            )
+        return plot_raw_momentum(raw, **kwargs)
+
+    def phasespace(self, species: str, iteration: int, **kwargs) -> Path | None:
+        raw = self._hub._sim.get_raw(species, iteration)
+        if raw is None:
+            raise ValueError(
+                f"No raw particle data for species '{species}' at iteration {iteration}"
+            )
+        return plot_raw_phasespace(raw, **kwargs)
+
+    def energy_spectrum(self, species: str, iteration: int, **kwargs) -> Path | None:
+        raw = self._hub._sim.get_raw(species, iteration)
+        if raw is None:
+            raise ValueError(
+                f"No raw particle data for species '{species}' at iteration {iteration}"
+            )
+        return plot_raw_energy_spectrum(raw, **kwargs)
+
+
+class _TracksVis:
+    """TRACKS trajectory visualization namespace."""
+
+    def __init__(self, hub: PostVisHub) -> None:
+        self._hub = hub
+
+    def orbit(self, name: str, **kwargs) -> Path | None:
+        td = self._hub._sim.get_tracks(name)
+        if td is None:
+            raise ValueError(f"No track data for '{name}'")
+        return plot_tracks_orbit(td, **kwargs)
+
+    def energy(self, name: str, **kwargs) -> Path | None:
+        td = self._hub._sim.get_tracks(name)
+        if td is None:
+            raise ValueError(f"No track data for '{name}'")
+        return plot_tracks_energy(td, **kwargs)
+
+    def field(self, name: str, field_component: str, **kwargs) -> Path | None:
+        td = self._hub._sim.get_tracks(name)
+        if td is None:
+            raise ValueError(f"No track data for '{name}'")
+        return plot_tracks_field(td, field_component, **kwargs)
 
 
 class VisEngine:
@@ -216,6 +305,13 @@ __all__ = [
     "plot_spectrum_colormap",
     "plot_poynting",
     "plot_poynting_vector",
+    "plot_raw_energy_spectrum",
+    "plot_raw_momentum",
+    "plot_raw_phasespace",
+    "plot_raw_scatter",
+    "plot_tracks_energy",
+    "plot_tracks_field",
+    "plot_tracks_orbit",
     "process_simulation",
     "register_cmaps",
     "symmetrical_colormap",
