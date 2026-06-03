@@ -1,5 +1,6 @@
 """Tests for workflow.pipeline module."""
 
+import json
 import tempfile
 from pathlib import Path
 
@@ -200,3 +201,23 @@ class TestPipelineDryRun:
         pipe = Pipeline([CounterStep()])
         pipe.run(PipelineContext())
         assert len(executed) == 1
+
+
+class TestPipelineSnapshot:
+    def test_save_snapshot_writes_json(self, tmp_path):
+        ctx = PipelineContext(
+            deck_path=Path("/fake/deck.in"),
+            sim_path=Path("/fake/sim"),
+            dry_run=True,
+        )
+        ctx.extra = {"key": "value"}
+
+        snap_path = tmp_path / "snapshot.json"
+        result = ctx.save_snapshot(snap_path)
+        assert result.exists()
+
+        raw = json.loads(snap_path.read_text())
+        assert raw["deck_path"] == "/fake/deck.in"
+        assert raw["sim_path"] == "/fake/sim"
+        assert raw["dry_run"] is True
+        assert raw["extra"] == {"key": "value"}

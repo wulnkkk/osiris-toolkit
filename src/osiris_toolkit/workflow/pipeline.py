@@ -7,6 +7,7 @@ files or constructed programmatically.
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -75,6 +76,51 @@ class PipelineContext:
         if self.converter is None:
             raise PipelineError("Pipeline: UnitConverter not built. Ensure deck is loaded.")
         return self.converter
+
+    def save_snapshot(self, path: str | Path) -> Path:
+        """Save non-runtime state to a JSON file.
+
+        Saves deck_path, sim_path, dry_run, and extra. Does NOT save
+        deck, sim, params, or converter objects — those are rebuilt
+        from paths when the snapshot is loaded.
+        """
+        data: dict[str, Any] = {
+            "deck_path": str(self.deck_path) if self.deck_path else None,
+            "sim_path": str(self.sim_path) if self.sim_path else None,
+            "dry_run": self.dry_run,
+            "extra": self.extra,
+        }
+        path = Path(path)
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+        return path
+
+    @classmethod
+    def load_snapshot(cls, path: str | Path) -> "PipelineContext":
+        """Restore context from a snapshot file.
+
+        Rebuilds deck and sim from saved paths. Returns a fully
+        functional PipelineContext ready for resumed execution.
+        """
+        from osiris_toolkit.deck.parser import parse_deck_file
+        from osiris_toolkit.sim import Simulation
+        from osiris_toolkit.units.converter import UnitConverter
+        from osiris_toolkit.units.params import SimulationParams
+
+        data = json.loads(Path(path).read_text())
+        ctx = cls(dry_run=data.get("dry_run", False))
+        ctx.extra = data.get("extra", {})
+
+        if data.get("deck_path"):
+            ctx.deck_path = Path(data["deck_path"])
+            ctx.deck = parse_deck_file(str(ctx.deck_path))
+            ctx.params = SimulationParams.from_deck(ctx.deck)
+            ctx.converter = UnitConverter.from_params(ctx.params)
+
+        if data.get("sim_path"):
+            ctx.sim_path = Path(data["sim_path"])
+            ctx.sim = Simulation(str(ctx.sim_path))
+
+        return ctx
 
 
 # ---------------------------------------------------------------------------
