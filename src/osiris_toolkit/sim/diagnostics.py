@@ -331,6 +331,55 @@ class ParticleData:
     time: float = 0.0
     label: str = ""
 
+    def filter(self, expr: str) -> "ParticleData":
+        """Return a new ParticleData with particles matching *expr*.
+
+        Parameters
+        ----------
+        expr : str
+            A filter expression using keys from ``self.data``,
+            e.g. ``'p1 > 0 and ene < 10'``.
+
+        Returns
+        -------
+        ParticleData
+            A filtered view.  Arrays share memory with the original.
+            Call ``.compress()`` to get a memory-independent copy.
+        """
+        mask = _eval_particle_expr(expr, self.data)
+        new_nparts = int(mask.sum())
+        new_data = {}
+        for k, v in self.data.items():
+            new_data[k] = v[mask]
+        return ParticleData(
+            data=new_data,
+            nparts=new_nparts,
+            iteration=self.iteration,
+            time=self.time,
+            label=self.label,
+        )
+
+    def compress(self) -> "ParticleData":
+        """Return a copy with contiguous arrays (independent of source).
+
+        Returns
+        -------
+        ParticleData
+        """
+        new_data = {}
+        for k, v in self.data.items():
+            new_data[k] = np.ascontiguousarray(v) if not v.flags["C_CONTIGUOUS"] else v.copy()
+        return ParticleData(
+            data=new_data,
+            nparts=self.nparts,
+            iteration=self.iteration,
+            time=self.time,
+            label=self.label,
+        )
+
+    def __len__(self) -> int:
+        return self.nparts
+
 
 @dataclass
 class PhasespaceData:
@@ -421,3 +470,49 @@ class TrackInfo:
     ndump: int = 0
     niter: int = 0
     quants: list[str] = field(default_factory=list)
+
+
+def _eval_particle_expr(expr: str, data: dict[str, np.ndarray]) -> np.ndarray:
+    """Evaluate a filter expression against particle data.
+
+    Tries numexpr first; falls back to eval with restricted namespace.
+    Returns a boolean mask array.
+
+    Parameters
+    ----------
+    expr : str
+        Filter expression, e.g. ``'p1 > 0 and ene < 10'``.
+    data : dict
+        Particle data dict with array values.
+
+    Returns
+    -------
+    np.ndarray
+        Boolean mask array.
+
+    Raises
+    ------
+    ValueError
+        If the expression cannot be evaluated.
+    """
+    try:
+        import numexpr
+
+        mask = numexpr.evaluate(expr, local_dict=data)
+        return np.asarray(mask, dtype=bool)
+    except ImportError:
+        pass
+    except Exception as e:
+        raise ValueError(
+            f"Failed to evaluate filter expression {expr!r}: {e}"
+        ) from e
+
+    # Fallback: use Python eval with restricted namespace
+    try:
+        safe_locals = {k: v for k, v in data.items()}
+        mask = eval(expr, {"__builtins__": {}}, safe_locals)
+        return np.asarray(mask, dtype=bool)
+    except Exception as e:
+        raise ValueError(
+            f"Failed to evaluate filter expression {expr!r}: {e}"
+        ) from e
