@@ -1,6 +1,6 @@
 """osiris-toolkit: Comprehensive toolkit for OSIRIS PIC simulation."""
 
-__version__ = "0.12.0"
+__version__ = "0.13.0"
 
 from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.compute import (
@@ -12,6 +12,19 @@ from osiris_toolkit.compute import (
     trapz_2d,
 )
 from osiris_toolkit.config import OsirisConfig
+from osiris_toolkit.exceptions import (
+    ConfigurationError,
+    DataNotFoundError,
+    FormatError,
+    MissingDependencyError,
+    MissingParameterError,
+    OsirisToolkitError,
+    PipelineError,
+    ShapeError,
+    UnitConversionError,
+    UnsupportedVersionError,
+    ValidationError,
+)
 from osiris_toolkit.io import (
     list_records,
     read_grid,
@@ -43,26 +56,38 @@ from osiris_toolkit.vis.batch import BatchResult, ProgressEvent
 __all__ = [
     "__version__",
     "BatchResult",
+    "ConfigurationError",
+    "DataNotFoundError",
+    "DataNotFoundError",
     "DiagKind",
     "Field",
     "FieldInfo",
+    "FormatError",
     "GridAxis",
     "GridData",
     "HistoryData",
     "LazySimulation",
+    "MissingDependencyError",
+    "MissingParameterError",
     "OSIRIS_DIAGNOSTICS",
     "OsirisConfig",
+    "OsirisToolkitError",
     "ParticleData",
     "ParticleInfo",
     "PhasespaceData",
+    "PipelineError",
     "PostProcessor",
     "ProgressEvent",
+    "ShapeError",
     "Simulation",
     "TimingsData",
     "TrackData",
     "TrackInfo",
     "TracksAnalyzer",
     "UnitConverter",
+    "UnitConversionError",
+    "UnsupportedVersionError",
+    "ValidationError",
     "compute_k_space",
     "line_integrate",
     "list_records",
