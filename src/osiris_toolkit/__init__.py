@@ -11,6 +11,7 @@ from osiris_toolkit.compute import (
     spectral_power,
     trapz_2d,
 )
+from osiris_toolkit.config import OsirisConfig
 from osiris_toolkit.io import (
     list_records,
     read_grid,
@@ -18,7 +19,6 @@ from osiris_toolkit.io import (
     read_particles,
     read_tracks,
 )
-from osiris_toolkit.config import OsirisConfig
 from osiris_toolkit.postproc import PostProcessor
 from osiris_toolkit.sim import (
     OSIRIS_DIAGNOSTICS,

@@ -10,6 +10,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -26,6 +27,9 @@ from osiris_toolkit.sim.diagnostics import (
     TrackData,
     TrackInfo,
 )
+
+if TYPE_CHECKING:
+    from osiris_toolkit.config import OsirisConfig
 
 # ---------------------------------------------------------------------------
 # Naming convention: {quant}[-{label}]-{iter:06d}.zdf

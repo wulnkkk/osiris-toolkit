@@ -10,7 +10,6 @@ from osiris_toolkit.analysis.emf import EMFAnalyzer
 from osiris_toolkit.analysis.kspace import KSpaceAnalyzer
 from osiris_toolkit.analysis.phasespace import PhasespaceAnalyzer
 from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
-from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.analysis.species import SpeciesAnalyzer
 from osiris_toolkit.analysis.stats import (
     describe,
@@ -20,6 +19,7 @@ from osiris_toolkit.analysis.stats import (
     std,
     total_energy,
 )
+from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 

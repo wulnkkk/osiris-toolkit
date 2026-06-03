@@ -29,12 +29,12 @@ from osiris_toolkit.vis.raw import (
     plot_raw_phasespace,
     plot_raw_scatter,
 )
+from osiris_toolkit.vis.scattering import plot_scattering_fraction
 from osiris_toolkit.vis.tracks import (
     plot_tracks_energy,
     plot_tracks_field,
     plot_tracks_orbit,
 )
-from osiris_toolkit.vis.scattering import plot_scattering_fraction
 
 
 class PostVisHub:
