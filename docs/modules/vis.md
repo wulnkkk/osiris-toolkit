@@ -33,7 +33,9 @@ VisEngine(sim, converter)
 | `energy_summary.py` | `plot_energy_timeseries()`, `plot_spectrum_colormap()`, `plot_poynting_vector()` (v0.8.0) |
 | `comparison.py` | `plot_difference()`, `plot_overlay()` — field comparison plots (v0.8.0) |
 | `animation.py` | `animate_field()` — GIF/MP4 time-evolution animation (v0.8.0) |
-| `__init__.py` | `VisEngine` unified entry |
+| `raw.py` | `plot_raw_scatter()`, `plot_raw_momentum()`, `plot_raw_phasespace()`, `plot_raw_energy_spectrum()` — RAW particle visualization (v0.9.0) |
+| `tracks.py` | `plot_tracks_orbit()`, `plot_tracks_energy()`, `plot_tracks_field()` — TRACKS trajectory visualization (v0.9.0) |
+| `__init__.py` | `PostVisHub` unified entry with `.raw`, `.tracks`, `.field`, `.energy` namespaces |
 
 ## Usage
 
@@ -176,4 +178,67 @@ from osiris_toolkit.vis.colormap import symmetrical_colormap, register_cmaps
 register_cmaps()
 plot_field("e1", 0, sim=sim, cmap="EField")
 plot_field("b3", 0, sim=sim, cmap="BField")
+```
+
+## RAW Particle Visualization (v0.9.0)
+
+```python
+from osiris_toolkit.vis.raw import (
+    plot_raw_scatter, plot_raw_momentum,
+    plot_raw_phasespace, plot_raw_energy_spectrum,
+)
+
+raw = sim.get_raw("electrons", 50)
+plot_raw_scatter(raw, "x1", "x2", color_by="ene")
+plot_raw_momentum(raw, bins=80)
+plot_raw_phasespace(raw, "x1", "p1", color_by="ene")
+plot_raw_energy_spectrum(raw, bins=100)
+```
+
+All functions accept `color_by`, `cmap`, `alpha`, `marker_size` for tuning.
+
+## TRACKS Trajectory Visualization (v0.9.0)
+
+```python
+from osiris_toolkit.vis.tracks import (
+    plot_tracks_orbit, plot_tracks_energy, plot_tracks_field,
+)
+
+td = sim.get_tracks("track_electrons")
+plot_tracks_orbit(td, "x1-x2")
+plot_tracks_energy(td, per_track=True)
+plot_tracks_field(td, "E1", vs="time")
+```
+
+`highlight_tracks` parameter allows emphasizing specific trajectories.
+
+## PostVisHub Namespace Access (v0.9.0)
+
+```python
+pp = PostProcessor(sim)
+pp.vis.raw.scatter("electrons", 50, x_axis="x1", y_axis="x2")
+pp.vis.tracks.orbit("track_electrons", proj="x1-x2")
+```
+
+## OsirisConfig Integration (v0.10.0)
+
+`save_or_show()` reads `overwrite` from `OsirisConfig` when not explicitly passed:
+
+```python
+from osiris_toolkit.config import OsirisConfig
+
+OsirisConfig.get().overwrite = True
+# All subsequent plots overwrite existing files by default
+```
+
+`process_simulation()` returns a `BatchResult` with file list and errors:
+
+```python
+from osiris_toolkit.vis.batch import process_simulation, BatchResult, ProgressEvent
+
+def on_progress(event: ProgressEvent):
+    print(f"{event.iteration}/{event.total}")
+
+result: BatchResult = process_simulation("/data/sim", "run01", progress_callback=on_progress)
+print(f"Generated {len(result.files)} files")
 ```
