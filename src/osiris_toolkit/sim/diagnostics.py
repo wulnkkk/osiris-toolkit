@@ -382,6 +382,17 @@ class Field:
                     w.writerow(list(idx) + [float(self.data[idx])])
         return output
 
+    def to_vtk(self, output: str | Path, **kwargs) -> Path:
+        """Export to VTK format.
+
+        See ``osiris_toolkit.io.vtk_exporter.to_vtk``.
+
+        Requires ``pyevtk`` (``pip install osiris-toolkit[vtk]``).
+        """
+        from osiris_toolkit.io.vtk_exporter import to_vtk
+
+        return to_vtk(self, output, **kwargs)
+
 
 # Backward compatibility alias
 GridData = Field

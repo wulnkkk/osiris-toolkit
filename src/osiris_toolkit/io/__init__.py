@@ -16,6 +16,7 @@ from osiris_toolkit.io._format import (
     record_type_name,
 )
 from osiris_toolkit.io._parallel import read_many, read_many_map
+from osiris_toolkit.io.vtk_exporter import to_vtk
 from osiris_toolkit.io._reader import (
     list_records,
     read_grid,
@@ -43,6 +44,8 @@ __all__ = [
     # Parallel I/O
     "read_many",
     "read_many_map",
+    # VTK export
+    "to_vtk",
     # Format constants
     "MAGIC",
     "RecordType",
