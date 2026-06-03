@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
 from functools import cached_property
 from pathlib import Path
 
@@ -242,68 +241,7 @@ class _TracksVis:
         return plot_tracks_field(td, field_component, **kwargs)
 
 
-class VisEngine:
-    """DEPRECATED: Use ``PostProcessor`` from ``osiris_toolkit.postproc``.
-
-    Kept for backward compatibility. Will be removed in a future version.
-    """
-
-    def __init__(
-        self,
-        sim: Simulation,
-        converter: UnitConverter | None = None,
-    ) -> None:
-        warnings.warn(
-            "VisEngine is deprecated. Use PostProcessor from osiris_toolkit.postproc.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._sim = sim
-        self._converter = converter
-        self._hub = PostVisHub(sim, converter)
-
-    @property
-    def converter(self) -> UnitConverter | None:
-        return self._converter
-
-    def plot(self, kind: str, **kwargs) -> Path | None:
-        return self._hub.plot(kind, **kwargs)
-
-    def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
-        return self._hub.plot_field(quantity=quantity, iteration=iteration, **kwargs)
-
-    def plot_density(self, species: str, iteration: int, quantity: str = "charge", **kwargs) -> Path | None:
-        return self._hub.plot_density(species=species, iteration=iteration, quantity=quantity, **kwargs)
-
-    def plot_phasespace(self, ps_name: str, species: str, iteration: int, **kwargs) -> Path | None:
-        return self._hub.plot_phasespace(ps_name=ps_name, species=species, iteration=iteration, **kwargs)
-
-    def plot_k_space(self, quantity: str, iteration: int, **kwargs) -> Path | None:
-        return self._hub.plot_k_space(quantity=quantity, iteration=iteration, **kwargs)
-
-    def plot_composite(self, iteration: int, **kwargs) -> Path | None:
-        return plot_composite(
-            sim=self._sim, converter=self._converter,
-            iteration=iteration, **kwargs,
-        )
-
-    def batch(
-        self, sim_name: str, output_root=None, x_unit="um", y_unit="um",
-        time_unit="ps", max_workers=None,
-    ) -> None:
-        return process_simulation(
-            sim_path=str(self._sim.path),
-            sim_name=sim_name,
-            output_root=output_root,
-            x_unit=x_unit,
-            y_unit=y_unit,
-            time_unit=time_unit,
-            max_workers=max_workers,
-        )
-
-
 __all__ = [
-    "VisEngine",
     "PostVisHub",
     "animate_field",
     "plot_field",

@@ -16,7 +16,7 @@ from osiris_toolkit.units import UnitConverter
 from .density import plot_density
 from .field import plot_field
 from .kspace import plot_k_space
-from .scattering import analyze_scattering, plot_scattering_fraction
+from .scattering import plot_scattering_fraction
 
 logger = logging.getLogger(__name__)
 
@@ -245,13 +245,15 @@ def process_simulation(
 
     # --- Scattering analysis (delegate to scattering.py) ---
     logger.info("[%s] Scattering analysis...", sim_name)
+    from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
+
+    scattering_analyzer = ScatteringAnalyzer(sim, converter)
     for qty in ["e1", "e2", "e3"]:
         if qty not in available_fields:
             continue
         try:
-            result = analyze_scattering(
+            result = scattering_analyzer.analyze(
                 quantity=qty,
-                sim=sim,
                 verbose=False,
             )
             fpath = plot_scattering_fraction(

@@ -229,25 +229,25 @@ def batch_process_parallel(
 
     # ── Scattering analysis (cross-iteration, runs sequentially) ──
     logger.info("[%s] Scattering analysis...", sim_name)
+    from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
+    from osiris_toolkit.vis.scattering import plot_scattering_fraction
+
+    converter = (
+        UnitConverter(converter_omega_p0)
+        if converter_omega_p0
+        else None
+    )
+    scattering_analyzer = ScatteringAnalyzer(sim, converter)
     for qty in ["e1", "e2", "e3"]:
         if qty not in available_fields:
             continue
         try:
-            from osiris_toolkit.vis.scattering import (
-                analyze_scattering,
-                plot_scattering_fraction,
-            )
-
-            result = analyze_scattering(
-                quantity=qty, sim=sim, verbose=False,
+            result = scattering_analyzer.analyze(
+                quantity=qty, verbose=False,
             )
             plot_scattering_fraction(
                 result,
-                converter=(
-                    UnitConverter(converter_omega_p0)
-                    if converter_omega_p0
-                    else None
-                ),
+                converter=converter,
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )

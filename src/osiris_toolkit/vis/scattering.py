@@ -6,7 +6,6 @@ side-scattered, and back-scattered energy fractions as functions of time.
 """
 
 import logging
-import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ from osiris_toolkit.analysis._result_types import ScatteringResult  # re-export
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
-from .common import get_converter, load_sim, save_or_show
+from .common import save_or_show
 
 logger = logging.getLogger(__name__)
 
@@ -56,61 +55,6 @@ DEFAULT_MASKS = {
 
 # ScatteringResult is re-exported from osiris_toolkit.analysis._result_types
 # _mask_energy is re-exported from osiris_toolkit.compute.integrate
-
-
-def analyze_scattering(
-    quantity: str,
-    sim_path: str | Path | None = None,
-    *,
-    sim: Simulation | None = None,
-    iterations: list[int] | None = None,
-    masks: dict | None = None,
-    omega0_norm: float = 1.0,
-    verbose: bool = True,
-) -> ScatteringResult:
-    """Analyse k-space scattering energy fractions over time.
-
-    .. deprecated::
-        Use ``ScatteringAnalyzer`` from ``osiris_toolkit.analysis.scattering``
-        instead. This function is kept for backward compatibility.
-
-    Parameters
-    ----------
-    quantity : str
-        Field component to analyse (e.g. ``'e3'``).
-    sim_path : str or Path
-        Path to the simulation output directory.
-    iterations : list of int or None
-        Iteration numbers to process.
-    masks : dict or None
-        Custom k-space mask definitions.
-    omega0_norm : float
-        Laser frequency in normalised units.
-    verbose : bool
-        If True, print per-iteration results.
-
-    Returns
-    -------
-    ScatteringResult
-        Time series of energy fractions.
-    """
-    warnings.warn(
-        "vis.scattering.analyze_scattering is deprecated. "
-        "Use osiris_toolkit.analysis.scattering.ScatteringAnalyzer instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
-
-    sim_obj = load_sim(sim_path, sim=sim)
-    analyzer = ScatteringAnalyzer(sim_obj)
-    return analyzer.analyze(
-        quantity=quantity,
-        iterations=iterations,
-        masks=masks,
-        omega0_norm=omega0_norm,
-        verbose=verbose,
-    )
 
 
 def plot_scattering_fraction(
@@ -195,15 +139,27 @@ if __name__ == "__main__":
     sim_path = sys.argv[1]
     quantity = sys.argv[2] if len(sys.argv) > 2 else "e3"
 
-    sim = load_sim(sim_path)
-    converter = get_converter(sim)
+    from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
+    from osiris_toolkit.units import UnitConverter
+    from osiris_toolkit.units.params import SimulationParams
+
+    sim = Simulation(str(sim_path))
+
+    converter = None
+    try:
+        params = SimulationParams.from_sim_path(sim_path)
+        if params.omega_p0 > 0:
+            converter = UnitConverter(params.omega_p0)
+    except Exception:
+        pass
 
     logger.info("Analysing %s (%s)...", quantity, sim_path)
 
     all_iters = sim.list_iterations(quantity)
     logger.info("  %s iterations total", len(all_iters))
 
-    result = analyze_scattering(quantity, sim_path=sim_path, verbose=True)
+    analyzer = ScatteringAnalyzer(sim)
+    result = analyzer.analyze(quantity=quantity, verbose=True)
     plot_scattering_fraction(
         result, converter=converter, time_unit="ps",
         output=f"scattering_{quantity}.png",

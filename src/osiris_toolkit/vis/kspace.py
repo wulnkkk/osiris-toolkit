@@ -6,62 +6,19 @@ dimensionless k/k0 space (no unit conversion needed for the axes).
 """
 
 import logging
-import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from osiris_toolkit._models import GridData
 from osiris_toolkit.compute.fft import compute_k_space as _compute_k_space
-from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
+from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
 from osiris_toolkit.units import UnitConverter
 
 from .common import get_converter, load_sim, save_or_show
 
 logger = logging.getLogger(__name__)
-
-
-def compute_k_space(
-    grid: GridData, omega0_norm: float = 1.0
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Compute the 2-D FFT k-space spectrum from a grid dataset.
-
-    .. deprecated::
-        Use ``osiris_toolkit.compute.fft.compute_k_space`` instead.
-        The new function accepts raw ``(data, dx, dy)`` arrays rather than
-        a ``GridData`` object.
-
-    Parameters
-    ----------
-    grid : GridData
-        Field or density grid data.
-    omega0_norm : float
-        Laser frequency in normalised units (default 1.0).
-
-    Returns
-    -------
-    kx_k0 : 1-D array
-        kx/k0 values, fftshifted.
-    ky_k0 : 1-D array
-        ky/k0 values, fftshifted.
-    spectrum : 2-D array
-        |FFT| amplitude, fftshifted.
-    """
-    warnings.warn(
-        "vis.kspace.compute_k_space is deprecated. "
-        "Use osiris_toolkit.compute.fft.compute_k_space instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    data = grid.data
-    if data.ndim != 2:
-        raise ShapeError(f"Expected 2-D data, got shape {data.shape}")
-    nx, ny = data.shape
-    dx = (grid.axes[0].max - grid.axes[0].min) / nx
-    dy = (grid.axes[1].max - grid.axes[1].min) / ny
-    return _compute_k_space(data, dx, dy, omega0_norm)
 
 
 def plot_k_space(

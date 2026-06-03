@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
 from functools import cached_property
 
 from osiris_toolkit.analysis.density import DensityAnalyzer
@@ -66,44 +65,7 @@ class PostAnalysisHub:
         return TracksAnalyzer(self._sim, self._converter)
 
 
-class Analyzer:
-    """DEPRECATED: Use ``PostProcessor`` from ``osiris_toolkit.postproc`` instead.
-
-    This class is kept for backward compatibility and will be removed in a
-    future version.
-    """
-
-    def __init__(
-        self,
-        sim: Simulation,
-        converter: UnitConverter | None = None,
-    ) -> None:
-        warnings.warn(
-            "Analyzer is deprecated. Use PostProcessor from osiris_toolkit.postproc.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._sim = sim
-        self._converter = converter
-
-    @property
-    def emf(self) -> EMFAnalyzer:
-        return EMFAnalyzer(self._sim, self._converter)
-
-    @property
-    def species(self) -> SpeciesAnalyzer:
-        return SpeciesAnalyzer(self._sim, self._converter)
-
-    describe = staticmethod(describe)
-    mean = staticmethod(mean)
-    rms = staticmethod(rms)
-    std = staticmethod(std)
-    minmax = staticmethod(minmax)
-    total_energy = staticmethod(total_energy)
-
-
 __all__ = [
-    "Analyzer",
     "EMFAnalyzer",
     "SpeciesAnalyzer",
     "DensityAnalyzer",

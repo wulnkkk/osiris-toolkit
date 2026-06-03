@@ -254,14 +254,14 @@ class VisualizeStep(PipelineStep):
         output = Path(self.output_dir)
         output.mkdir(parents=True, exist_ok=True)
 
-        from osiris_toolkit.vis import VisEngine
+        from osiris_toolkit.postproc import PostProcessor
 
-        vis = VisEngine(sim, converter=ctx.converter)
+        pp = PostProcessor(sim, converter=ctx.converter)
 
         for kind in self.kinds:
             kind_lower = kind.lower()
             if kind_lower == "emf":
-                vis.plot(
+                pp.vis.plot(
                     "EMF",
                     quantity="e1",
                     iteration=self.iteration,

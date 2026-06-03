@@ -269,13 +269,13 @@ def vis_plot(
     output: Path | None, overwrite: bool,
 ) -> None:
     """Plot a single diagnostic frame."""
+    from osiris_toolkit.postproc import PostProcessor
     from osiris_toolkit.sim import Simulation
-    from osiris_toolkit.vis import VisEngine
 
     sim_obj = Simulation(str(directory))
-    vis_eng = VisEngine(sim_obj)
+    pp = PostProcessor(sim_obj)
 
-    fig = vis_eng.plot(
+    fig = pp.vis.plot(
         kind, quantity=quantity, iteration=iteration,
         output=str(output) if output else None,
     )
