@@ -46,3 +46,16 @@ def test_simulation_output_root_from_config(tmp_path):
     custom = OsirisConfig().copy_with(output_root="/explicit/output")
     sim = Simulation(str(sim_dir), config=custom)
     assert sim.output_root == Path("/explicit/output")
+
+
+class TestSimulationSerialization:
+    def test_to_dict_roundtrip(self, tmp_sim_dir):
+        from osiris_toolkit.sim import Simulation
+
+        sim = Simulation(str(tmp_sim_dir))
+        d = sim.to_dict()
+        assert d["path"] == str(tmp_sim_dir)
+
+        sim2 = Simulation.from_dict(d)
+        assert sim2._path == sim._path
+        assert sim2.list_fields() == sim.list_fields()

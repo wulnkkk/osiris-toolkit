@@ -271,6 +271,24 @@ class Simulation:
 
         self._discover()
 
+    def to_dict(self) -> dict:
+        """Lightweight serialization — path only. Cheap to rebuild.
+
+        Returns a dict with the minimal information needed to reconstruct
+        this Simulation. Does NOT serialize cached state, file handles,
+        or catalog data — those are cheaply rebuilt by ``from_dict()``.
+        """
+        return {"path": str(self._path)}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Simulation":
+        """Rebuild a Simulation from the output of ``to_dict()``.
+
+        Re-discovers the output directory, rebuilding the catalog
+        from scratch. This is cheap — only file listing and parsing.
+        """
+        return cls(d["path"])
+
     # ------------------------------------------------------------------
     # Path properties
     # ------------------------------------------------------------------
