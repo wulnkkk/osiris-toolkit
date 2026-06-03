@@ -3,8 +3,9 @@
 import pytest
 
 from osiris_toolkit.sim import Simulation
+from osiris_toolkit.sim._parse import _parse_quantity
 from osiris_toolkit.sim.diagnostics import GridData
-from osiris_toolkit.sim.simulation import _FieldEntry, _parse_quantity
+from osiris_toolkit.sim.simulation import _FieldEntry
 
 
 class TestSimulationInit:
