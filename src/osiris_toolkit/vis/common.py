@@ -111,7 +111,7 @@ def safe_log_norm(
 def save_or_show(
     fig: plt.Figure,
     filepath: str | Path | None = None,
-    overwrite: bool = False,
+    overwrite: bool | None = None,
 ) -> None:
     """Save the figure to file or display it interactively.
 
@@ -128,6 +128,9 @@ def save_or_show(
         already exists.  Set to True to silently overwrite.
     """
     if filepath:
+        if overwrite is None:
+            from osiris_toolkit.config import OsirisConfig
+            overwrite = OsirisConfig.get().overwrite
         p = Path(filepath)
         if p.exists() and not overwrite:
             raise FileExistsError(

@@ -66,3 +66,32 @@ class TestOsirisConfig:
         assert copy.x_unit == "nm"
         assert copy.y_unit == "um"
         assert copy.time_unit == "ps"
+
+
+class TestSaveOrShowConfig:
+    """Test save_or_show respects OsirisConfig.overwrite."""
+
+    def test_overwrite_from_config(self, tmp_path):
+        """save_or_show uses config.overwrite when not explicitly passed."""
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import pytest
+        from osiris_toolkit.config import OsirisConfig
+        from osiris_toolkit.vis.common import save_or_show
+
+        fpath = tmp_path / "test.png"
+        fig, _ = plt.subplots()
+        save_or_show(fig, fpath)
+        plt.close(fig)
+
+        fig2, _ = plt.subplots()
+        cfg = OsirisConfig.get()
+        old = cfg.overwrite
+        cfg.overwrite = False
+        with pytest.raises(FileExistsError):
+            save_or_show(fig2, fpath)
+        cfg.overwrite = True
+        save_or_show(fig2, fpath)
+        cfg.overwrite = old
+        plt.close(fig2)

@@ -23,10 +23,13 @@ def main(verbose: bool, quiet: bool) -> None:
     import logging
 
     from osiris_toolkit._logging import configure
+    from osiris_toolkit.config import OsirisConfig
 
     if verbose:
+        OsirisConfig.get().log_level = logging.DEBUG
         configure(logging.DEBUG)
     elif quiet:
+        OsirisConfig.get().log_level = logging.ERROR
         configure(logging.ERROR)
 
 
