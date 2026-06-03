@@ -533,7 +533,7 @@ class Simulation:
         return sorted([p.name for p in self._timings])
 
     def list_iterations(
-        self, quantity: str, report_type: str | None = None
+        self, quantity: str, report_type: str | None = None, *, step: int = 1
     ) -> list[int]:
         """Return available iteration numbers for a given field quantity.
 
@@ -545,6 +545,8 @@ class Simulation:
             Report modifier to filter by. If ``None`` (default), returns
             only plain entries (no modifier). Set to a specific modifier
             string (e.g. ``"savg"``) to filter.
+        step : int
+            Stride. ``step=5`` returns every 5th iteration. Default 1 = all.
 
         Returns
         -------
@@ -555,7 +557,8 @@ class Simulation:
             entries = [e for e in entries if e.report_type == ""]
         else:
             entries = [e for e in entries if e.report_type == report_type]
-        return [e.iteration for e in entries]
+        iters = sorted({e.iteration for e in entries})
+        return iters[::step]
 
     @property
     def run_info(self) -> dict[str, str]:
