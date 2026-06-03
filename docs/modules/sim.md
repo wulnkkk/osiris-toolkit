@@ -177,3 +177,23 @@ Add an entry to `catalog.py` in `OSIRIS_DIAGNOSTICS`:
 ```
 
 Then add the corresponding `_discover_*()` method and `get_*()` accessor to `Simulation`.
+
+## Configuration (v0.10.0)
+
+`Simulation` accepts an optional `OsirisConfig` parameter. When not provided, a snapshot of the global singleton is used:
+
+```python
+from osiris_toolkit.config import OsirisConfig
+from osiris_toolkit.sim import Simulation
+
+# Inherit from global config
+sim = Simulation("/path/to/output")
+print(sim.config.x_unit)  # "um" (global default)
+
+# Per-simulation override
+custom = OsirisConfig().copy_with(output_root="/other/figures", x_unit="nm")
+sim = Simulation("/path/to/output", config=custom)
+print(sim.output_root)  # Path("/other/figures")
+```
+
+`output_root` cascade: explicit `output_root` kwarg > `sim.config.output_root` > `{sim_path}/figures/`.
