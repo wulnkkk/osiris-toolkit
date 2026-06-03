@@ -5,7 +5,11 @@ from __future__ import annotations
 import numpy as np
 
 from ._protocol import DiagnosticAnalyzer
-from ._result_types import ParticleSpectrumResult, TemperatureResult
+from ._result_types import (
+    MomentumStatsResult,
+    ParticleSpectrumResult,
+    TemperatureResult,
+)
 
 
 class SpeciesAnalyzer(DiagnosticAnalyzer):
@@ -60,4 +64,52 @@ class SpeciesAnalyzer(DiagnosticAnalyzer):
             iteration=iteration,
             time=0.0,
             components=result,
+        )
+
+    def momentum_stats(
+        self, species: str, iteration: int
+    ) -> MomentumStatsResult:
+        """Per-axis momentum statistics from raw particle data.
+
+        Parameters
+        ----------
+        species : str
+            Species name.
+        iteration : int
+            Iteration number.
+
+        Returns
+        -------
+        MomentumStatsResult
+        """
+        raw = self._sim.get_raw(species, iteration)
+        if raw is None:
+            raise ValueError(
+                f"No raw particle data for species '{species}' at iteration {iteration}"
+            )
+
+        def _stats(key: str):
+            arr = raw.data.get(key)
+            if arr is None or len(arr) == 0:
+                return 0.0, 0.0
+            return float(np.mean(arr)), float(np.std(arr))
+
+        p1_mean, p1_std = _stats("p1")
+        p2_mean, p2_std = _stats("p2")
+        p3_mean, p3_std = _stats("p3")
+
+        anisotropy = p1_std / p2_std if p2_std > 0 else 1.0
+
+        return MomentumStatsResult(
+            species=species,
+            iteration=iteration,
+            time=raw.time,
+            p1_mean=p1_mean,
+            p1_std=p1_std,
+            p2_mean=p2_mean,
+            p2_std=p2_std,
+            p3_mean=p3_mean,
+            p3_std=p3_std,
+            anisotropy=anisotropy,
+            nparts=raw.nparts,
         )
