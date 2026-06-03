@@ -51,6 +51,21 @@ class PostVisHub:
         self._sim = sim
         self._converter = converter
 
+    def invalidate_cache(self) -> None:
+        """Clear all cached namespace properties.
+
+        Call this after changing the simulation or converter so that
+        the next access to ``.field``, ``.energy``, ``.raw``, or
+        ``.tracks`` builds fresh objects.
+        """
+        for attr in ("field", "energy", "raw", "tracks"):
+            self.__dict__.pop(attr, None)
+
+    def set_converter(self, converter: UnitConverter) -> None:
+        """Replace the unit converter and invalidate all cached namespaces."""
+        self._converter = converter
+        self.invalidate_cache()
+
     # -- field -----------------------------------------------------------
 
     def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
