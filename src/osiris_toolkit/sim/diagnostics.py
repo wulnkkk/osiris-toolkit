@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import copy
+import csv
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -316,6 +318,70 @@ class Field:
         result = self.data.std(**kwargs)
         return float(result) if result.ndim == 0 else result
 
+    # --- serialisation ---
+
+    def to_npz(self, output: str | Path) -> Path:
+        """Save Field data + axes metadata as a .npz archive.
+
+        Parameters
+        ----------
+        output : str or Path
+            Output file path.
+
+        Returns
+        -------
+        Path
+            The output path.
+        """
+        output = Path(output)
+        d: dict = {"data": self.data, "iteration": self.iteration, "time": self.time}
+        if self.label:
+            d["label"] = np.array(self.label)
+        if self.units:
+            d["units"] = np.array(self.units)
+        if self.axes:
+            d["axes_names"] = np.array([ax.name for ax in self.axes])
+            d["axes_mins"] = np.array([ax.min for ax in self.axes], dtype=float)
+            d["axes_maxs"] = np.array([ax.max for ax in self.axes], dtype=float)
+        np.savez(str(output), **d)
+        return output
+
+    def to_csv(
+        self, output: str | Path, delimiter: str = ","
+    ) -> Path:
+        """Export field data as CSV.
+
+        1-D arrays produce ``index,value`` columns.
+        2-D arrays produce ``x1,x2,value`` columns.
+
+        Parameters
+        ----------
+        output : str or Path
+            Output file path.
+        delimiter : str
+            Column delimiter (default: comma).
+
+        Returns
+        -------
+        Path
+        """
+        output = Path(output)
+        ndim = self.data.ndim
+        if ndim == 1:
+            with open(str(output), "w", newline="") as fh:
+                w = csv.writer(fh, delimiter=delimiter)
+                w.writerow(["index", self.label or "value"])
+                for i, v in enumerate(self.data):
+                    w.writerow([i, float(v)])
+        else:
+            with open(str(output), "w", newline="") as fh:
+                w = csv.writer(fh, delimiter=delimiter)
+                col_names = [f"x{i+1}" for i in range(ndim)] + [self.label or "value"]
+                w.writerow(col_names)
+                for idx in np.ndindex(self.data.shape):
+                    w.writerow(list(idx) + [float(self.data[idx])])
+        return output
+
 
 # Backward compatibility alias
 GridData = Field
@@ -379,6 +445,51 @@ class ParticleData:
 
     def __len__(self) -> int:
         return self.nparts
+
+    def to_npz(self, output: str | Path) -> Path:
+        """Save all particle arrays as a .npz archive.
+
+        Parameters
+        ----------
+        output : str or Path
+            Output file path.
+
+        Returns
+        -------
+        Path
+        """
+        output = Path(output)
+        d: dict = dict(self.data)
+        d["nparts"] = np.array(self.nparts)
+        d["iteration"] = np.array(self.iteration)
+        d["time"] = np.array(self.time)
+        if self.label:
+            d["label"] = np.array(self.label)
+        np.savez(str(output), **d)
+        return output
+
+    def to_csv(
+        self, output: str | Path, delimiter: str = ","
+    ) -> Path:
+        """Export particle data as CSV. One row per particle.
+
+        Parameters
+        ----------
+        output : str or Path
+        delimiter : str
+
+        Returns
+        -------
+        Path
+        """
+        output = Path(output)
+        keys = list(self.data.keys())
+        with open(str(output), "w", newline="") as fh:
+            w = csv.writer(fh, delimiter=delimiter)
+            w.writerow(keys)
+            for i in range(self.nparts):
+                w.writerow([float(self.data[k][i]) for k in keys])
+        return output
 
 
 @dataclass
