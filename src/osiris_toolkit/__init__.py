@@ -1,7 +1,8 @@
 """osiris-toolkit: Comprehensive toolkit for OSIRIS PIC simulation."""
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 
+from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.compute import (
     compute_k_space,
     line_integrate,
@@ -53,6 +54,7 @@ __all__ = [
     "TimingsData",
     "TrackData",
     "TrackInfo",
+    "TracksAnalyzer",
     "UnitConverter",
     "compute_k_space",
     "line_integrate",
