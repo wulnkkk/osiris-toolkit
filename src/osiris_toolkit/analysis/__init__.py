@@ -10,6 +10,7 @@ from osiris_toolkit.analysis.emf import EMFAnalyzer
 from osiris_toolkit.analysis.kspace import KSpaceAnalyzer
 from osiris_toolkit.analysis.phasespace import PhasespaceAnalyzer
 from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
+from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.analysis.species import SpeciesAnalyzer
 from osiris_toolkit.analysis.stats import (
     describe,
@@ -60,6 +61,10 @@ class PostAnalysisHub:
     def kspace(self) -> KSpaceAnalyzer:
         return KSpaceAnalyzer(self._sim, self._converter)
 
+    @cached_property
+    def tracks(self) -> TracksAnalyzer:
+        return TracksAnalyzer(self._sim, self._converter)
+
 
 class Analyzer:
     """DEPRECATED: Use ``PostProcessor`` from ``osiris_toolkit.postproc`` instead.
@@ -105,6 +110,7 @@ __all__ = [
     "ScatteringAnalyzer",
     "KSpaceAnalyzer",
     "PhasespaceAnalyzer",
+    "TracksAnalyzer",
     "PostAnalysisHub",
     "describe",
     "mean",
