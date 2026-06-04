@@ -6,7 +6,7 @@ from functools import cached_property
 
 from osiris_toolkit.analysis import PostAnalysisHub
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
 from osiris_toolkit.vis import PostVisHub
 
 
@@ -19,8 +19,8 @@ class PostProcessor:
     ----------
     sim : Simulation
         The loaded simulation output.
-    converter : UnitConverter or None
-        Unit converter. Auto-created from sim if available.
+    system : UnitSystem or None
+        Unit system. Auto-created from sim if available.
 
     Examples
     --------
@@ -43,20 +43,20 @@ class PostProcessor:
     def __init__(
         self,
         sim: Simulation,
-        converter: UnitConverter | None = None,
+        system: UnitSystem | None = None,
     ) -> None:
         self._sim = sim
-        self._converter = converter
+        self._system = system
 
     @cached_property
     def analyze(self) -> PostAnalysisHub:
         """Numerical analysis hub — all diagnostic analyzers."""
-        return PostAnalysisHub(self._sim, self._converter)
+        return PostAnalysisHub(self._sim, self._system)
 
     @cached_property
     def vis(self) -> PostVisHub:
         """Visualization hub — all plotting functions."""
-        return PostVisHub(self._sim, self._converter)
+        return PostVisHub(self._sim, self._system)
 
     def batch(
         self,
