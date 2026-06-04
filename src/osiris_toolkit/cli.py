@@ -160,12 +160,29 @@ def sim() -> None:
 
 @sim.command("info")
 @click.argument("directory", type=click.Path(exists=True, path_type=Path))
-def sim_info(directory: Path) -> None:
+@click.option("--output", "-o", type=click.Choice(["text", "json"]), default="text")
+def sim_info(directory: Path, output: str) -> None:
     """Print summary information about a simulation output directory."""
     from osiris_toolkit.sim import Simulation
     from osiris_toolkit.sim.catalog import OSIRIS_DIAGNOSTICS
 
     sim_obj = Simulation(str(directory))
+
+    if output == "json":
+        from osiris_toolkit.vis.common import get_system
+
+        system = get_system(sim_obj)
+        info: dict = {
+            "path": str(sim_obj.path),
+            "fields": sim_obj.list_fields(),
+            "species": sim_obj.list_species(),
+        }
+        omega0 = None
+        if system is not None and system.params is not None:
+            omega0 = system.params.omega0_norm
+        info["omega0_norm"] = omega0
+        click.echo(json.dumps(info, indent=2, default=str))
+        return
 
     click.echo(f"Simulation: {directory}")
     click.echo(f"Run info: {sim_obj.run_info}")
@@ -264,21 +281,58 @@ def vis() -> None:
     help="Output file path.  Default: auto-generated under {sim}/figures/.",
 )
 @click.option("--overwrite", is_flag=True, help="Overwrite existing output files.")
+@click.option("--k-unit", default="k0",
+              type=click.Choice(["k0", "rad/um", "rad/nm", "um^-1", "norm"]),
+              help="Wavenumber unit for k-space axes (KSPACE kind only).")
+@click.option("--omega0-norm", type=float, default=None,
+              help="Laser frequency in normalized units.")
+@click.option("--xlim", type=str, default=None,
+              help="k-space x-axis range: 'min,max'.")
+@click.option("--ylim", type=str, default=None,
+              help="k-space y-axis range: 'min,max'.")
+@click.option("--clim", type=str, default=None,
+              help="Color range for k-space: 'vmin,vmax'.")
+@click.option("--white-low", type=float, default=0.05,
+              help="Fraction of colormap low end to fade to white.")
+@click.option("--log-scale/--no-log-scale", default=True,
+              help="Log-scale the FFT amplitude.")
 def vis_plot(
     directory: Path, kind: str, quantity: str, iteration: int,
     output: Path | None, overwrite: bool,
+    k_unit: str, omega0_norm: float | None, xlim: str | None,
+    ylim: str | None, clim: str | None, white_low: float, log_scale: bool,
 ) -> None:
     """Plot a single diagnostic frame."""
     from osiris_toolkit.postproc import PostProcessor
     from osiris_toolkit.sim import Simulation
+    from osiris_toolkit.vis.common import get_system
 
     sim_obj = Simulation(str(directory))
-    pp = PostProcessor(sim_obj)
+    system = get_system(sim_obj)
 
-    fig = pp.vis.plot(
-        kind, quantity=quantity, iteration=iteration,
-        output=str(output) if output else None,
-    )
+    # Allow CLI override of omega0_norm for k-space
+    if omega0_norm is not None and system is not None:
+        from dataclasses import replace
+
+        scales = dict(system.wavenumber.scales)
+        scales["k0"] = 1.0 / omega0_norm
+        system.wavenumber = replace(system.wavenumber, scales=scales)
+
+    pp = PostProcessor(sim_obj, system=system)
+
+    kwargs: dict = {"quantity": quantity, "iteration": iteration,
+                    "output": str(output) if output else None}
+
+    if kind.upper() == "KSPACE":
+        kwargs.update(k_unit=k_unit, log_scale=log_scale, white_low=white_low)
+        if xlim is not None:
+            kwargs["xlim"] = tuple(float(v.strip()) for v in xlim.split(","))
+        if ylim is not None:
+            kwargs["ylim"] = tuple(float(v.strip()) for v in ylim.split(","))
+        if clim is not None:
+            kwargs["clim"] = tuple(float(v.strip()) for v in clim.split(","))
+
+    fig = pp.vis.plot(kind, **kwargs)
     if fig is None:
         click.echo(
             f"No data for {kind}/{quantity} at iteration {iteration}"
@@ -299,7 +353,15 @@ def vis_plot(
     default=None,
     help="Number of parallel workers. Default: auto-detect (SLURM_CPUS_PER_TASK or CPU count).",
 )
-def vis_batch(sims: tuple[str, ...], output_dir: Path | None, max_workers: int | None) -> None:
+@click.option("--dry-run", is_flag=True, help="Preview without processing.")
+@click.option("--progress", is_flag=True, help="Show tqdm progress bar.")
+def vis_batch(
+    sims: tuple[str, ...],
+    output_dir: Path | None,
+    max_workers: int | None,
+    dry_run: bool,
+    progress: bool,
+) -> None:
     """Batch-process multiple simulations.
 
     Provide pairs of SIM_PATH SIM_NAME arguments:
@@ -308,6 +370,7 @@ def vis_batch(sims: tuple[str, ...], output_dir: Path | None, max_workers: int |
         osiris-toolkit vis batch /data/Au Au
         osiris-toolkit vis batch -o /path/to/output /data/Au Au /data/Au0 Au0
     """
+    from osiris_toolkit.sim import Simulation
     from osiris_toolkit.vis.batch import process_simulation
 
     if len(sims) < 2 or len(sims) % 2 != 0:
@@ -319,11 +382,64 @@ def vis_batch(sims: tuple[str, ...], output_dir: Path | None, max_workers: int |
     for i in range(0, len(sims), 2):
         sim_path = sims[i]
         sim_name = sims[i + 1]
+
+        if dry_run:
+            sim_obj = Simulation(sim_path)
+            fields = sim_obj.list_fields()
+            species = sim_obj.list_species()
+            iters = sim_obj.list_iterations(fields[0]) if fields else []
+            n_fields = len(fields)
+            n_iters = len(iters)
+            n_species = len(species)
+
+            click.echo(f"Simulation: {sim_name} ({sim_obj.detected_format} format)")
+            click.echo(f"  Fields: {', '.join(fields)}")
+            if iters:
+                click.echo(f"  Iterations: {n_iters} ({min(iters)}..{max(iters)})")
+            else:
+                click.echo("  Iterations: 0")
+            if species:
+                click.echo(f"  Species: {', '.join(species)}")
+
+            est_fields = n_fields * n_iters
+            est_kspace = n_fields * n_iters
+            est_density = n_species * n_iters
+            click.echo(
+                f"  Would generate ~{est_fields} field PNGs, "
+                f"~{est_kspace} k-space PNGs"
+            )
+            if n_species > 0:
+                click.echo(f"  Would generate ~{est_density} density PNGs")
+            click.echo()
+            continue
+
         click.echo("=" * 60)
         click.echo(f"Batch processing: {sim_name}")
         click.echo("=" * 60)
-        process_simulation(sim_path, sim_name, output_root=output_dir,
-                           max_workers=max_workers)
+
+        if progress:
+            from tqdm import tqdm
+
+            sim_obj = Simulation(sim_path)
+            available_fields = sim_obj.list_fields()
+            if available_fields:
+                n_total = len(sim_obj.list_iterations(available_fields[0]))
+                pbar = tqdm(total=n_total, desc=f"Processing {sim_name}")
+
+                def _progress_callback(event):
+                    pbar.update(1)
+                    pbar.set_postfix(iter=event.iteration)
+
+                process_simulation(sim_path, sim_name, output_root=output_dir,
+                                   max_workers=max_workers,
+                                   progress_callback=_progress_callback)
+                pbar.close()
+            else:
+                process_simulation(sim_path, sim_name, output_root=output_dir,
+                                   max_workers=max_workers)
+        else:
+            process_simulation(sim_path, sim_name, output_root=output_dir,
+                               max_workers=max_workers)
         click.echo()
 
 
