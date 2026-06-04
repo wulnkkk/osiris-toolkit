@@ -21,6 +21,8 @@ units.params.SimulationParams :
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import numpy as np
 
 from osiris_toolkit.exceptions import UnitConversionError
@@ -102,6 +104,27 @@ def _build_scales(omega_p: float) -> dict[str, dict[str, float]]:
             "nC": E_CHARGE * 1e9, "pC": E_CHARGE * 1e12,
         },
     }
+
+
+def _build_wavenumber_scales(
+    k_p_si: float,
+    params: "SimulationParams | None",
+) -> dict[str, float]:
+    """Build wavenumber unit scales.
+
+    ``k_p_si`` = omega_p / C_LIGHT  [rad/m] — plasma wavenumber.
+    """
+    scales: dict[str, float] = {
+        "norm": 1.0,
+        "rad/m": k_p_si,
+        "rad/um": k_p_si / 1e6,
+        "rad/nm": k_p_si / 1e9,
+        "um^-1": k_p_si / (2 * np.pi * 1e6),
+    }
+    omega0_norm = getattr(params, "omega0_norm", None)
+    if params is not None and omega0_norm is not None:
+        scales["k0"] = 1.0 / omega0_norm
+    return scales
 
 
 # quantity -> default "auto" unit
@@ -313,3 +336,132 @@ class UnitConverter:
             f"UnitConverter(omega_p={self.omega_p:.4g} rad/s, "
             f"n0={self.n0_cm3:.4g} cm^-3)"
         )
+
+
+# ---------------------------------------------------------------------------
+# UnitSystem class
+# ---------------------------------------------------------------------------
+
+
+class UnitSystem:
+    """Registry of physical quantity kinds with resolved unit scales.
+
+    Parameters
+    ----------
+    omega_p : float
+        Reference plasma frequency in rad/s.  Must be > 0.
+    params : SimulationParams or None
+        Full simulation parameters.  Quantities that depend on extra
+        parameters (e.g. wavenumber needs omega0_norm) read from here.
+    """
+
+    def __init__(self, omega_p: float, params: SimulationParams | None = None) -> None:
+        if omega_p <= 0:
+            raise UnitConversionError(f"omega_p must be > 0, got {omega_p}")
+        self.omega_p = omega_p
+        self.params = params
+
+        # Compute physical scale factors from omega_p
+        from osiris_toolkit.units._quantity import (  # noqa: PLC0415
+            B_FIELD,
+            CHARGE,
+            CURRENT,
+            DENSITY,
+            E_FIELD,
+            ENERGY,
+            FREQUENCY,
+            LENGTH,
+            MASS,
+            MOMENTUM,
+            TIME,
+            VELOCITY,
+            WAVENUMBER,
+        )
+
+        l_si = C_LIGHT / omega_p               # m per norm length
+        t_si = 1.0 / omega_p                   # s per norm time
+        e_si = M_ELECTRON * C_LIGHT * omega_p / E_CHARGE
+        b_si = M_ELECTRON * omega_p / E_CHARGE
+        n0_cm3 = omega_p**2 / _SI_N0CM3_TO_OMEGAP_SQ
+        k_p_si = omega_p / C_LIGHT             # rad/m per norm wavenumber
+
+        # Resolve scales into each quantity via dataclasses.replace (creates new frozen instances)
+        self.length = replace(LENGTH, scales={
+            "norm": 1.0, "m": l_si, "mm": l_si * 1e3,
+            "um": l_si * 1e6, "nm": l_si * 1e9, "A": l_si * 1e10,
+        })
+        self.time = replace(TIME, scales={
+            "norm": 1.0, "s": t_si, "fs": t_si * 1e15,
+            "ps": t_si * 1e12, "ns": t_si * 1e9,
+        })
+        self.velocity = replace(VELOCITY, scales={
+            "norm": 1.0, "m/s": C_LIGHT, "c": 1.0,
+        })
+        self.momentum = replace(MOMENTUM, scales={
+            "norm": 1.0, "kg*m/s": M_ELECTRON * C_LIGHT,
+            "MeV/c": M_ELECTRON * C_LIGHT * C_LIGHT / (E_CHARGE * 1e6),
+        })
+        self.energy = replace(ENERGY, scales={
+            "norm": 1.0, "J": M_ELECTRON * C_LIGHT**2,
+            "eV": M_ELECTRON * C_LIGHT**2 / E_CHARGE,
+            "keV": M_ELECTRON * C_LIGHT**2 / (E_CHARGE * 1e3),
+            "MeV": M_ELECTRON * C_LIGHT**2 / (E_CHARGE * 1e6),
+            "GeV": M_ELECTRON * C_LIGHT**2 / (E_CHARGE * 1e9),
+        })
+        self.e_field = replace(E_FIELD, scales={
+            "norm": 1.0, "V/m": e_si, "GV/m": e_si / 1e9, "TV/m": e_si / 1e12,
+        })
+        self.b_field = replace(B_FIELD, scales={
+            "norm": 1.0, "T": b_si, "kT": b_si / 1e3, "MT": b_si / 1e6,
+        })
+        self.density = replace(DENSITY, scales={
+            "norm": 1.0, "m^-3": n0_cm3 * 1e6, "cm^-3": n0_cm3,
+        })
+        self.frequency = replace(FREQUENCY, scales={
+            "norm": 1.0, "rad/s": omega_p,
+            "THz": omega_p / (2 * np.pi * 1e12),
+        })
+        self.charge = replace(CHARGE, scales={
+            "norm": 1.0, "C": E_CHARGE, "nC": E_CHARGE * 1e9, "pC": E_CHARGE * 1e12,
+        })
+        self.current = replace(CURRENT, scales={
+            "norm": 1.0,
+        })
+        self.mass = replace(MASS, scales={
+            "norm": 1.0, "kg": M_ELECTRON,
+        })
+        self.wavenumber = replace(WAVENUMBER,
+            scales=_build_wavenumber_scales(k_p_si, params),
+        )
+
+    @property
+    def quantities(self) -> list:
+        """All registered quantities. Used by auto-inference."""
+        return [
+            self.length, self.time, self.velocity, self.momentum,
+            self.energy, self.e_field, self.b_field, self.density,
+            self.frequency, self.charge, self.current, self.mass,
+            self.wavenumber,
+        ]
+
+    def __getitem__(self, name: str):
+        """Dict-style access: system['length']."""
+        if hasattr(self, name):
+            q = getattr(self, name)
+            from osiris_toolkit.units._quantity import QuantityKind  # noqa: PLC0415
+            if isinstance(q, QuantityKind):
+                return q
+        raise UnitConversionError(
+            f"Unknown quantity {name!r}. Known: "
+            f"{[q.name for q in self.quantities]}"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"UnitSystem(omega_p={self.omega_p:.4g} rad/s)"
+        )
+
+    @classmethod
+    def from_params(cls, params: SimulationParams) -> "UnitSystem":
+        """Create from SimulationParams (the recommended constructor)."""
+        return cls(omega_p=params.omega_p0, params=params)
