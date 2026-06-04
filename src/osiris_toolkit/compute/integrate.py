@@ -7,33 +7,38 @@ import numpy as np
 
 def mask_energy(
     spectrum: np.ndarray,
-    kx_k0: np.ndarray,
-    ky_k0: np.ndarray,
+    kx_norm: np.ndarray,
+    ky_norm: np.ndarray,
     kx_range: tuple[float, float],
     ky_range: tuple[float, float],
+    system: "UnitSystem",
 ) -> float:
     """Integrate |spectrum|^2 over a rectangular k-space mask.
 
     Parameters
     ----------
     spectrum : 2-D array
-        FFT amplitude (not power) from ``compute_k_space``.
-    kx_k0, ky_k0 : 1-D arrays
-        k/k0 coordinate arrays.
+        FFT amplitude from ``compute_k_space``.
+    kx_norm, ky_norm : 1-D arrays
+        k coordinate arrays in normalized angular wavenumber (rad / (c/ω_p)).
     kx_range, ky_range : (float, float)
-        Mask boundaries in k/k0 units.
+        Mask boundaries in k/k₀ units.  Requires ``system.wavenumber`` to
+        have ``"k0"`` unit available.
+    system : UnitSystem
+        Must have ``omega0_norm`` set so that ``"k0"`` is a valid
+        wavenumber unit.
 
     Returns
     -------
     float
         Sum of |spectrum|^2 within the mask region.
     """
-    kx_mask = (kx_k0 / (2 * np.pi) >= kx_range[0]) & (
-        kx_k0 / (2 * np.pi) <= kx_range[1]
-    )
-    ky_mask = (ky_k0 / (2 * np.pi) >= ky_range[0]) & (
-        ky_k0 / (2 * np.pi) <= ky_range[1]
-    )
+    from osiris_toolkit.units.converter import UnitSystem
+
+    kx_k0 = system.wavenumber.to(kx_norm, "k0")
+    ky_k0 = system.wavenumber.to(ky_norm, "k0")
+    kx_mask = (kx_k0 >= kx_range[0]) & (kx_k0 <= kx_range[1])
+    ky_mask = (ky_k0 >= ky_range[0]) & (ky_k0 <= ky_range[1])
     region = spectrum[np.ix_(kx_mask, ky_mask)]
     return float(np.sum(region ** 2))
 
