@@ -11,6 +11,21 @@ from dataclasses import dataclass
 from osiris_toolkit.exceptions import MissingParameterError
 
 
+def _extract_omega0(deck: dict) -> float | None:
+    """Extract omega0 (normalized laser frequency) from deck sections.
+
+    Searches antenna / zpulse / laser sections for an ``omega0`` parameter.
+    """
+    for section in deck.get("sections", []):
+        params = section.get("params", {})
+        if "omega0" in params:
+            val = params["omega0"]
+            if isinstance(val, (list, dict)):
+                val = val[0] if isinstance(val, list) else val.get("value", val)
+            return float(val)
+    return None
+
+
 @dataclass
 class SimulationParams:
     """Physical parameters needed for unit conversion and analysis.
@@ -26,6 +41,9 @@ class SimulationParams:
         Reference density in normalized units (optional).
     gamma : float | None
         Relativistic factor of the reference frame (optional).
+    omega0_norm : float | None
+        Normalized laser frequency (optional). Extracted from antenna /
+        zpulse / laser sections.
 
     Examples
     --------
@@ -38,6 +56,7 @@ class SimulationParams:
     omega_p0: float
     n0: float | None = None
     gamma: float | None = None
+    omega0_norm: float | None = None
 
     @classmethod
     def from_deck(cls, deck: dict) -> "SimulationParams":
@@ -104,7 +123,9 @@ class SimulationParams:
                 gamma = gamma.get("value", gamma)
             gamma = float(gamma)
 
-        return cls(omega_p0=omega_p0, n0=n0, gamma=gamma)
+        omega0_norm = _extract_omega0(deck)
+
+        return cls(omega_p0=omega_p0, n0=n0, gamma=gamma, omega0_norm=omega0_norm)
 
     @classmethod
     def from_omega_p0(cls, omega_p0: float) -> "SimulationParams":

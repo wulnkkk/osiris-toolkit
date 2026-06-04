@@ -33,13 +33,12 @@ class TestUnitSystem:
             s.wavenumber.to(1.0, "k0")
 
     def test_wavenumber_with_omega0(self):
-        pytest.skip("Requires Task 4: SimulationParams omega0_norm extension")
-        # params = SimulationParams(omega_p0=3.55e15, omega0_norm=10.0)
-        # s = UnitSystem(3.55e15, params=params)
-        # assert "k0" in s.wavenumber.scales
-        # result = s.wavenumber.to(100.0, "k0")
-        # expected = 100.0 / 10.0
-        # assert result == pytest.approx(expected)
+        params = SimulationParams(omega_p0=3.55e15, omega0_norm=10.0)
+        s = UnitSystem(3.55e15, params=params)
+        assert "k0" in s.wavenumber.scales
+        result = s.wavenumber.to(100.0, "k0")
+        expected = 100.0 / 10.0
+        assert result == pytest.approx(expected)
 
     def test_getitem(self):
         s = UnitSystem(3.55e15)
