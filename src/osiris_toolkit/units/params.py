@@ -7,6 +7,7 @@ replacing the previous ad-hoc regex-based omega_p0 extraction.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from osiris_toolkit.exceptions import MissingParameterError
 
@@ -131,3 +132,34 @@ class SimulationParams:
     def from_omega_p0(cls, omega_p0: float) -> "SimulationParams":
         """Create params directly from a known omega_p0 value."""
         return cls(omega_p0=omega_p0)
+
+    @classmethod
+    def from_sim_path(cls, sim_path: str | Path) -> "SimulationParams":
+        """Extract parameters from the input deck in a simulation directory.
+
+        Searches for ``.in`` files in *sim_path* and parses the first one.
+
+        Parameters
+        ----------
+        sim_path : str or Path
+            Path to the simulation output directory.
+
+        Returns
+        -------
+        SimulationParams
+
+        Raises
+        ------
+        FileNotFoundError
+            If no ``.in`` file is found in the directory.
+        """
+        from osiris_toolkit.deck import parse_deck_file
+
+        sim_path = Path(sim_path)
+        candidates = sorted(sim_path.glob("*.in"))
+        if not candidates:
+            raise FileNotFoundError(
+                f"No input deck (*.in) found in {sim_path}"
+            )
+        deck = parse_deck_file(str(candidates[0]))
+        return cls.from_deck(deck)

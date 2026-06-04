@@ -1,6 +1,7 @@
 """Shared utility functions for OSIRIS visualization scripts."""
 
 import logging
+import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -47,6 +48,24 @@ def load_sim(
     return Simulation(path)
 
 
+def get_system(sim):
+    """Get or build a UnitSystem for the simulation.
+
+    Tries ``sim.system`` first, then parses the input deck.
+    Returns None if no deck is available.
+    """
+    from osiris_toolkit.units.converter import UnitSystem
+    from osiris_toolkit.units.params import SimulationParams
+
+    if hasattr(sim, "system") and sim.system is not None:
+        return sim.system
+    try:
+        params = SimulationParams.from_sim_path(sim.path)
+        return UnitSystem.from_params(params)
+    except Exception:
+        return None
+
+
 def get_converter(sim: Simulation) -> UnitConverter | None:
     """Get a UnitConverter for the given simulation.
 
@@ -65,6 +84,10 @@ def get_converter(sim: Simulation) -> UnitConverter | None:
     UnitConverter or None
         A converter instance, or None if no converter is available.
     """
+    warnings.warn(
+        "get_converter() is deprecated. Use get_system() instead.",
+        DeprecationWarning, stacklevel=2,
+    )
     if hasattr(sim, "converter") and sim.converter is not None:
         return sim.converter
     return None
