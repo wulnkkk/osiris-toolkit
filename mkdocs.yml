@@ -17,6 +17,8 @@ plugins:
             show_source: false
             heading_level: 2
             show_root_heading: true
+exclude_docs: |
+  note/
 nav:
   - Home: index.md
   - Getting Started:
@@ -28,9 +30,9 @@ nav:
       - Simulation Browsing: user-guide/simulation-browsing.md
       - Unit Conversion: user-guide/unit-conversion.md
       - Field Plotting: user-guide/field-plotting.md
-      - K-Space Analysis: user-guide/k-space-analysis.md
+      - K-Space Analysis: user-guide/kspace-analysis.md
       - Density Plotting: user-guide/density-plotting.md
-      - Phasespace: user-guide/phasespace.md
+      - Phasespace: user-guide/phasespace-plotting.md
       - Batch Processing: user-guide/batch-processing.md
       - Parallel Execution: user-guide/parallel-execution.md
       - CLI Reference: user-guide/cli-reference.md

@@ -28,7 +28,7 @@
       "api": "plot_field(quantity, iteration, sim=sim, system=system)"
     },
     "plot k-space": {
-      "guide": "docs/user-guide/k-space-analysis.md",
+      "guide": "docs/user-guide/kspace-analysis.md",
       "cli": "osiris-toolkit vis plot --kind KSPACE --quantity <q> -i <n> <path> --k-unit k0",
       "api": "plot_k_space(quantity, iteration, sim=sim, system=system, k_unit='k0')"
     },

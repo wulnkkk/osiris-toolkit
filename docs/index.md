@@ -18,7 +18,7 @@ simulations — input deck parsing, data extraction, unit conversion, analysis, 
 | Parse an input deck | [Deck Parsing](user-guide/deck-parsing.md) |
 | Browse simulation data | [Simulation Browsing](user-guide/simulation-browsing.md) |
 | Convert to physical units | [Unit Conversion](user-guide/unit-conversion.md) |
-| Generate figures | [Field Plotting](user-guide/field-plotting.md) · [K-Space](user-guide/k-space-analysis.md) · [Batch](user-guide/batch-processing.md) |
+| Generate figures | [Field Plotting](user-guide/field-plotting.md) · [K-Space](user-guide/kspace-analysis.md) · [Batch](user-guide/batch-processing.md) |
 | Understand the architecture | [Architecture Overview](architecture/overview.md) |
 | Look up a function or class | [API Reference](api/sim.md) |
 
