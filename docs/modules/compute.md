@@ -17,14 +17,19 @@ Functions in this layer are reusable building blocks for `analysis/` and `vis/`.
 ```python
 from osiris_toolkit.compute import compute_k_space, spectral_power
 
-# 2-D FFT
-kx, ky, spectrum = compute_k_space(data, dx=0.1, dy=0.1, omega0_norm=3.55e15)
+# 2-D FFT — returns raw normalized angular wavenumber (rad / (c/ω_p))
+kx, ky, spectrum = compute_k_space(data, dx=0.1, dy=0.1)
+
+# Convert to k/k₀ via UnitSystem
+from osiris_toolkit.units import UnitSystem
+system = UnitSystem(omega_p=3.55e15, params=params)
+kx_k0 = system.wavenumber.to(kx, "k0")
 
 # Power spectrum
-kx, ky, power = spectral_power(data, dx=0.1, dy=0.1, omega0_norm=3.55e15)
+kx, ky, power = spectral_power(data, dx=0.1, dy=0.1)
 ```
 
-Returns k-arrays in dimensionless `k/k0` units and the fftshifted amplitude/power.
+Returns k-arrays in normalized angular wavenumber (rad / (c/ω_p)). Use `UnitSystem.wavenumber.to()` for unit conversion to k/k₀ or physical units. The `omega0_norm` parameter was removed in v0.15.0 — normalization is now done through `UnitSystem`.
 
 ## Integration
 
@@ -32,10 +37,10 @@ Returns k-arrays in dimensionless `k/k0` units and the fftshifted amplitude/powe
 from osiris_toolkit.compute import line_integrate, mask_energy, trapz_2d
 
 # Line-integrated 1-D profile
-profile = line_integrate(data, axis=0)  # integrate over axis 0
+profile = line_integrate(data, axis=0)
 
-# K-space mask energy
-energy = mask_energy(spectrum, kx, ky, kx_range=(0, 1), ky_range=(-0.5, 0.5))
+# K-space mask energy (v0.15.0: requires system parameter)
+energy = mask_energy(spectrum, kx, ky, kx_range=(0, 1), ky_range=(-0.5, 0.5), system=system)
 
 # 2-D trapezoidal integration
 total = trapz_2d(data, dx=0.1, dy=0.1)

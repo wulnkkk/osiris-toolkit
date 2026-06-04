@@ -1,6 +1,6 @@
 """osiris-toolkit: Comprehensive toolkit for OSIRIS PIC simulation."""
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 
 from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.compute import (
@@ -50,7 +50,7 @@ from osiris_toolkit.sim import (
     TrackInfo,
 )
 from osiris_toolkit.sim._lazy import LazySimulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units import UnitConverter, UnitSystem
 from osiris_toolkit.vis.batch import BatchResult, ProgressEvent
 
 __all__ = [

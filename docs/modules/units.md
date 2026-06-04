@@ -1,24 +1,38 @@
 # units — Unit Conversion
 
 Bidirectional conversion between OSIRIS normalized simulation units and physical SI/CGS units.
-Driven by physical parameters extracted from a parsed input deck, not by fragile regex.
+Driven by physical parameters extracted from a parsed input deck.
 
 ## Architecture
 
 ```
-Deck ──▶ SimulationParams(omega_p0, n0, gamma) ──▶ UnitConverter(omega_p)
-                                                          │
-                                                          ├── _build_scales()
-                                                          ├── convert(data, quantity, unit)
-                                                          └── get_label(quantity, unit)
+Deck ──▶ SimulationParams(omega_p0, n0, gamma, omega0_norm)
+                │
+                ▼
+         UnitSystem(omega_p, params)          ← registry (v0.15.0)
+                │
+                ├── length: QuantityKind      ← immutable descriptor
+                ├── time: QuantityKind
+                ├── e_field: QuantityKind
+                ├── b_field: QuantityKind
+                ├── wavenumber: QuantityKind   ← NEW
+                ├── momentum: QuantityKind
+                ├── energy: QuantityKind
+                ├── density: QuantityKind
+                ├── frequency: QuantityKind
+                ├── velocity: QuantityKind
+                ├── charge: QuantityKind
+                ├── current: QuantityKind
+                └── mass: QuantityKind
 ```
 
 **Files:**
 
 | File | Role |
 |------|------|
-| `params.py` | `SimulationParams` dataclass: extracts `omega_p0`, `n0`, `gamma` from a parsed deck dict |
-| `converter.py` | `UnitConverter` class: scale factors, `convert()`, label generation, legacy SI→norm helpers |
+| `_quantity.py` | `QuantityKind` frozen dataclass + 13 pre-defined instance templates (v0.15.0) |
+| `converter.py` | `UnitSystem` class (v0.15.0) — scale resolution, `__getitem__`, factory methods; `UnitConverter` (deprecated) |
+| `params.py` | `SimulationParams` dataclass: extracts `omega_p0`, `n0`, `gamma`, `omega0_norm` from parsed deck |
 
 ## Supported Quantities
 
@@ -34,41 +48,53 @@ Deck ──▶ SimulationParams(omega_p0, n0, gamma) ──▶ UnitConverter(ome
 | `density` | `n_0` | cm^-3 | m^-3, cm^-3 |
 | `frequency` | `omega_p` | THz | rad/s, THz |
 | `charge` | `e` | nC | C, nC, pC |
+| `wavenumber` | `omega_p/c` (k_p) | k0 | norm, k0, rad/m, rad/um, rad/nm, um⁻¹ |
+| `current` | `e * n_0 * c` | A/m² | norm |
+| `mass` | `m_e` | kg | norm, kg |
 
 ## Usage
 
 ```python
 from osiris_toolkit.deck import parse_deck_file
-from osiris_toolkit.units import SimulationParams, UnitConverter
+from osiris_toolkit.units import SimulationParams, UnitSystem
 
 # From a parsed deck (recommended)
 deck = parse_deck_file("simulation.in")
 params = SimulationParams.from_deck(deck)
-uc = UnitConverter(params.omega_p0)
+system = UnitSystem.from_params(params)   # UnitSystem, not UnitConverter
 
-# Convert
-uc.convert(1.0, "length", "um")      # 0.0844  (skin depth)
-uc.convert(10.0, "time", "fs")       # 2.817
-uc.convert(1.0, "e_field", "GV/m")   # 6058.0  (cold wave-breaking field)
+# Convert via attribute access
+system.length.to(1.0, "um")              # 0.0844  (skin depth)
+system.time.to(10.0, "fs")              # 2.817
+system.e_field.to(1.0, "GV/m")          # 6058.0
 
-# Auto-unit convenience
-uc.convert(1.0, "length", "auto")    # 0.0844 um (auto picks 'um')
+# Dict-style access for dynamic quantity selection
+system["wavenumber"].to(100.0, "k0")     # 10.0 (k/k₀, needs omega0_norm)
 
-# Axis labels for plots
-uc.get_time_label("ps")              # 't [ps]'
-uc.get_length_label("um", axis="x")  # 'x [um]'
-uc.get_label("e_field", "GV/m")      # 'E [GV/m]'
+# Auto-unit convenience (uses each quantity's auto_unit)
+system.length.to(1.0)                    # defaults to "um"
 
-# Reference density
-uc.n0_cm3                            # 3.97e21 cm^-3
+# LaTeX-rendered axis labels
+system.length.latex("um")               # "$x\ [\mathrm{um}]$"
+system.wavenumber.latex("k0")           # "$k\ [\mathrm{k_0}]$"
+system.e_field.label("GV/m")            # "E [GV/m]"
+```
+
+### With QuantifiedGrid (vis/analysis facade)
+
+```python
+from osiris_toolkit.vis._quantified import QuantifiedGrid
+
+qgrid = QuantifiedGrid(grid, system)
+qgrid.x.to("um")                         # axis extent in μm
+qgrid.as_quantity("e_field").to("GV/m")  # field values in GV/m
+qgrid.x.latex("um")                      # LaTeX axis label
 ```
 
 ## Key Design Decisions
 
-- **Deck-driven, not regex-driven**: the old `UnitConverter.from_simulation()` used regex to find
-  `omega_p0` in `.in` files. Now `SimulationParams.from_deck()` uses the full parser output — accurate
-  for all syntax variants.
-- **Precomputed scale table**: `_build_scales(omega_p)` builds a nested dict `{quantity: {unit: factor}}` once.
-  `convert()` is a dict lookup + multiply — no branching.
-- **SI → normalized helpers**: legacy functions (`normalize_time()`, `normalize_length()`, etc.)
-  are kept for convenience but marked as legacy.
+- **QuantityKind + UnitSystem split**: `QuantityKind` is an immutable descriptor (frozen dataclass). `UnitSystem` resolves physics-dependent scales at construction time via `dataclasses.replace()`, producing new instances without mutating templates.
+- **Deck-driven, not regex-driven**: `SimulationParams.from_deck()` uses the full parser output — accurate for all syntax variants.
+- **Precomputed scale table**: scales are resolved once at `UnitSystem` construction. `to()` is a dict lookup + multiply — no branching.
+- **Strict fallback**: `UnitSystem` requires valid `omega_p`. Without a deck, the system is `None` and callers can only use `"norm"` unit — no silent fallback to dummy values.
+- **Deprecated**: `UnitConverter` is kept for backward compatibility but emits `DeprecationWarning`. Migrate to `UnitSystem`.
