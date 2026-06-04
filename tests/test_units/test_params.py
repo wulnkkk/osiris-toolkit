@@ -1,9 +1,10 @@
-"""Tests for SimulationParams and UnitConverter."""
+"""Tests for SimulationParams and UnitSystem."""
 
 import pytest
 
 from osiris_toolkit.exceptions import MissingParameterError, UnitConversionError
-from osiris_toolkit.units import SimulationParams, UnitConverter
+from osiris_toolkit.units import SimulationParams
+from osiris_toolkit.units.converter import UnitSystem
 
 
 class TestSimulationParams:
@@ -37,37 +38,37 @@ class TestSimulationParams:
         assert params.n0 is None
 
 
-class TestUnitConverter:
+class TestUnitSystem:
     def test_construction(self) -> None:
-        uc = UnitConverter(3.55e15)
-        assert uc.omega_p > 0
+        us = UnitSystem(3.55e15)
+        assert us.omega_p > 0
 
     def test_convert_length_um(self) -> None:
-        uc = UnitConverter(3.55e15)
-        result = uc.convert(1.0, "length", "um")
+        us = UnitSystem(3.55e15)
+        result = us.length.to(1.0, "um")
         assert isinstance(result, float)
         assert result > 0
 
     def test_convert_efield_gvpm(self) -> None:
-        uc = UnitConverter(3.55e15)
-        result = uc.convert(1.0, "e_field", "GV/m")
+        us = UnitSystem(3.55e15)
+        result = us.e_field.to(1.0, "GV/m")
         assert result > 0
 
     def test_from_params(self) -> None:
         params = SimulationParams.from_omega_p0(1.0e15)
-        uc = UnitConverter.from_params(params)
-        assert uc.omega_p == 1.0e15
+        us = UnitSystem.from_params(params)
+        assert us.omega_p == 1.0e15
 
     def test_auto_units(self) -> None:
-        uc = UnitConverter(3.55e15)
-        assert uc.convert(1.0, "time", "auto") > 0
-        assert uc.convert(1.0, "length", "auto") > 0
+        us = UnitSystem(3.55e15)
+        assert us.time.to(1.0, "auto") > 0
+        assert us.length.to(1.0, "auto") > 0
 
     def test_negative_omega_p_raises(self) -> None:
         with pytest.raises(UnitConversionError, match="omega_p"):
-            UnitConverter(-1.0)
+            UnitSystem(-1.0)
 
     def test_unknown_quantity_raises(self) -> None:
-        uc = UnitConverter(1.0e15)
+        us = UnitSystem(1.0e15)
         with pytest.raises(UnitConversionError):
-            uc.get_scale("nonexistent", "norm")
+            us["nonexistent"]

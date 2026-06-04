@@ -262,10 +262,10 @@ def cli_runner():
 
 
 # ---------------------------------------------------------------------------
-# Unit converter fixture
+# Unit system fixture
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def unit_converter():
-    from osiris_toolkit.units import UnitConverter
-    return UnitConverter(3.55e15)
+def unit_system():
+    from osiris_toolkit.units.converter import UnitSystem
+    return UnitSystem(3.55e15)

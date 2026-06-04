@@ -69,13 +69,13 @@ class PostVisHub:
 
     def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
         return plot_field(
-            sim=self._sim, converter=self._system,
+            sim=self._sim, system=self._system,
             quantity=quantity, iteration=iteration, **kwargs,
         )
 
     def plot_all_fields(self, iteration: int, **kwargs) -> None:
         return plot_all_fields(
-            sim=self._sim, converter=self._system,
+            sim=self._sim, system=self._system,
             iteration=iteration, **kwargs,
         )
 
@@ -113,19 +113,19 @@ class PostVisHub:
 
     def plot_density(self, species: str, iteration: int, quantity: str = "charge", **kwargs) -> Path | None:
         return plot_density(
-            sim=self._sim, converter=self._system,
+            sim=self._sim, system=self._system,
             species=species, iteration=iteration, quantity=quantity, **kwargs,
         )
 
     def plot_phasespace(self, ps_name: str, species: str, iteration: int, **kwargs) -> Path | None:
         return plot_phasespace(
-            sim=self._sim, converter=self._system,
+            sim=self._sim, system=self._system,
             ps_name=ps_name, species=species, iteration=iteration, **kwargs,
         )
 
     def plot_k_space(self, quantity: str, iteration: int, **kwargs) -> Path | None:
         return plot_k_space(
-            sim=self._sim, converter=self._system,
+            sim=self._sim, system=self._system,
             quantity=quantity, iteration=iteration, **kwargs,
         )
 
@@ -133,19 +133,19 @@ class PostVisHub:
         """Generic plot by diagnostic kind name."""
         kind = kind.upper()
         if kind == "EMF":
-            return plot_field(sim=self._sim, converter=self._system, **kwargs)
+            return plot_field(sim=self._sim, system=self._system, **kwargs)
         elif kind == "DENSITY":
-            return plot_density(sim=self._sim, converter=self._system, **kwargs)
+            return plot_density(sim=self._sim, system=self._system, **kwargs)
         elif kind == "PHASESPACE":
-            return plot_phasespace(sim=self._sim, converter=self._system, **kwargs)
+            return plot_phasespace(sim=self._sim, system=self._system, **kwargs)
         elif kind == "KSPACE":
-            return plot_k_space(sim=self._sim, converter=self._system, **kwargs)
+            return plot_k_space(sim=self._sim, system=self._system, **kwargs)
         else:
             quantity = kwargs.get("quantity")
             iteration = kwargs.get("iteration")
             if quantity and iteration is not None:
                 return plot_field(
-                    sim=self._sim, converter=self._system,
+                    sim=self._sim, system=self._system,
                     quantity=quantity, iteration=iteration,
                     **{k: v for k, v in kwargs.items() if k not in ("quantity", "iteration")},
                 )

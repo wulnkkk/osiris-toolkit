@@ -43,7 +43,7 @@ class TestComputeKSpace:
         dx = dy = 0.1
         k_mode = 5  # mode number
         x = np.arange(nx) * dx
-        y = np.arange(ny) * dy
+        _y = np.arange(ny) * dy
         data = np.sin(2 * np.pi * k_mode * x[:, None] / (nx * dx))
 
         kx, ky, spectrum = compute_k_space(data, dx, dy)

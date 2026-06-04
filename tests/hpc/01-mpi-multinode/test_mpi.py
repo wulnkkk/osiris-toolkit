@@ -32,7 +32,7 @@ def record(result: bool, name: str, detail: str = "") -> None:
 
 def test_1_1_mpi_distribution(comm_rank: int, comm_size: int) -> None:
     """Verify all MPI ranks are present and unique."""
-    all_ranks = comm_rank  # gather not available; each rank prints its own info
+    _all_ranks = comm_rank  # gather not available; each rank prints its own info
     print(f"[INFO] MPI rank={comm_rank}, world_size={comm_size}")
     record(comm_size > 1, "1.1 MPI distribution: all ranks detected",
            f"world_size={comm_size}, expected > 1")

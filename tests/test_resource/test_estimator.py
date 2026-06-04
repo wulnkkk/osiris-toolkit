@@ -71,7 +71,10 @@ class TestResourceEstimator:
         assert report.disk.total_gb == 0
 
     def test_diagnostics_enabled_produces_disk(self):
-        p = _make_params(emf_ndump_fac=10, species_ppc=[[2, 2]], species_ndump_fac_raw=[100], species_raw_fraction=[1.0])
+        p = _make_params(
+            emf_ndump_fac=10, species_ppc=[[2, 2]],
+            species_ndump_fac_raw=[100], species_raw_fraction=[1.0],
+        )
         report = self.estimator.estimate(p)
         assert report.disk.emf_n_dumps > 0
 

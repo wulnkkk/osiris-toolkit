@@ -9,7 +9,6 @@ from osiris_toolkit._models import (
     ParticleData,
     PhasespaceData,
     TimingsData,
-    TrackData,
 )
 
 

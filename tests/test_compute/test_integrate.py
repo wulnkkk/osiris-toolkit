@@ -4,12 +4,21 @@ import numpy as np
 import pytest
 
 from osiris_toolkit.compute.integrate import line_integrate, mask_energy, trapz_2d
+from osiris_toolkit.units.converter import UnitSystem
+from osiris_toolkit.units.params import SimulationParams
+
+
+@pytest.fixture
+def kspace_system():
+    """UnitSystem with omega0_norm=1 so k0 units equal normalized units."""
+    params = SimulationParams(omega_p0=3.55e15, omega0_norm=1.0)
+    return UnitSystem(3.55e15, params=params)
 
 
 class TestMaskEnergy:
     """Tests for mask_energy."""
 
-    def test_full_mask_equals_total(self):
+    def test_full_mask_equals_total(self, kspace_system):
         """Summing over a mask covering all k-space equals total |spectrum|^2."""
         spectrum = np.ones((32, 32))
         kx = np.fft.fftshift(np.fft.fftfreq(32, 0.1)) * 2 * np.pi
@@ -19,10 +28,11 @@ class TestMaskEnergy:
             spectrum, kx, ky,
             kx_range=(-100, 100),
             ky_range=(-100, 100),
+            system=kspace_system,
         )
         assert total == pytest.approx(float(np.sum(spectrum ** 2)))
 
-    def test_empty_mask_zero(self):
+    def test_empty_mask_zero(self, kspace_system):
         """A mask covering no k-space returns 0."""
         spectrum = np.ones((16, 16))
         kx = np.fft.fftshift(np.fft.fftfreq(16, 0.1)) * 2 * np.pi
@@ -32,6 +42,7 @@ class TestMaskEnergy:
             spectrum, kx, ky,
             kx_range=(1e10, 1e11),
             ky_range=(1e10, 1e11),
+            system=kspace_system,
         )
         assert total == 0.0
 

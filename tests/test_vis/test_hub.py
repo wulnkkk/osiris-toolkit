@@ -16,9 +16,9 @@ class TestPostVisHubCache:
         assert "field" not in hub.__dict__
         assert "energy" not in hub.__dict__
 
-    def test_set_converter_invalidates_cache(self):
+    def test_set_system_invalidates_cache(self):
         from osiris_toolkit.sim import Simulation
-        from osiris_toolkit.units import UnitConverter
+        from osiris_toolkit.units.converter import UnitSystem
         from osiris_toolkit.vis import PostVisHub
 
         sim = Simulation.__new__(Simulation)
@@ -27,7 +27,7 @@ class TestPostVisHubCache:
         _ = hub.field
         assert "field" in hub.__dict__
 
-        uc = UnitConverter.__new__(UnitConverter)
-        hub.set_converter(uc)
-        assert hub._converter is uc
+        us = UnitSystem.__new__(UnitSystem)
+        hub.set_system(us)
+        assert hub._system is us
         assert "field" not in hub.__dict__
