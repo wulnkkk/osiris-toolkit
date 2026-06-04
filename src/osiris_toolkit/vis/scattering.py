@@ -13,7 +13,7 @@ import numpy as np
 
 from osiris_toolkit.analysis._result_types import ScatteringResult  # re-export
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
 
 from .common import save_or_show
 
@@ -59,7 +59,7 @@ DEFAULT_MASKS = {
 
 def plot_scattering_fraction(
     result: ScatteringResult,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     time_unit: str = "auto",
     output: str | Path | None = None,
     *,
@@ -71,8 +71,8 @@ def plot_scattering_fraction(
     ----------
     result : ScatteringResult
         Results from ``analyze_scattering``.
-    converter : UnitConverter or None
-        Unit converter for the time axis.
+    system : UnitSystem or None
+        Unit system for the time axis.
     time_unit : str
         Time unit for the plot.
     output : Path or None
@@ -90,9 +90,9 @@ def plot_scattering_fraction(
         d = sim.output_dir("scattering")
         output = d / f"scattering_{result.quantity}.png"
 
-    if converter is not None:
-        t = converter.convert(np.array(result.times), "time", time_unit)
-        t_label = converter.get_label("time", time_unit)
+    if system is not None:
+        t = system.time.to(np.array(result.times), time_unit)
+        t_label = system.time.label(time_unit)
     else:
         t = np.array(result.times)
         t_label = "t [1/omega_p]"
@@ -140,16 +140,16 @@ if __name__ == "__main__":
     quantity = sys.argv[2] if len(sys.argv) > 2 else "e3"
 
     from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
-    from osiris_toolkit.units import UnitConverter
+    from osiris_toolkit.units.converter import UnitSystem
     from osiris_toolkit.units.params import SimulationParams
 
     sim = Simulation(str(sim_path))
 
-    converter = None
+    system = None
     try:
         params = SimulationParams.from_sim_path(sim_path)
         if params.omega_p0 > 0:
-            converter = UnitConverter(params.omega_p0)
+            system = UnitSystem.from_params(params)
     except Exception:
         pass
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     analyzer = ScatteringAnalyzer(sim)
     result = analyzer.analyze(quantity=quantity, verbose=True)
     plot_scattering_fraction(
-        result, converter=converter, time_unit="ps",
+        result, system=system, time_unit="ps",
         output=f"scattering_{quantity}.png",
     )
     logger.info("Done -- see scattering_%s.png", quantity)

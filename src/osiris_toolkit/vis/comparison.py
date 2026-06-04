@@ -9,8 +9,8 @@ import numpy as np
 
 from osiris_toolkit.exceptions import DataNotFoundError, ValidationError
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
-from osiris_toolkit.vis.common import get_converter, load_sim, save_or_show
+from osiris_toolkit.units.converter import UnitSystem
+from osiris_toolkit.vis.common import get_system, load_sim, save_or_show
 
 
 def plot_difference(
@@ -20,7 +20,7 @@ def plot_difference(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
     cmap: str = "RdBu_r",
@@ -34,7 +34,7 @@ def plot_difference(
     quantity : str
     iter_a, iter_b : int
         Two iteration numbers. Plots data_b - data_a.
-    sim, sim_path, converter : standard
+    sim, sim_path, system : standard
     x_unit, y_unit : str
     cmap : str
     output, overwrite : standard
@@ -44,8 +44,8 @@ def plot_difference(
     Path or None
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     grid_a = sim_obj.get_field(quantity, iter_a)
     grid_b = sim_obj.get_field(quantity, iter_b)
@@ -57,11 +57,11 @@ def plot_difference(
     if len(grid_a.axes) >= 2:
         x_lo, x_hi = grid_a.axes[0].min, grid_a.axes[0].max
         y_lo, y_hi = grid_a.axes[1].min, grid_a.axes[1].max
-        if converter is not None:
-            x_lo = converter.convert(x_lo, "length", x_unit)
-            x_hi = converter.convert(x_hi, "length", x_unit)
-            y_lo = converter.convert(y_lo, "length", y_unit)
-            y_hi = converter.convert(y_hi, "length", y_unit)
+        if system is not None:
+            x_lo = system["length"].to(x_lo, x_unit)
+            x_hi = system["length"].to(x_hi, x_unit)
+            y_lo = system["length"].to(y_lo, y_unit)
+            y_hi = system["length"].to(y_hi, y_unit)
         extent = [x_lo, x_hi, y_lo, y_hi]
     else:
         extent = None
@@ -70,8 +70,8 @@ def plot_difference(
     im = ax.imshow(diff, origin="lower", aspect="auto", extent=extent, cmap=cmap)
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label(f"Delta({quantity})")
-    ax.set_xlabel(f"x1 [{x_unit}]" if converter else "x1")
-    ax.set_ylabel(f"x2 [{y_unit}]" if converter else "x2")
+    ax.set_xlabel(f"x1 [{x_unit}]" if system else "x1")
+    ax.set_ylabel(f"x2 [{y_unit}]" if system else "x2")
     ax.set_title(f"Delta {quantity.upper()}  |  iter {iter_b} - {iter_a}")
     fig.tight_layout()
     save_or_show(fig, output, overwrite=overwrite)
@@ -84,7 +84,7 @@ def plot_overlay(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
     alpha: float = 0.5,
@@ -98,7 +98,7 @@ def plot_overlay(
     quantities : list[str]
         Two field quantities (e.g. ['e1', 'b3']).
     iteration : int
-    sim, sim_path, converter : standard
+    sim, sim_path, system : standard
     x_unit, y_unit : str
     alpha : float
         Transparency of the overlay layer.
@@ -112,8 +112,8 @@ def plot_overlay(
         raise ValidationError("plot_overlay requires exactly 2 quantities")
 
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     grids = []
     for q in quantities:
@@ -126,11 +126,11 @@ def plot_overlay(
     if len(g0.axes) >= 2:
         x_lo, x_hi = g0.axes[0].min, g0.axes[0].max
         y_lo, y_hi = g0.axes[1].min, g0.axes[1].max
-        if converter is not None:
-            x_lo = converter.convert(x_lo, "length", x_unit)
-            x_hi = converter.convert(x_hi, "length", x_unit)
-            y_lo = converter.convert(y_lo, "length", y_unit)
-            y_hi = converter.convert(y_hi, "length", y_unit)
+        if system is not None:
+            x_lo = system["length"].to(x_lo, x_unit)
+            x_hi = system["length"].to(x_hi, x_unit)
+            y_lo = system["length"].to(y_lo, y_unit)
+            y_hi = system["length"].to(y_hi, y_unit)
         extent = [x_lo, x_hi, y_lo, y_hi]
     else:
         extent = None
@@ -151,8 +151,8 @@ def plot_overlay(
     cbar1 = fig.colorbar(im1, ax=ax, location="right")
     cbar1.set_label(quantities[1])
 
-    ax.set_xlabel(f"x1 [{x_unit}]" if converter else "x1")
-    ax.set_ylabel(f"x2 [{y_unit}]" if converter else "x2")
+    ax.set_xlabel(f"x1 [{x_unit}]" if system else "x1")
+    ax.set_ylabel(f"x2 [{y_unit}]" if system else "x2")
     ax.set_title(
         f"Overlay: {' + '.join(q.upper() for q in quantities)}  |  iter={iteration}"
     )

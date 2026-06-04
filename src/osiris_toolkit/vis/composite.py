@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
 
-from .common import get_converter, load_sim, safe_log_norm, save_or_show
+from .common import get_system, load_sim, safe_log_norm, save_or_show
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ def plot_composite(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     field_quantities: list[str] | None = None,
     species: str | None = None,
     phasespace: str = "p1p2",
@@ -40,8 +40,8 @@ def plot_composite(
         Iteration number to plot.
     sim_path : str or Path
         Path to the simulation output directory.
-    converter : UnitConverter or None
-        Unit converter for physical units.
+    system : UnitSystem or None
+        Unit system for physical unit conversion.
     field_quantities : list of str or None
         Field components to include.  Defaults to ``['e1', 'b3']`` (plus
         ``'e2'`` if available).
@@ -60,8 +60,8 @@ def plot_composite(
         File path to save the figure.
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     if output is None and sim_obj is not None:
         d = sim_obj.output_dir("composite")
@@ -97,12 +97,12 @@ def plot_composite(
         grid = sim_obj.get_field(qty, iteration)
         if grid is not None:
             data = grid.data
-            if converter is not None:
+            if system is not None:
                 extent = [
-                    converter.convert(grid.axes[0].min, "length", x_unit),
-                    converter.convert(grid.axes[0].max, "length", x_unit),
-                    converter.convert(grid.axes[1].min, "length", y_unit),
-                    converter.convert(grid.axes[1].max, "length", y_unit),
+                    system["length"].to(grid.axes[0].min, x_unit),
+                    system["length"].to(grid.axes[0].max, x_unit),
+                    system["length"].to(grid.axes[1].min, y_unit),
+                    system["length"].to(grid.axes[1].max, y_unit),
                 ] if len(grid.axes) >= 2 else None
             else:
                 extent = (
@@ -123,14 +123,14 @@ def plot_composite(
                 cmap="RdBu_r",
             )
             fig.colorbar(im, ax=ax)
-            if converter is not None:
-                t_disp = converter.convert(grid.time, "time", time_unit)
+            if system is not None:
+                t_disp = system.time.to(grid.time, time_unit)
             else:
                 t_disp = grid.time
             ax.set_title(f"{qty.upper()}  t={t_disp:.1f}")
-            if converter is not None:
-                ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
-                ax.set_ylabel(converter.get_length_label(y_unit, "x2"))
+            if system is not None:
+                ax.set_xlabel(system.length.label(x_unit))
+                ax.set_ylabel(system.length.label(y_unit))
             else:
                 ax.set_xlabel("x1")
                 ax.set_ylabel("x2")
@@ -143,12 +143,12 @@ def plot_composite(
     grid = sim_obj.get_density(species, "charge", iteration)
     if grid is not None:
         data = grid.data
-        if converter is not None:
+        if system is not None:
             extent = [
-                converter.convert(grid.axes[0].min, "length", x_unit),
-                converter.convert(grid.axes[0].max, "length", x_unit),
-                converter.convert(grid.axes[1].min, "length", y_unit),
-                converter.convert(grid.axes[1].max, "length", y_unit),
+                system["length"].to(grid.axes[0].min, x_unit),
+                system["length"].to(grid.axes[0].max, x_unit),
+                system["length"].to(grid.axes[1].min, y_unit),
+                system["length"].to(grid.axes[1].max, y_unit),
             ] if len(grid.axes) >= 2 else None
         else:
             extent = (
@@ -170,14 +170,14 @@ def plot_composite(
             norm=safe_log_norm(data),
         )
         fig.colorbar(im, ax=ax)
-        if converter is not None:
-            t_disp = converter.convert(grid.time, "time", time_unit)
+        if system is not None:
+            t_disp = system.time.to(grid.time, time_unit)
         else:
             t_disp = grid.time
         ax.set_title(f"Density ({species})  t={t_disp:.1f}")
-        if converter is not None:
-            ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
-            ax.set_ylabel(converter.get_length_label(y_unit, "x2"))
+        if system is not None:
+            ax.set_xlabel(system.length.label(x_unit))
+            ax.set_ylabel(system.length.label(y_unit))
         else:
             ax.set_xlabel("x1")
             ax.set_ylabel("x2")
@@ -207,12 +207,12 @@ def plot_composite(
                 p1_max = float(ps.axes[0].get("max", 1))
                 p2_min = float(ps.axes[1].get("min", 0))
                 p2_max = float(ps.axes[1].get("max", 1))
-                if converter is not None:
+                if system is not None:
                     extent = [
-                        converter.convert(p1_min, "momentum", p_unit),
-                        converter.convert(p1_max, "momentum", p_unit),
-                        converter.convert(p2_min, "momentum", p_unit),
-                        converter.convert(p2_max, "momentum", p_unit),
+                        system["momentum"].to(p1_min, p_unit),
+                        system["momentum"].to(p1_max, p_unit),
+                        system["momentum"].to(p2_min, p_unit),
+                        system["momentum"].to(p2_max, p_unit),
                     ]
                 else:
                     extent = [p1_min, p1_max, p2_min, p2_max]
@@ -227,10 +227,10 @@ def plot_composite(
                 norm=safe_log_norm(data),
             )
             fig.colorbar(im, ax=ax)
-            if converter is not None:
-                ax.set_xlabel(converter.get_label("momentum", p_unit))
-                ax.set_ylabel(converter.get_label("momentum", p_unit))
-                t_disp = converter.convert(ps.time, "time", time_unit)
+            if system is not None:
+                ax.set_xlabel(system["momentum"].label(p_unit))
+                ax.set_ylabel(system["momentum"].label(p_unit))
+                t_disp = system.time.to(ps.time, time_unit)
             else:
                 ax.set_xlabel(
                     f"{ps.axes[0].get('name', 'p1')}" if ps.axes else "p1"
@@ -271,12 +271,12 @@ if __name__ == "__main__":
     sim_path = sys.argv[1]
     iteration = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     sim = load_sim(sim_path)
-    converter = get_converter(sim)
+    system = get_system(sim)
     iters = sim.list_iterations("e1")
     if iters:
         it = iters[iteration] if iteration < len(iters) else iters[-1]
         plot_composite(
-            it, sim_path=sim_path, converter=converter,
+            it, sim_path=sim_path, system=system,
             x_unit="um", y_unit="um", time_unit="ps",
             output="composite.png",
         )
