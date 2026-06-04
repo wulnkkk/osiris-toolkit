@@ -20,7 +20,7 @@ from osiris_toolkit.analysis.stats import (
 )
 from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
 
 
 class PostAnalysisHub:
@@ -29,40 +29,40 @@ class PostAnalysisHub:
     Parameters
     ----------
     sim : Simulation
-    converter : UnitConverter or None
+    system : UnitSystem or None
     """
 
-    def __init__(self, sim: Simulation, converter: UnitConverter | None = None) -> None:
+    def __init__(self, sim: Simulation, system: UnitSystem | None = None) -> None:
         self._sim = sim
-        self._converter = converter
+        self._system = system
 
     @cached_property
     def emf(self) -> EMFAnalyzer:
-        return EMFAnalyzer(self._sim, self._converter)
+        return EMFAnalyzer(self._sim, self._system)
 
     @cached_property
     def scattering(self) -> ScatteringAnalyzer:
-        return ScatteringAnalyzer(self._sim, self._converter)
+        return ScatteringAnalyzer(self._sim, self._system)
 
     @cached_property
     def density(self) -> DensityAnalyzer:
-        return DensityAnalyzer(self._sim, self._converter)
+        return DensityAnalyzer(self._sim, self._system)
 
     @cached_property
     def species(self) -> SpeciesAnalyzer:
-        return SpeciesAnalyzer(self._sim, self._converter)
+        return SpeciesAnalyzer(self._sim, self._system)
 
     @cached_property
     def phasespace(self) -> PhasespaceAnalyzer:
-        return PhasespaceAnalyzer(self._sim, self._converter)
+        return PhasespaceAnalyzer(self._sim, self._system)
 
     @cached_property
     def kspace(self) -> KSpaceAnalyzer:
-        return KSpaceAnalyzer(self._sim, self._converter)
+        return KSpaceAnalyzer(self._sim, self._system)
 
     @cached_property
     def tracks(self) -> TracksAnalyzer:
-        return TracksAnalyzer(self._sim, self._converter)
+        return TracksAnalyzer(self._sim, self._system)
 
 
 __all__ = [

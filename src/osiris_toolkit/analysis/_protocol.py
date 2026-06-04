@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from osiris_toolkit.sim import Simulation
-    from osiris_toolkit.units import UnitConverter
+    from osiris_toolkit.units.converter import UnitSystem
 
 
 class DiagnosticAnalyzer(ABC):
@@ -24,9 +24,9 @@ class DiagnosticAnalyzer(ABC):
     vs ``density_profile(species, quantity, iteration, axis)``).
     """
 
-    def __init__(self, sim: Simulation, converter: UnitConverter | None = None) -> None:
+    def __init__(self, sim: Simulation, system: UnitSystem | None = None) -> None:
         self._sim = sim
-        self._converter = converter
+        self._system = system
 
     @property
     @abstractmethod
@@ -45,6 +45,6 @@ class DiagnosticAnalyzer(ABC):
         return self._sim
 
     @property
-    def converter(self) -> UnitConverter | None:
-        """The bound UnitConverter, if any."""
-        return self._converter
+    def system(self) -> UnitSystem | None:
+        """The bound UnitSystem, if any."""
+        return self._system

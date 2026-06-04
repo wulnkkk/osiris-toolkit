@@ -54,7 +54,7 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
     Parameters
     ----------
     sim : Simulation
-    converter : UnitConverter or None
+    system : UnitSystem or None
     """
 
     diagnostic_kind = "EMF"  # scattering is a derived EMF analysis
