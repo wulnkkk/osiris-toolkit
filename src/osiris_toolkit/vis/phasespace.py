@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 
 from osiris_toolkit.exceptions import DataNotFoundError, ShapeError
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
 
-from .common import get_converter, load_sim, safe_log_norm, save_or_show
+from .common import get_system, load_sim, safe_log_norm, save_or_show
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def plot_phasespace(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     p_unit: str = "norm",
     time_unit: str = "auto",
     log_scale: bool = True,
@@ -42,8 +42,8 @@ def plot_phasespace(
         Iteration number to read.
     sim_path : str or Path
         Path to the simulation output directory.
-    converter : UnitConverter or None
-        Unit converter for physical units.
+    system : UnitSystem or None
+        Unit system for physical unit conversion.
     p_unit : str
         Momentum unit: ``'norm'``, ``'MeV/c'``, ``'kg*m/s'``.
     time_unit : str
@@ -58,8 +58,8 @@ def plot_phasespace(
         File path to save the figure.
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     if output is None and sim_obj is not None:
         d = sim_obj.output_dir("phasespace")
@@ -88,12 +88,12 @@ def plot_phasespace(
         p1_max = float(ps.axes[0].get("max", 1))
         p2_min = float(ps.axes[1].get("min", 0))
         p2_max = float(ps.axes[1].get("max", 1))
-        if converter is not None:
+        if system is not None:
             extent = [
-                converter.convert(p1_min, "momentum", p_unit),
-                converter.convert(p1_max, "momentum", p_unit),
-                converter.convert(p2_min, "momentum", p_unit),
-                converter.convert(p2_max, "momentum", p_unit),
+                system["momentum"].to(p1_min, p_unit),
+                system["momentum"].to(p1_max, p_unit),
+                system["momentum"].to(p2_min, p_unit),
+                system["momentum"].to(p2_max, p_unit),
             ]
         else:
             extent = [p1_min, p1_max, p2_min, p2_max]
@@ -114,10 +114,10 @@ def plot_phasespace(
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label(ps.deposited_quantity or "counts")
 
-    if converter is not None:
-        ax.set_xlabel(converter.get_label("momentum", p_unit))
+    if system is not None:
+        ax.set_xlabel(system["momentum"].label(p_unit))
         if len(ps.axes) >= 2:
-            ax.set_ylabel(converter.get_label("momentum", p_unit))
+            ax.set_ylabel(system["momentum"].label(p_unit))
     else:
         ax.set_xlabel(
             f"{ps.axes[0].get('name', 'axis0')}"
@@ -129,8 +129,8 @@ def plot_phasespace(
                 f" [{ps.axes[1].get('units', '')}]"
             )
 
-    if converter is not None:
-        t_disp = converter.convert(ps.time, "time", time_unit)
+    if system is not None:
+        t_disp = system.time.to(ps.time, time_unit)
         ax.set_title(
             f"Phasespace {ps_name} ({species})  |  iteration={iteration}"
             f"  |  t={t_disp:.1f}"
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     sim_path = sys.argv[1]
     iteration = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     sim = load_sim(sim_path)
-    converter = get_converter(sim)
+    system = get_system(sim)
     ps_list = sim.list_phasespaces()
     if ps_list:
         ps_name, sp = ps_list[0]
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         iters = sorted({e.iteration for e in entries})
         it = iters[iteration] if iters else 0
         plot_phasespace(
-            ps_name, sp, it, sim_path=sim_path, converter=converter,
+            ps_name, sp, it, sim_path=sim_path, system=system,
             p_unit="MeV/c", time_unit="ps",
             output=f"phasespace_{ps_name}_{sp}.png",
         )
