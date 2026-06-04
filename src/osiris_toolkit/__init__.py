@@ -86,6 +86,7 @@ __all__ = [
     "TracksAnalyzer",
     "UnitConverter",
     "UnitConversionError",
+    "UnitSystem",
     "UnsupportedVersionError",
     "ValidationError",
     "compute_k_space",
