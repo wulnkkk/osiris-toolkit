@@ -12,13 +12,14 @@ from osiris_toolkit.analysis._result_types import (
     EMSpectrumResult,
     PoyntingResult,
 )
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
+from osiris_toolkit.vis._quantified import QuantifiedSpectrum
 from osiris_toolkit.vis.common import save_or_show
 
 
 def plot_energy_timeline(
     results: list[EMDynamicsResult],
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     time_unit: str = "auto",
     output: str | Path | None = None,
 ) -> Path | None:
@@ -28,7 +29,7 @@ def plot_energy_timeline(
     ----------
     results : list of EMDynamicsResult
         One result per iteration.
-    converter : UnitConverter or None
+    system : UnitSystem or None
     time_unit : str
     output : Path or None
 
@@ -60,6 +61,8 @@ def plot_spectrum(
     log_scale: bool = True,
     cmap: str = "jet",
     output: str | Path | None = None,
+    *,
+    system: UnitSystem | None = None,
 ) -> Path | None:
     """Plot a 2-D k-space spectrum.
 
@@ -70,28 +73,49 @@ def plot_spectrum(
         If True, take natural log of the amplitude.
     cmap : str
     output : Path or None
+    system : UnitSystem or None
+        Unit system for k-space axis conversion.
     """
     spectrum = result.spectrum
     if log_scale:
         spectrum = np.log(np.maximum(spectrum, 1e-30))
+
+    if system is not None:
+        qspec = QuantifiedSpectrum(
+            kx_norm=result.kx_k0, ky_norm=result.ky_k0,
+            spectrum=result.spectrum, quantity=result.quantity,
+            iteration=result.iteration, time=result.time, system=system,
+        )
+        extent = [
+            qspec.kx.to("k0").min(),
+            qspec.kx.to("k0").max(),
+            qspec.ky.to("k0").min(),
+            qspec.ky.to("k0").max(),
+        ]
+        xlabel = qspec.kx.latex("k0")
+        ylabel = qspec.ky.latex("k0")
+    else:
+        extent = [
+            result.kx_k0.min() / (2 * np.pi),
+            result.kx_k0.max() / (2 * np.pi),
+            result.ky_k0.min() / (2 * np.pi),
+            result.ky_k0.max() / (2 * np.pi),
+        ]
+        xlabel = r"$k_x\ [k_0]$"
+        ylabel = r"$k_y\ [k_0]$"
 
     fig, ax = plt.subplots(figsize=(10, 8))
     im = ax.imshow(
         spectrum,
         origin="lower",
         aspect="auto",
-        extent=[
-            result.kx_k0.min() / (2 * np.pi),
-            result.kx_k0.max() / (2 * np.pi),
-            result.ky_k0.min() / (2 * np.pi),
-            result.ky_k0.max() / (2 * np.pi),
-        ],
+        extent=extent,
         cmap=cmap,
     )
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label("ln|FFT|" if log_scale else "|FFT|")
-    ax.set_xlabel(r"$k_x\ [k_0]$")
-    ax.set_ylabel(r"$k_y\ [k_0]$")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
     ax.set_title(
         f"{result.quantity.upper()} k-space  |  iteration={result.iteration}"
         f"  |  t={result.time:.1f}"
