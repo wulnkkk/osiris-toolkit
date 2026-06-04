@@ -9,9 +9,10 @@ from matplotlib.colors import SymLogNorm
 
 from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
+from osiris_toolkit.vis._quantified import QuantifiedGrid
 
-from .common import get_converter, load_sim, save_or_show
+from .common import get_system, load_sim, save_or_show
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def plot_field(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
     value_unit: str = "auto",
@@ -44,9 +45,9 @@ def plot_field(
         Iteration number to read.
     sim_path : str or Path
         Path to the simulation output directory.
-    converter : UnitConverter or None
-        Unit converter for physical units.  If None, units are skipped
-        (data shown in normalised units).
+    system : UnitSystem or None
+        Unit system for physical unit conversion.  If None, units are
+        skipped (data shown in normalised units).
     x_unit, y_unit : str
         Spatial axis units ('um', 'nm', 'norm', 'auto', etc.).
     value_unit : str
@@ -63,8 +64,8 @@ def plot_field(
         File path to save the figure.  If None, display interactively.
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     if output is None and sim_obj is not None:
         d = sim_obj.output_dir("fields")
@@ -77,30 +78,23 @@ def plot_field(
             f"Available: {sim_obj.list_fields()}"
         )
 
-    data = grid.data
-    if converter is not None:
-        qtype = "b_field" if quantity.lower().startswith("b") else "e_field"
-        display_val = converter.convert(data, qtype, value_unit)
+    qgrid = QuantifiedGrid(grid, system)
+    qtype = "b_field" if quantity.lower().startswith("b") else "e_field"
+
+    if system is not None:
+        display_val = qgrid.as_quantity(qtype).to(value_unit)
     else:
-        display_val = data
+        display_val = qgrid.norm()
         value_unit = "norm"
 
     # Spatial extent with unit conversion
     if len(grid.axes) >= 2:
-        if converter is not None:
-            x_lo = converter.convert(grid.axes[0].min, "length", x_unit)
-            x_hi = converter.convert(grid.axes[0].max, "length", x_unit)
-            y_lo = converter.convert(grid.axes[1].min, "length", y_unit)
-            y_hi = converter.convert(grid.axes[1].max, "length", y_unit)
-        else:
-            x_lo, x_hi = grid.axes[0].min, grid.axes[0].max
-            y_lo, y_hi = grid.axes[1].min, grid.axes[1].max
-        extent = [x_lo, x_hi, y_lo, y_hi]
+        extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)]
     else:
         extent = None
 
     # --- 1D data: line plot ---
-    if data.ndim == 1:
+    if display_val.ndim == 1:
         fig, ax = plt.subplots(figsize=(10, 6))
         if len(grid.axes) >= 1 and grid.axes[0].npoints > 0:
             x_coord = np.linspace(grid.axes[0].min, grid.axes[0].max, len(display_val))
@@ -109,23 +103,23 @@ def plot_field(
 
         ax.plot(x_coord, display_val, linewidth=2, color="steelblue")
         ax.grid(True, alpha=0.3)
-        if converter is not None:
-            ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
-            ax.set_ylabel(converter.get_label(qtype, value_unit))
+        if system is not None:
+            ax.set_xlabel(qgrid.x.latex(x_unit))
+            ax.set_ylabel(qgrid.as_quantity(qtype).label(value_unit))
         else:
             ax.set_xlabel(f"x1 [{grid.axes[0].units}]" if grid.axes and grid.axes[0].units else "x1")
             ax.set_ylabel(f"{grid.label} [{grid.units}]" if grid.units else grid.label)
-        ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
+        ax.set_title(_make_title(grid, quantity, iteration, system, time_unit))
         save_or_show(fig, output, overwrite=overwrite)
         return Path(output) if output else None
 
     # --- 2D+ data: imshow ---
     fig, ax = plt.subplots(figsize=(10, 8))
 
-    if log_scale and data.ndim == 2:
+    if log_scale and display_val.ndim == 2:
         linthresh = max(
-            abs(vmin or np.nanpercentile(data, 1)),
-            abs(vmax or np.nanpercentile(data, 99)),
+            abs(vmin or np.nanpercentile(display_val, 1)),
+            abs(vmax or np.nanpercentile(display_val, 99)),
         ) * 0.01
         norm = SymLogNorm(linthresh=linthresh if linthresh > 0 else 0.1)
     else:
@@ -133,13 +127,13 @@ def plot_field(
 
     _vmin = vmin
     _vmax = vmax
-    if converter is not None and _vmin is not None:
-        _vmin = converter.convert(vmin, qtype, value_unit)
-    if converter is not None and _vmax is not None:
-        _vmax = converter.convert(vmax, qtype, value_unit)
+    if system is not None and _vmin is not None:
+        _vmin = qgrid.as_quantity(qtype).quantity.to(vmin, value_unit)
+    if system is not None and _vmax is not None:
+        _vmax = qgrid.as_quantity(qtype).quantity.to(vmax, value_unit)
 
     im = ax.imshow(
-        display_val if data.ndim == 2 else display_val.reshape(-1, 1),
+        display_val if display_val.ndim == 2 else display_val.reshape(-1, 1),
         origin="lower",
         aspect="auto",
         extent=extent,
@@ -150,24 +144,24 @@ def plot_field(
     )
 
     cbar = fig.colorbar(im, ax=ax)
-    if converter is not None:
-        cbar.set_label(converter.get_label(qtype, value_unit))
+    if system is not None:
+        cbar.set_label(qgrid.as_quantity(qtype).label(value_unit))
     else:
         cbar.set_label(
             f"{grid.label} [{grid.units}]" if grid.units else grid.label
         )
 
-    if converter is not None:
-        ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
-        if data.ndim >= 2:
-            ax.set_ylabel(converter.get_length_label(y_unit, "x2"))
+    if system is not None:
+        ax.set_xlabel(qgrid.x.latex(x_unit))
+        if display_val.ndim >= 2:
+            ax.set_ylabel(qgrid.y.latex(y_unit))
     else:
         ax.set_xlabel(
             f"x1 [{grid.axes[0].units}]"
             if grid.axes and grid.axes[0].units
             else "x1"
         )
-        if data.ndim >= 2:
+        if display_val.ndim >= 2:
             ax.set_ylabel(
                 f"x2 [{grid.axes[1].units}]"
                 if len(grid.axes) > 1 and grid.axes[1].units
@@ -175,17 +169,19 @@ def plot_field(
             )
 
     # Title with time
-    ax.set_title(_make_title(grid, quantity, iteration, converter, time_unit))
+    ax.set_title(_make_title(grid, quantity, iteration, system, time_unit))
 
     save_or_show(fig, output, overwrite=overwrite)
     return Path(output) if output else None
 
 
-def _make_title(grid, quantity, iteration, converter, time_unit):
+def _make_title(grid, quantity, iteration, system, time_unit):
     """Build a plot title with quantity, iteration, and time."""
-    if converter is not None:
-        t_disp = converter.convert(grid.time, "time", time_unit)
-        t_label = converter.get_label("time", time_unit)
+    if system is not None:
+        from osiris_toolkit.vis._quantified import _AxisView
+        t_axis = _AxisView(grid, 0, system, force_quantity="time")
+        t_disp = t_axis.to(time_unit)[0]
+        t_label = t_axis.label(time_unit)
         return (
             f"{quantity.upper()}  |  iteration={iteration}"
             f"  |  t={t_disp:.1f} {t_label}"
@@ -201,7 +197,7 @@ def plot_all_fields(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
     time_unit: str = "auto",
@@ -216,8 +212,8 @@ def plot_all_fields(
         Iteration number to read.
     sim_path : str or Path
         Path to the simulation output directory.
-    converter : UnitConverter or None
-        Unit converter for physical units.
+    system : UnitSystem or None
+        Unit system for physical unit conversion.
     x_unit, y_unit : str
         Spatial axis units.
     time_unit : str
@@ -226,8 +222,8 @@ def plot_all_fields(
         File path to save the figure.
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     fields = sim_obj.list_fields()
     n = len(fields)
@@ -244,37 +240,25 @@ def plot_all_fields(
         if grid is None:
             ax.set_title(f"{qty.upper()} -- not found")
             continue
-        data = grid.data
-        if converter is not None:
-            extent = [
-                converter.convert(grid.axes[0].min, "length", x_unit),
-                converter.convert(grid.axes[0].max, "length", x_unit),
-                converter.convert(grid.axes[1].min, "length", y_unit),
-                converter.convert(grid.axes[1].max, "length", y_unit),
-            ] if len(grid.axes) >= 2 else None
+        qgrid = QuantifiedGrid(grid, system)
+        if len(grid.axes) >= 2:
+            extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)]
         else:
-            extent = (
-                [
-                    grid.axes[0].min,
-                    grid.axes[0].max,
-                    grid.axes[1].min,
-                    grid.axes[1].max,
-                ]
-                if len(grid.axes) >= 2
-                else None
-            )
+            extent = None
         im = ax.imshow(
-            data, origin="lower", aspect="auto", extent=extent, cmap="RdBu_r"
+            qgrid.norm(), origin="lower", aspect="auto", extent=extent, cmap="RdBu_r"
         )
         fig.colorbar(im, ax=ax)
-        if converter is not None:
-            t_disp = converter.convert(grid.time, "time", time_unit)
+        if system is not None:
+            from osiris_toolkit.vis._quantified import _AxisView
+            t_axis = _AxisView(grid, 0, system, force_quantity="time")
+            t_disp = t_axis.to(time_unit)[0]
         else:
             t_disp = grid.time
         ax.set_title(f"{qty.upper()}  t={t_disp:.1f}")
-        if converter is not None:
-            ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
-            ax.set_ylabel(converter.get_length_label(y_unit, "x2"))
+        if system is not None:
+            ax.set_xlabel(qgrid.x.label(x_unit))
+            ax.set_ylabel(qgrid.y.label(y_unit))
         else:
             ax.set_xlabel("x1")
             ax.set_ylabel("x2")
@@ -299,11 +283,11 @@ if __name__ == "__main__":
     sim_path = sys.argv[1]
     iteration = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     sim = load_sim(sim_path)
-    converter = get_converter(sim)
+    system = get_system(sim)
     iters = sim.list_iterations("e1")
     it = iters[iteration] if iters and iteration < len(iters) else (iters[-1] if iters else 0)
     plot_field(
-        "e1", it, sim_path=sim_path, converter=converter,
+        "e1", it, sim_path=sim_path, system=system,
         x_unit="um", y_unit="um", time_unit="ps",
         output="field_e1.png",
     )
