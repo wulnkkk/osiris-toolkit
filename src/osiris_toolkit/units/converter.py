@@ -21,6 +21,7 @@ units.params.SimulationParams :
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import replace
 
 import numpy as np
@@ -242,6 +243,10 @@ class UnitConverter:
     """
 
     def __init__(self, omega_p: float) -> None:
+        warnings.warn(
+            "UnitConverter is deprecated. Use UnitSystem instead.",
+            DeprecationWarning, stacklevel=2,
+        )
         if omega_p <= 0:
             raise UnitConversionError(f"omega_p must be > 0, got {omega_p}")
         self.omega_p = omega_p
@@ -286,6 +291,10 @@ class UnitConverter:
         -------
         Converted data, matching input shape and type.
         """
+        warnings.warn(
+            "UnitConverter.convert() is deprecated. Use UnitSystem[quantity].to() instead.",
+            DeprecationWarning, stacklevel=2,
+        )
         scale = self.get_scale(quantity, unit)
         if isinstance(data, np.ndarray):
             return data * scale
