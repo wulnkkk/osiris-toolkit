@@ -23,7 +23,6 @@ from osiris_toolkit.parallel._cluster import (
     split_iterations,
 )
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
 
 logger = logging.getLogger(__name__)
 
@@ -37,18 +36,18 @@ def _worker_plot_field(
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
-    converter_omega_p0: float | None = None,
 ) -> str:
     """Worker: plot one field frame.  Returns output path."""
     limit_blas_threads(1)
     import matplotlib as _mpl
     _mpl.use("Agg")
+    from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.field import plot_field
 
-    converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
+    system = get_system(sim)
     plot_field(
         quantity=quantity, iteration=iteration, sim=sim,
-        converter=converter, x_unit=x_unit, y_unit=y_unit,
+        system=system, x_unit=x_unit, y_unit=y_unit,
         time_unit=time_unit, output=output,
     )
     return output
@@ -60,18 +59,18 @@ def _worker_plot_k_space(
     quantity: str,
     output: str,
     time_unit: str = "ps",
-    converter_omega_p0: float | None = None,
 ) -> str:
     """Worker: plot one k-space frame.  Returns output path."""
     limit_blas_threads(1)
     import matplotlib as _mpl
     _mpl.use("Agg")
+    from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.kspace import plot_k_space
 
-    converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
+    system = get_system(sim)
     plot_k_space(
         quantity=quantity, iteration=iteration, sim=sim,
-        converter=converter, time_unit=time_unit, output=output,
+        system=system, time_unit=time_unit, output=output,
     )
     return output
 
@@ -85,18 +84,18 @@ def _worker_plot_density(
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
-    converter_omega_p0: float | None = None,
 ) -> str:
     """Worker: plot one density frame.  Returns output path."""
     limit_blas_threads(1)
     import matplotlib as _mpl
     _mpl.use("Agg")
+    from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.density import plot_density
 
-    converter = UnitConverter(converter_omega_p0) if converter_omega_p0 else None
+    system = get_system(sim)
     plot_density(
         species=species, iteration=iteration, sim=sim,
-        converter=converter, x_unit=x_unit, y_unit=y_unit,
+        system=system, x_unit=x_unit, y_unit=y_unit,
         time_unit=time_unit, output=output,
     )
     return output
@@ -127,16 +126,6 @@ def batch_process_parallel(
         output_root = Path(output_root)
 
     sim = Simulation(sim_path)  # discover ONCE, pickle to workers
-
-    converter_omega_p0: float | None = None
-    try:
-        from osiris_toolkit.units.params import SimulationParams
-
-        params = SimulationParams.from_sim_path(sim_path)
-        if params.omega_p0 > 0:
-            converter_omega_p0 = params.omega_p0
-    except Exception:
-        pass
 
     available_fields = sim.list_fields()
     species_list = sim.list_species()
@@ -176,7 +165,6 @@ def batch_process_parallel(
         "x_unit": x_unit,
         "y_unit": y_unit,
         "time_unit": time_unit,
-        "converter_omega_p0": converter_omega_p0,
     }
 
     with ProcessPoolExecutor(max_workers=max_workers, mp_context=ctx) as ex:
@@ -199,7 +187,6 @@ def batch_process_parallel(
                     ex.submit(
                         _worker_plot_k_space, sim, it, qty, out,
                         time_unit=time_unit,
-                        converter_omega_p0=converter_omega_p0,
                     )
                 ] = f"kspace {qty} it={it}"
 
@@ -230,14 +217,11 @@ def batch_process_parallel(
     # ── Scattering analysis (cross-iteration, runs sequentially) ──
     logger.info("[%s] Scattering analysis...", sim_name)
     from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
+    from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.scattering import plot_scattering_fraction
 
-    converter = (
-        UnitConverter(converter_omega_p0)
-        if converter_omega_p0
-        else None
-    )
-    scattering_analyzer = ScatteringAnalyzer(sim, converter)
+    system = get_system(sim)
+    scattering_analyzer = ScatteringAnalyzer(sim, system)
     for qty in ["e1", "e2", "e3"]:
         if qty not in available_fields:
             continue
@@ -247,7 +231,7 @@ def batch_process_parallel(
             )
             plot_scattering_fraction(
                 result,
-                converter=converter,
+                system=system,
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )

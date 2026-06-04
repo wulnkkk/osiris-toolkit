@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import Callable
 
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
 
+from .common import get_system
 from .density import plot_density
 from .field import plot_field
 from .kspace import plot_k_space
@@ -131,21 +131,9 @@ def process_simulation(
         output_root = sim.output_root
     else:
         output_root = Path(output_root)
-    converter: UnitConverter | None = None
-    try:
-        # Try to build a converter from the simulation's omega_p0.
-        # This requires that the osiris_toolkit.units params module can
-        # extract omega_p0 from the run-info or an input deck.
-        from osiris_toolkit.units.params import SimulationParams
-        params = SimulationParams.from_sim_path(sim_path)
-        if params.omega_p0 > 0:
-            converter = UnitConverter(params.omega_p0)
-    except Exception:
-        pass
-
-    if converter is None:
-        logger.info("[%s] Warning: could not determine omega_p0;"
-                    " using normalised units", sim_name)
+    system = get_system(sim)
+    if system is None:
+        logger.info("[%s] Warning: no unit system available; using normalised units", sim_name)
 
     base = output_root / sim_name
     field_dir = base / "fields"
@@ -182,7 +170,7 @@ def process_simulation(
                 fpath = plot_field(
                     quantity=qty,
                     iteration=it,
-                    sim=sim, converter=converter,
+                    sim=sim, system=system,
                     x_unit=x_unit,
                     y_unit=y_unit,
                     time_unit=time_unit,
@@ -200,7 +188,7 @@ def process_simulation(
                 fpath = plot_k_space(
                     quantity=qty,
                     iteration=it,
-                    sim=sim, converter=converter,
+                    sim=sim, system=system,
                     time_unit=time_unit,
                     output=str(kspace_dir / f"kspace_{qty}_{it:06d}.png"),
                 )
@@ -216,7 +204,7 @@ def process_simulation(
                 fpath = plot_density(
                     species=sp,
                     iteration=it,
-                    sim=sim, converter=converter,
+                    sim=sim, system=system,
                     x_unit=x_unit,
                     y_unit=y_unit,
                     time_unit=time_unit,
@@ -247,7 +235,7 @@ def process_simulation(
     logger.info("[%s] Scattering analysis...", sim_name)
     from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
 
-    scattering_analyzer = ScatteringAnalyzer(sim, converter)
+    scattering_analyzer = ScatteringAnalyzer(sim, system)
     for qty in ["e1", "e2", "e3"]:
         if qty not in available_fields:
             continue
@@ -258,7 +246,7 @@ def process_simulation(
             )
             fpath = plot_scattering_fraction(
                 result,
-                converter=converter,
+                system=system,
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )
