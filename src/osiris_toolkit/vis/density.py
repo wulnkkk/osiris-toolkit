@@ -8,9 +8,9 @@ from matplotlib.colors import LogNorm
 
 from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units.converter import UnitSystem
 
-from .common import get_converter, load_sim, save_or_show
+from .common import get_system, load_sim, save_or_show
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def plot_density(
     quantity: str = "charge",
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     x_unit: str = "auto",
     y_unit: str = "auto",
     value_unit: str = "auto",
@@ -45,8 +45,8 @@ def plot_density(
         Path to the simulation output directory.
     quantity : str
         Density data type (default ``'charge'``).
-    converter : UnitConverter or None
-        Unit converter for physical units.
+    system : UnitSystem or None
+        Unit system for physical unit conversion.
     x_unit, y_unit : str
         Spatial axis units.
     value_unit : str
@@ -63,8 +63,8 @@ def plot_density(
         File path to save the figure.
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     if output is None and sim_obj is not None:
         d = sim_obj.output_dir("density")
@@ -79,12 +79,12 @@ def plot_density(
 
     data = grid.data
 
-    if converter is not None:
+    if system is not None:
         extent = [
-            converter.convert(grid.axes[0].min, "length", x_unit),
-            converter.convert(grid.axes[0].max, "length", x_unit),
-            converter.convert(grid.axes[1].min, "length", y_unit),
-            converter.convert(grid.axes[1].max, "length", y_unit),
+            system["length"].to(grid.axes[0].min, x_unit),
+            system["length"].to(grid.axes[0].max, x_unit),
+            system["length"].to(grid.axes[1].min, y_unit),
+            system["length"].to(grid.axes[1].max, y_unit),
         ] if len(grid.axes) >= 2 else None
     else:
         extent = (
@@ -108,8 +108,8 @@ def plot_density(
     else:
         norm = None
 
-    if converter is not None:
-        display_data = converter.convert(data, "density", value_unit)
+    if system is not None:
+        display_data = system["density"].to(data, value_unit)
     else:
         display_data = data
         value_unit = "norm"
@@ -126,17 +126,17 @@ def plot_density(
     )
 
     cbar = fig.colorbar(im, ax=ax)
-    if converter is not None:
-        cbar.set_label(converter.get_label("density", value_unit))
+    if system is not None:
+        cbar.set_label(system["density"].label(value_unit))
     else:
         cbar.set_label(
             f"{grid.label} [{grid.units}]" if grid.units else grid.label
         )
 
-    if converter is not None:
-        ax.set_xlabel(converter.get_length_label(x_unit, "x1"))
+    if system is not None:
+        ax.set_xlabel(system.length.label(x_unit))
         if data.ndim >= 2:
-            ax.set_ylabel(converter.get_length_label(y_unit, "x2"))
+            ax.set_ylabel(system.length.label(y_unit))
     else:
         ax.set_xlabel(
             f"x1 [{grid.axes[0].units}]"
@@ -150,8 +150,8 @@ def plot_density(
                 else "x2"
             )
 
-    if converter is not None:
-        t_disp = converter.convert(grid.time, "time", time_unit)
+    if system is not None:
+        t_disp = system.time.to(grid.time, time_unit)
         ax.set_title(
             f"Density ({species}, {quantity})  |  iteration={iteration}"
             f"  |  t={t_disp:.1f}"
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     sim_path = sys.argv[1]
     iteration = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     sim = load_sim(sim_path)
-    converter = get_converter(sim)
+    system = get_system(sim)
     species_list = sim.list_species()
     logger.info("Available species: %s", species_list)
     if species_list:
@@ -189,7 +189,7 @@ if __name__ == "__main__":
         )
         it = iters[iteration] if iters else 0
         plot_density(
-            sp, it, sim_path=sim_path, converter=converter,
+            sp, it, sim_path=sim_path, system=system,
             x_unit="um", y_unit="um", time_unit="ps",
             output=f"density_{sp}.png",
         )
