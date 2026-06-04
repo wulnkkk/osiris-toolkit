@@ -2,7 +2,7 @@
 
 Converted from the MATLAB scripts ``Filter_scattered_wave.m`` and
 ``plotex.m``.  Computes a 2-D FFT of a field component and plots it in
-dimensionless k/k0 space (no unit conversion needed for the axes).
+k-space with unit-aware axes.
 """
 
 import logging
@@ -14,11 +14,56 @@ import numpy as np
 from osiris_toolkit.compute.fft import compute_k_space as _compute_k_space
 from osiris_toolkit.exceptions import DataNotFoundError
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.units import UnitConverter
+from osiris_toolkit.units._quantity import QuantityKind
+from osiris_toolkit.units.converter import UnitSystem
+from osiris_toolkit.vis._quantified import QuantifiedSpectrum
 
-from .common import get_converter, load_sim, save_or_show
+from .common import get_system, load_sim, save_or_show
 
 logger = logging.getLogger(__name__)
+
+
+def _auto_k_range(
+    k_norm: np.ndarray,
+    spectrum: np.ndarray,
+    unit: str,
+    quantity: QuantityKind,
+    threshold_frac: float = 0.01,
+    margin: float = 0.1,
+) -> tuple[float, float]:
+    """Auto-determine k-space plot range from signal extent.
+
+    Parameters
+    ----------
+    k_norm : ndarray
+        1-D array of k values in normalized angular wavenumber.
+    spectrum : ndarray
+        2-D |FFT| amplitude.
+    unit : str
+        Target k-space unit.
+    quantity : QuantityKind
+        Wavenumber quantity for conversion.
+    threshold_frac : float
+        Fraction of the spectrum maximum used as the cutoff threshold.
+    margin : float
+        Fraction of the active span to add as padding on each side.
+
+    Returns
+    -------
+    tuple[float, float]
+        (k_min, k_max) in the target unit.
+    """
+    threshold = spectrum.max() * threshold_frac
+    k_conv = quantity.to(k_norm, unit)
+    # Project spectrum onto the k-axis
+    projection = spectrum.max(axis=1 if spectrum.ndim == 2 else 0)
+    mask = projection > threshold
+    if not mask.any():
+        return (float(k_conv.min()), float(k_conv.max()))
+    k_active = k_conv[mask]
+    span = float(k_active.max() - k_active.min())
+    return (float(k_active.min()) - span * margin,
+            float(k_active.max()) + span * margin)
 
 
 def plot_k_space(
@@ -27,18 +72,18 @@ def plot_k_space(
     sim_path: str | Path | None = None,
     *,
     sim: Simulation | None = None,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
+    k_unit: str = "k0",
     time_unit: str = "auto",
     log_scale: bool = True,
     clim: tuple[float, float] | None = None,
     cmap: str = "jet",
-    omega0_norm: float = 1.0,
-    xlim: tuple[float, float] = (-2.0, 2.0),
-    ylim: tuple[float, float] = (-2.0, 2.0),
+    xlim: tuple[float, float] | None = None,
+    ylim: tuple[float, float] | None = None,
     white_low: float = 0.05,
     output: str | Path | None = None,
 ) -> Path | None:
-    """Plot the 2-D FFT of a field component in k/k0 space.
+    """Plot the 2-D FFT of a field component in k-space.
 
     Parameters
     ----------
@@ -48,9 +93,10 @@ def plot_k_space(
         Iteration number to read.
     sim_path : str or Path
         Path to the simulation output directory.
-    converter : UnitConverter or None
-        Used only for the time display in the title (k-space axes are
-        dimensionless).
+    system : UnitSystem or None
+        Unit system for k-space axis conversion.
+    k_unit : str
+        Target unit for k-space axes (default ``'k0'``).
     time_unit : str
         Unit for the time shown in the title.
     log_scale : bool
@@ -59,18 +105,16 @@ def plot_k_space(
         Colour limits for ``imshow``.  If None, auto-scaled.
     cmap : str
         Colormap name.
-    omega0_norm : float
-        Laser frequency in normalised units.
-    xlim, ylim : (float, float)
-        k/k0 axis ranges.
+    xlim, ylim : (float, float) or None
+        k-axis ranges.  If None, auto-determined via :func:`_auto_k_range`.
     white_low : float
         Fraction of the colormap low end to fade to white.
     output : Path or None
         File path to save the figure.
     """
     sim_obj = load_sim(sim_path, sim=sim)
-    if converter is None:
-        converter = get_converter(sim_obj)
+    if system is None:
+        system = get_system(sim_obj)
 
     if output is None and sim_obj is not None:
         d = sim_obj.output_dir("k_space")
@@ -82,13 +126,16 @@ def plot_k_space(
             f"Field {quantity!r} not found at iteration {iteration}"
         )
 
+    # Compute FFT
     nx, ny = grid.data.shape
     dx = (grid.axes[0].max - grid.axes[0].min) / nx
     dy = (grid.axes[1].max - grid.axes[1].min) / ny
     kx, ky, spectrum = _compute_k_space(grid.data, dx, dy)
 
     if log_scale:
-        spectrum = np.log(np.maximum(spectrum, 1e-30))
+        display = np.log(np.maximum(spectrum, 1e-30))
+    else:
+        display = spectrum
 
     fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -108,16 +155,35 @@ def plot_k_space(
         np.vstack([white_fade, colors])
     )
 
-    im = ax.imshow(
-        spectrum,
-        origin="lower",
-        aspect="auto",
-        extent=[
+    if system is not None:
+        qspec = QuantifiedSpectrum(
+            kx_norm=kx, ky_norm=ky, spectrum=spectrum,
+            quantity=grid.label, iteration=grid.iteration,
+            time=grid.time, system=system,
+        )
+        extent = [
+            qspec.kx.to(k_unit).min(),
+            qspec.kx.to(k_unit).max(),
+            qspec.ky.to(k_unit).min(),
+            qspec.ky.to(k_unit).max(),
+        ]
+        xlabel = qspec.kx.latex(k_unit)
+        ylabel = qspec.ky.latex(k_unit)
+    else:
+        extent = [
             kx.min() / (2 * np.pi),
             kx.max() / (2 * np.pi),
             ky.min() / (2 * np.pi),
             ky.max() / (2 * np.pi),
-        ],
+        ]
+        xlabel = r"$k_x\ [k_0]$"
+        ylabel = r"$k_y\ [k_0]$"
+
+    im = ax.imshow(
+        display,
+        origin="lower",
+        aspect="auto",
+        extent=extent,
         cmap=custom_cmap,
     )
 
@@ -125,13 +191,14 @@ def plot_k_space(
         im.set_clim(*clim)
 
     cbar = fig.colorbar(im, ax=ax)
-    cbar.set_label("ln|FFT(E)|" if log_scale else "|FFT(E)|")
+    cbar_label = f"{'ln|' if log_scale else '|'}FFT({quantity.upper()})|"
+    cbar.set_label(cbar_label)
 
-    ax.set_xlabel(r"$k_x\ [k_0]$", fontsize=14)
-    ax.set_ylabel(r"$k_y\ [k_0]$", fontsize=14)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
 
-    if converter is not None:
-        t_disp = converter.convert(grid.time, "time", time_unit)
+    if system is not None:
+        t_disp = system.time.to(grid.time, time_unit)
         ax.set_title(
             f"{quantity.upper()} k-space  |  iteration={iteration}"
             f"  |  t={t_disp:.1f}"
@@ -142,9 +209,13 @@ def plot_k_space(
             f"  |  t={grid.time:.1f}"
         )
 
-    if xlim:
+    if xlim is None and system is not None:
+        xlim = _auto_k_range(kx, spectrum, k_unit, system.wavenumber)
+    if ylim is None and system is not None:
+        ylim = _auto_k_range(ky, spectrum, k_unit, system.wavenumber)
+    if xlim is not None:
         ax.set_xlim(*xlim)
-    if ylim:
+    if ylim is not None:
         ax.set_ylim(*ylim)
 
     fig.tight_layout()
@@ -156,7 +227,7 @@ def batch_k_space(
     quantity: str,
     iterations: list[int],
     sim_path: str | Path,
-    converter: UnitConverter | None = None,
+    system: UnitSystem | None = None,
     output_dir: str | Path = "k_space_output",
     **kwargs,
 ) -> None:
@@ -170,8 +241,8 @@ def batch_k_space(
         Iteration numbers to process.
     sim_path : str or Path
         Path to the simulation output directory.
-    converter : UnitConverter or None
-        Unit converter (only used for time display).
+    system : UnitSystem or None
+        Unit system for k-space axis conversion.
     output_dir : str or Path
         Directory for output images.
     **kwargs
@@ -181,8 +252,8 @@ def batch_k_space(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     sim = load_sim(sim_path)
-    if converter is None:
-        converter = get_converter(sim)
+    if system is None:
+        system = get_system(sim)
 
     for it in iterations:
         grid = sim.get_field(quantity, it)
@@ -194,7 +265,7 @@ def batch_k_space(
             quantity,
             it,
             sim_path=sim_path,
-            converter=converter,
+            system=system,
             output=out,
             **kwargs,
         )
@@ -213,12 +284,12 @@ if __name__ == "__main__":
     sim_path = sys.argv[1]
     iteration = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     sim = load_sim(sim_path)
-    converter = get_converter(sim)
+    system = get_system(sim)
     iters = sim.list_iterations("e1")
     if iters:
         it = iters[iteration] if iteration < len(iters) else iters[-1]
         plot_k_space(
-            "e1", it, sim_path=sim_path, converter=converter,
+            "e1", it, sim_path=sim_path, system=system,
             time_unit="ps", output="k_space_e1.png",
         )
         logger.info("Done -- see k_space_e1.png")
