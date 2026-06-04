@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: resource
+updated: 2026-06-04
+---
+
 # resource — Simulation Resource Estimation
 
 Predicts computational resources (memory, runtime, disk) for an OSIRIS input deck

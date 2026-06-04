@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: sim
+updated: 2026-06-04
+---
+
 # sim — Simulation Data Access Layer
 
 Directory discovery and typed access to OSIRIS simulation output. Traverses the `MS/` directory tree,

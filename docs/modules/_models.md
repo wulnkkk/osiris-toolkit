@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: _models
+updated: 2026-06-04
+---
+
 # _models — Foundation Data Model (v0.14.0)
 
 All diagnostic data container classes used across the entire toolkit. Lives in the

@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: parallel
+updated: 2026-06-04
+---
+
 # parallel — Cluster-Aware Parallel Execution
 
 Parallel data processing that scales from a personal laptop to HPC clusters. Each module

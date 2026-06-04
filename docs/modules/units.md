@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: units
+updated: 2026-06-04
+---
+
 # units — Unit Conversion
 
 Bidirectional conversion between OSIRIS normalized simulation units and physical SI/CGS units.

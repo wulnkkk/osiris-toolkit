@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: io
+updated: 2026-06-04
+---
+
 # io — ZDF & HDF5 Binary Reader & Parallel I/O
 
 Clean-room implementation of the ZDF (Zipped Diagnostic Format) and HDF5 binary readers.

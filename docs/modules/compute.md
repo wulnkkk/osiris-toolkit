@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: compute
+updated: 2026-06-04
+---
+
 # compute — Pure Numerical Transforms
 
 Stateless numerical functions — numpy in, numpy out. No imports from `sim/`, `units/`, or matplotlib.

@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: _generated
+updated: 2026-06-04
+---
+
 # _generated — Auto-Generated Definitions
 
 Data files produced by `sync/extractor.py` from OSIRIS Fortran source. Committed to the repo so

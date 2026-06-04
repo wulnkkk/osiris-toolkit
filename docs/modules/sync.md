@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: sync
+updated: 2026-06-04
+---
+
 # sync — Fortran Source Extraction
 
 Dev-time tool that scans OSIRIS Fortran source files and extracts parameter definitions,

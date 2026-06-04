@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: vis
+updated: 2026-06-04
+---
+
 # vis — Visualization
 
 Plotting routines for all OSIRIS diagnostic types. Each module handles one diagnostic kind.
@@ -6,7 +14,7 @@ No hardcoded paths — data comes from a `Simulation` object.
 ## Architecture
 
 ```
-PostVisHub(sim, converter)          ← primary interface (v0.9.0+)
+PostVisHub(sim, system)              ← primary interface (v0.9.0+)
     ├── .field.plot()                → field.py
     ├── .energy.timeline()           → energy.py
     ├── .raw.scatter()               → raw.py
@@ -19,7 +27,7 @@ PostVisHub(sim, converter)          ← primary interface (v0.9.0+)
     └── .batch()                     → batch.py (sequential) / parallel.py (parallel)
 
 PostProcessor(sim_path, ...)        ← main entry point (v0.14.0+)
-    └── wraps PostVisHub + converter setup
+    └── wraps PostVisHub + UnitSystem setup
 ```
 
 **Files:**
@@ -47,10 +55,10 @@ PostProcessor(sim_path, ...)        ← main entry point (v0.14.0+)
 
 ```python
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.vis import VisEngine, plot_field
+from osiris_toolkit.vis import PostVisHub, plot_field
 
 sim = Simulation("/path/to/output")
-vis = VisEngine(sim)
+vis = PostVisHub(sim)
 
 # Single plot
 vis.plot("EMF", quantity="e1", iteration=50, x_unit="um", output="e1.png")
@@ -79,8 +87,8 @@ plot_field("e1", 50, sim_path="/path/to/output", output="e1.png")
 
 # New style — reuse Simulation (more efficient in loops)
 sim = Simulation("/path/to/output")
-plot_field("e1", 50, sim=sim, converter=uc, output="e1.png")
-plot_field("e2", 50, sim=sim, converter=uc, output="e2.png")
+plot_field("e1", 50, sim=sim, system=system, output="e1.png")
+plot_field("e2", 50, sim=sim, system=system, output="e2.png")
 ```
 
 ### CLI
@@ -105,7 +113,7 @@ osiris-toolkit vis batch -o ./output -j 8 /data/sim MySim
 - **Simulation reuse**: all plot functions accept an optional `sim=` keyword argument to reuse
   an already-constructed `Simulation` object, eliminating redundant directory discoveries in
   batch processing.
-- **Unit-aware**: when a `UnitConverter` is available, axis labels automatically show physical
+- **Unit-aware**: when a `UnitSystem` is available, axis labels automatically show physical
   units (e.g., `x [um]` instead of `x [c/omega_p]`).
 - **Agent-friendly**: `vis.plot("EMF", quantity="e1", iteration=50)` works for programmatic use.
 - **Parallel-ready**: `process_simulation()` accepts `max_workers`; when > 0, delegates to the
@@ -253,13 +261,13 @@ print(f"Generated {len(result.files)} files")
 
 `PostVisHub` caches namespace objects (`.field`, `.energy`, `.raw`, `.tracks`) via
 `functools.cached_property`. When reusing a Hub with a different Simulation or
-UnitConverter, call these methods to avoid stale references:
+UnitSystem, call these methods to avoid stale references:
 
 ```python
-hub = PostVisHub(sim, converter)
+hub = PostVisHub(sim, system)
 
-# Switch converter and clear cached namespaces
-hub.set_converter(new_converter)
+# Switch unit system and clear cached namespaces
+hub.set_system(new_system)
 
 # Or clear caches manually
 hub.invalidate_cache()

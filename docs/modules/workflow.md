@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: workflow
+updated: 2026-06-04
+---
+
 # workflow — Pipeline Orchestration
 
 Lightweight pipeline framework for automated "deck → simulate → analyze → visualize" workflows.
@@ -12,8 +20,8 @@ Pipeline(steps)
             ├── DeckParseStep       parse_deck_file() → ctx.deck
             ├── DeckValidateStep     lint_deck_file()  → raises on error
             ├── SimLoadStep          Simulation(path)  → ctx.sim
-            ├── AnalyzeStep          Analyzer(sim)     → ctx.extra["analysis_results"]
-            └── VisualizeStep        VisEngine(sim)    → ctx.extra["figures_dir"]
+            ├── AnalyzeStep          PostAnalysisHub(sim, system) → ctx.extra["analysis_results"]
+            └── VisualizeStep        PostVisHub(sim, system) → ctx.extra["figures_dir"]
 ```
 
 **Files:**

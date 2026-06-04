@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: exceptions
+updated: 2026-06-04
+---
+
 # exceptions — Custom Exception Hierarchy (v0.13.0)
 
 All osiris-toolkit exceptions inherit from `OsirisToolkitError`, enabling callers

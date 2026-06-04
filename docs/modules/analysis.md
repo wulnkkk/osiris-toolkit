@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: analysis
+updated: 2026-06-04
+---
+
 # analysis — Data Analysis
 
 Physics-domain computations on diagnostic data containers. Operates on `GridData`, `ParticleData`,
@@ -6,9 +14,14 @@ etc. without knowledge of file formats.
 ## Architecture
 
 ```
-Analyzer(sim, converter)
+PostAnalysisHub(sim, system)
     ├── .emf       → EMFAnalyzer
     ├── .species   → SpeciesAnalyzer
+    ├── .density   → DensityAnalyzer
+    ├── .kspace    → KSpaceAnalyzer
+    ├── .scattering → ScatteringAnalyzer
+    ├── .tracks    → TracksAnalyzer
+    ├── .phasespace → PhasespaceAnalyzer
     ├── .stats     → stats functions (module-level)
     └── .describe() / .mean() / .rms() ...   (delegated statics)
 ```
@@ -78,19 +91,20 @@ class MyAnalyzer(DiagnosticAnalyzer):
 # In __init__.py PostAnalysisHub:
 @cached_property
 def my_kind(self) -> MyAnalyzer:
-    return MyAnalyzer(self._sim, self._converter)
+    return MyAnalyzer(self._sim, self._system)
 ```
 
 ## Backward Compatibility
 
-`Analyzer` is deprecated since v0.6.0. Use `PostProcessor` from `osiris_toolkit.postproc`:
+`Analyzer` was removed in v0.14.0. Use `PostProcessor` from `osiris_toolkit.postproc`:
 
 ```python
-# Deprecated
-from osiris_toolkit.analysis import Analyzer
-ana = Analyzer(sim)
+# Pre-v0.14.0 (removed)
+# from osiris_toolkit.analysis import Analyzer
+# ana = Analyzer(sim)
 
-# Recommended
+# v0.14.0+
 from osiris_toolkit.postproc import PostProcessor
 pp = PostProcessor(sim)
+pp.analyze.emf.field_energy("e1", iteration=50)
 ```

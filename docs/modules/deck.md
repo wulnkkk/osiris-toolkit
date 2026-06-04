@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+topic: modules
+kind: reference
+module: deck
+updated: 2026-06-04
+---
+
 # deck — Input Deck Parser & Validator
 
 Parses OSIRIS PIC simulation input decks (Fortran-namelist-like curly-brace syntax) into
