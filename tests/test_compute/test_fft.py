@@ -19,27 +19,17 @@ class TestComputeKSpace:
         assert ky.shape == (64,)
         assert spectrum.shape == (64, 64)
 
-    def test_kx_k0_range(self):
-        """kx/k0 values are symmetric around zero."""
+    def test_kx_range(self):
+        """kx values are symmetric around zero."""
         data = np.random.randn(32, 32)
         dx = 0.2
         kx, ky, _ = compute_k_space(data, dx=dx, dy=dx)
 
         # kx should be symmetric around 0
         assert abs(kx[len(kx) // 2]) < 0.1 * abs(kx[0])
-        # kx max = pi / dx / omega0_norm in k0 units
+        # kx max = pi / dx in angular wavenumber units (rad / (c/ω_p))
         expected_kmax = np.pi / dx
         assert kx[0] == pytest.approx(-expected_kmax, rel=0.01)
-
-    def test_omega0_norm_scaling(self):
-        """omega0_norm scales k axes inversely."""
-        data = np.random.randn(16, 16)
-        dx = dy = 0.5
-
-        kx1, _, _ = compute_k_space(data, dx, dy, omega0_norm=1.0)
-        kx2, _, _ = compute_k_space(data, dx, dy, omega0_norm=2.0)
-
-        assert kx2[0] == pytest.approx(kx1[0] / 2.0)
 
     def test_raises_on_1d(self):
         """1-D input raises ValueError."""

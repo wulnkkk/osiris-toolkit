@@ -11,7 +11,6 @@ def compute_k_space(
     data: np.ndarray,
     dx: float,
     dy: float,
-    omega0_norm: float = 1.0,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Compute the 2-D FFT k-space spectrum.
 
@@ -21,15 +20,13 @@ def compute_k_space(
         Input field data (real space).
     dx, dy : float
         Grid spacing in each direction.
-    omega0_norm : float
-        Reference frequency for k/k0 normalization (default 1.0).
 
     Returns
     -------
-    kx_k0 : 1-D array
-        kx/k0 values, fftshifted.
-    ky_k0 : 1-D array
-        ky/k0 values, fftshifted.
+    kx : 1-D array
+        Angular wavenumber in normalized units (rad / (c/ω_p)), fftshifted.
+    ky : 1-D array
+        Angular wavenumber in normalized units (rad / (c/ω_p)), fftshifted.
     spectrum : 2-D array
         |FFT| amplitude (not power), fftshifted.
     """
@@ -43,17 +40,16 @@ def compute_k_space(
     fft_result = np.fft.fft2(data)
     spectrum = np.abs(np.fft.fftshift(fft_result))
 
-    kx_k0 = np.fft.fftshift(kx) / omega0_norm
-    ky_k0 = np.fft.fftshift(ky) / omega0_norm
+    kx = np.fft.fftshift(kx)
+    ky = np.fft.fftshift(ky)
 
-    return kx_k0, ky_k0, spectrum
+    return kx, ky, spectrum
 
 
 def spectral_power(
     data: np.ndarray,
     dx: float,
     dy: float,
-    omega0_norm: float = 1.0,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Compute the 2-D spectral power |FFT|^2.
 
@@ -63,15 +59,13 @@ def spectral_power(
         Input field data (real space).
     dx, dy : float
         Grid spacing.
-    omega0_norm : float
-        Reference frequency for k/k0 normalization.
 
     Returns
     -------
-    kx_k0, ky_k0 : 1-D arrays
-        k/k0 coordinate arrays.
+    kx, ky : 1-D arrays
+        Angular wavenumber in normalized units (rad / (c/ω_p)).
     power : 2-D array
         |FFT|^2 amplitude, fftshifted.
     """
-    kx_k0, ky_k0, spectrum = compute_k_space(data, dx, dy, omega0_norm)
-    return kx_k0, ky_k0, spectrum ** 2
+    kx, ky, spectrum = compute_k_space(data, dx, dy)
+    return kx, ky, spectrum ** 2

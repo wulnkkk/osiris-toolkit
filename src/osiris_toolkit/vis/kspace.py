@@ -85,7 +85,7 @@ def plot_k_space(
     nx, ny = grid.data.shape
     dx = (grid.axes[0].max - grid.axes[0].min) / nx
     dy = (grid.axes[1].max - grid.axes[1].min) / ny
-    kx_k0, ky_k0, spectrum = _compute_k_space(grid.data, dx, dy, omega0_norm)
+    kx, ky, spectrum = _compute_k_space(grid.data, dx, dy)
 
     if log_scale:
         spectrum = np.log(np.maximum(spectrum, 1e-30))
@@ -113,10 +113,10 @@ def plot_k_space(
         origin="lower",
         aspect="auto",
         extent=[
-            kx_k0.min() / (2 * np.pi),
-            kx_k0.max() / (2 * np.pi),
-            ky_k0.min() / (2 * np.pi),
-            ky_k0.max() / (2 * np.pi),
+            kx.min() / (2 * np.pi),
+            kx.max() / (2 * np.pi),
+            ky.min() / (2 * np.pi),
+            ky.max() / (2 * np.pi),
         ],
         cmap=custom_cmap,
     )

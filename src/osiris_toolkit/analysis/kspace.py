@@ -56,13 +56,13 @@ class KSpaceAnalyzer(DiagnosticAnalyzer):
         dx = (grid.axes[0].max - grid.axes[0].min) / nx
         dy = (grid.axes[1].max - grid.axes[1].min) / ny
 
-        kx_k0, ky_k0, spectrum = compute_k_space(data, dx, dy, omega0_norm)
+        kx, ky, spectrum = compute_k_space(data, dx, dy)
 
         return EMSpectrumResult(
             quantity=quantity,
             iteration=iteration,
             time=grid.time,
-            kx_k0=kx_k0,
-            ky_k0=ky_k0,
+            kx_k0=kx,
+            ky_k0=ky,
             spectrum=spectrum,
         )

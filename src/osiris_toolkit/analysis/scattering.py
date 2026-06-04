@@ -109,35 +109,35 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
             nx, ny = grid.data.shape
             dx = (grid.axes[0].max - grid.axes[0].min) / nx
             dy = (grid.axes[1].max - grid.axes[1].min) / ny
-            kx_k0, ky_k0, spectrum = compute_k_space(grid.data, dx, dy, omega0_norm)
+            kx, ky, spectrum = compute_k_space(grid.data, dx, dy)
 
             inc = mask_energy(
-                spectrum, kx_k0, ky_k0,
+                spectrum, kx, ky,
                 masks["incident"]["kx_range"],
                 masks["incident"]["ky_range"],
             )
             sct = mask_energy(
-                spectrum, kx_k0, ky_k0,
+                spectrum, kx, ky,
                 masks["scattered"]["kx_range"],
                 masks["scattered"]["ky_range"],
             )
             side1 = mask_energy(
-                spectrum, kx_k0, ky_k0,
+                spectrum, kx, ky,
                 masks["side_scatter_1"]["kx_range"],
                 masks["side_scatter_1"]["ky_range"],
             )
             side2 = mask_energy(
-                spectrum, kx_k0, ky_k0,
+                spectrum, kx, ky,
                 masks["side_scatter_2"]["kx_range"],
                 masks["side_scatter_2"]["ky_range"],
             )
             back1 = mask_energy(
-                spectrum, kx_k0, ky_k0,
+                spectrum, kx, ky,
                 masks["back_scatter_1"]["kx_range"],
                 masks["back_scatter_1"]["ky_range"],
             )
             back2 = mask_energy(
-                spectrum, kx_k0, ky_k0,
+                spectrum, kx, ky,
                 masks["back_scatter_2"]["kx_range"],
                 masks["back_scatter_2"]["ky_range"],
             )
