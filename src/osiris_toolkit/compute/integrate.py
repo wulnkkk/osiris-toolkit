@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
+
+if TYPE_CHECKING:
+    from osiris_toolkit.units.converter import UnitSystem
 
 
 def mask_energy(
@@ -11,7 +16,7 @@ def mask_energy(
     ky_norm: np.ndarray,
     kx_range: tuple[float, float],
     ky_range: tuple[float, float],
-    system: "UnitSystem",
+    system: UnitSystem,
 ) -> float:
     """Integrate |spectrum|^2 over a rectangular k-space mask.
 
@@ -33,8 +38,6 @@ def mask_energy(
     float
         Sum of |spectrum|^2 within the mask region.
     """
-    from osiris_toolkit.units.converter import UnitSystem
-
     kx_k0 = system.wavenumber.to(kx_norm, "k0")
     ky_k0 = system.wavenumber.to(ky_norm, "k0")
     kx_mask = (kx_k0 >= kx_range[0]) & (kx_k0 <= kx_range[1])
