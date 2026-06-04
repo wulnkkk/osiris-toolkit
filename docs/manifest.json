@@ -1,0 +1,55 @@
+{
+  "version": "0.15.0",
+  "generated": "2026-06-04",
+  "description": "Agent entry point for osiris-toolkit documentation discovery.",
+  "entry_points": {
+    "architecture": "docs/architecture/overview.md",
+    "api_reference": "docs/api/",
+    "cli_reference": "docs/user-guide/cli-reference.md",
+    "skill": "docs/agent/skill.md",
+    "task_map": "docs/agent/task-map.md",
+    "faq": "docs/faq.md"
+  },
+  "task_map": {
+    "discover simulations": {
+      "guide": "docs/user-guide/simulation-browsing.md",
+      "recipe": "docs/agent/recipes/discover-sims.md",
+      "cli": "osiris-toolkit sim info <path> --output json",
+      "api": "Simulation(path).list_fields()"
+    },
+    "parse deck": {
+      "guide": "docs/user-guide/deck-parsing.md",
+      "cli": "osiris-toolkit deck parse <file>",
+      "api": "parse_deck_file(path)"
+    },
+    "plot fields": {
+      "guide": "docs/user-guide/field-plotting.md",
+      "cli": "osiris-toolkit vis plot --kind EMF --quantity <q> -i <n> <path>",
+      "api": "plot_field(quantity, iteration, sim=sim, system=system)"
+    },
+    "plot k-space": {
+      "guide": "docs/user-guide/k-space-analysis.md",
+      "cli": "osiris-toolkit vis plot --kind KSPACE --quantity <q> -i <n> <path> --k-unit k0",
+      "api": "plot_k_space(quantity, iteration, sim=sim, system=system, k_unit='k0')"
+    },
+    "batch process": {
+      "guide": "docs/user-guide/batch-processing.md",
+      "cli": "osiris-toolkit vis batch [--dry-run] [--progress] [-j N] <path> <name>",
+      "api": "process_simulation(sim_path, sim_name, system=system)"
+    },
+    "convert units": {
+      "guide": "docs/user-guide/unit-conversion.md",
+      "api": "UnitSystem.from_params(params).length.to(value, 'um')"
+    },
+    "compare two simulations": {
+      "guide": "docs/agent/recipes/compare-two-sims.md",
+      "api": "plot_difference / plot_overlay"
+    }
+  },
+  "known_limitations": {
+    "k_space_cli_params": "Advanced k-space params (omega0_norm, clim, white_low) available via CLI since v0.15.0. For full control use plot_k_space() Python API.",
+    "no_incremental_processing": "vis batch always reprocesses all iterations. Use --dry-run to plan ahead.",
+    "filename_regex_density": "Per-species density files (charge-electrons-NNNNNN.zdf) may not be detected by all list_*() regex patterns. This is a known issue.",
+    "parallel_memory": "8 workers x 4000x3600 float32 per field ~ 456 MB baseline. Reduce -j on memory-constrained machines."
+  }
+}
