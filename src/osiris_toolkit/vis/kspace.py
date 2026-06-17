@@ -55,8 +55,17 @@ def _auto_k_range(
     """
     threshold = spectrum.max() * threshold_frac
     k_conv = quantity.to(k_norm, unit)
-    # Project spectrum onto the k-axis
-    projection = spectrum.max(axis=1 if spectrum.ndim == 2 else 0)
+    # Determine which spectrum axis corresponds to this k-axis
+    if len(k_norm) == spectrum.shape[0]:
+        projection = spectrum.max(axis=1)  # project axis 0 → rows → length nx
+    elif len(k_norm) == spectrum.shape[1]:
+        projection = spectrum.max(axis=0)  # project axis 1 → cols → length ny
+    else:
+        from osiris_toolkit.exceptions import ShapeError
+        raise ShapeError(
+            f"k_norm length {len(k_norm)} does not match "
+            f"spectrum shape {spectrum.shape}"
+        )
     mask = projection > threshold
     if not mask.any():
         return (float(k_conv.min()), float(k_conv.max()))
