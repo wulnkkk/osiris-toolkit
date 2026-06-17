@@ -178,10 +178,8 @@ def plot_field(
 def _make_title(grid, quantity, iteration, system, time_unit):
     """Build a plot title with quantity, iteration, and time."""
     if system is not None:
-        from osiris_toolkit.vis._quantified import _AxisView
-        t_axis = _AxisView(grid, 0, system, force_quantity="time")
-        t_disp = t_axis.to(time_unit)[0]
-        t_label = t_axis.label(time_unit)
+        t_disp = system.time.to(grid.time, time_unit)
+        t_label = system.time.label(time_unit).replace("t [", "").rstrip("]")
         return (
             f"{quantity.upper()}  |  iteration={iteration}"
             f"  |  t={t_disp:.1f} {t_label}"
@@ -250,9 +248,7 @@ def plot_all_fields(
         )
         fig.colorbar(im, ax=ax)
         if system is not None:
-            from osiris_toolkit.vis._quantified import _AxisView
-            t_axis = _AxisView(grid, 0, system, force_quantity="time")
-            t_disp = t_axis.to(time_unit)[0]
+            t_disp = system.time.to(grid.time, time_unit)
         else:
             t_disp = grid.time
         ax.set_title(f"{qty.upper()}  t={t_disp:.1f}")
