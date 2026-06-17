@@ -50,6 +50,8 @@ def _worker_plot_field(
         system=system, x_unit=x_unit, y_unit=y_unit,
         time_unit=time_unit, output=output,
     )
+    import matplotlib.pyplot as _plt
+    _plt.close('all')
     return output
 
 
@@ -72,6 +74,8 @@ def _worker_plot_k_space(
         quantity=quantity, iteration=iteration, sim=sim,
         system=system, time_unit=time_unit, output=output,
     )
+    import matplotlib.pyplot as _plt
+    _plt.close('all')
     return output
 
 
@@ -98,6 +102,8 @@ def _worker_plot_density(
         system=system, x_unit=x_unit, y_unit=y_unit,
         time_unit=time_unit, output=output,
     )
+    import matplotlib.pyplot as _plt
+    _plt.close('all')
     return output
 
 
