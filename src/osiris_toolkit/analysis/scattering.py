@@ -6,7 +6,7 @@ import logging
 
 from osiris_toolkit.compute.fft import compute_k_space
 from osiris_toolkit.compute.integrate import mask_energy
-from osiris_toolkit.exceptions import DataNotFoundError
+from osiris_toolkit.exceptions import DataNotFoundError, UnitConversionError
 
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import ScatteringResult
@@ -99,6 +99,12 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
         if not iterations:
             raise DataNotFoundError(f"No data found for quantity {quantity!r}")
 
+        if self._system is None:
+            raise UnitConversionError(
+                "Scattering analysis requires a UnitSystem. "
+                "Provide an input deck to construct one."
+            )
+
         result = ScatteringResult(quantity=quantity, mask_info=dict(masks))
 
         for it in iterations:
@@ -115,31 +121,37 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
                 spectrum, kx, ky,
                 masks["incident"]["kx_range"],
                 masks["incident"]["ky_range"],
+                self._system,
             )
             sct = mask_energy(
                 spectrum, kx, ky,
                 masks["scattered"]["kx_range"],
                 masks["scattered"]["ky_range"],
+                self._system,
             )
             side1 = mask_energy(
                 spectrum, kx, ky,
                 masks["side_scatter_1"]["kx_range"],
                 masks["side_scatter_1"]["ky_range"],
+                self._system,
             )
             side2 = mask_energy(
                 spectrum, kx, ky,
                 masks["side_scatter_2"]["kx_range"],
                 masks["side_scatter_2"]["ky_range"],
+                self._system,
             )
             back1 = mask_energy(
                 spectrum, kx, ky,
                 masks["back_scatter_1"]["kx_range"],
                 masks["back_scatter_1"]["ky_range"],
+                self._system,
             )
             back2 = mask_energy(
                 spectrum, kx, ky,
                 masks["back_scatter_2"]["kx_range"],
                 masks["back_scatter_2"]["ky_range"],
+                self._system,
             )
 
             result.iterations.append(it)

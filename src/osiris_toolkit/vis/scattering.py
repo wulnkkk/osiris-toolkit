@@ -19,40 +19,6 @@ from .common import save_or_show
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MASKS = {
-    "incident": {
-        "kx_range": (-1.1, 1.1),
-        "ky_range": (-1.0, 1.0),
-        "label": "Incident",
-    },
-    "scattered": {
-        "kx_range": (-0.61, 0.61),
-        "ky_range": (-0.65, 0.65),
-        "label": "Scattered",
-    },
-    "side_scatter_1": {
-        "kx_range": (-0.11, 0.11),
-        "ky_range": (-0.65, -0.42),
-        "label": "Side-1",
-    },
-    "side_scatter_2": {
-        "kx_range": (-0.11, 0.11),
-        "ky_range": (0.42, 0.65),
-        "label": "Side-2",
-    },
-    "back_scatter_1": {
-        "kx_range": (0.47, 0.61),
-        "ky_range": (-0.11, 0.11),
-        "label": "Back-1",
-    },
-    "back_scatter_2": {
-        "kx_range": (-0.61, -0.47),
-        "ky_range": (-0.11, 0.11),
-        "label": "Back-2",
-    },
-}
-
-
 # ScatteringResult is re-exported from osiris_toolkit.analysis._result_types
 # _mask_energy is re-exported from osiris_toolkit.compute.integrate
 
