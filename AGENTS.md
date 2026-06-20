@@ -134,6 +134,14 @@ osiris-toolkit/
 └── examples/                Example analysis scripts
 ```
 
+## Versioning
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/).
+Current version: `0.y.z` (initial development).
+
+During 0.y.z, both `BREAKING CHANGE` and `feat` increment MINOR.
+See `[tool.commitizen.bump_map]` in `pyproject.toml`.
+
 ## Important Paths
 
 | What | Path |

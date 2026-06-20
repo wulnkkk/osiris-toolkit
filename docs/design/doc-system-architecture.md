@@ -201,6 +201,22 @@ The `check-all` target and CI `checks` job verify that all referenced
 paths are valid, but they cannot verify semantic accuracy of the sync.
 That requires human (or agent) diligence via the PR/Submit checklist.
 
+## Versioning Policy
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/). During
+the **0.y.z** initial development phase:
+
+| Change type | Bump | Example |
+|-------------|------|---------|
+| Breaking API change | MINOR | `0.15.0` → `0.16.0` |
+| Backward compatible feature | MINOR | `0.15.0` → `0.16.0` |
+| Bug fix | PATCH | `0.15.0` → `0.15.1` |
+
+Both `BREAKING CHANGE` and `feat` increment MINOR while version is 0.x.
+When the project graduates to 1.0.0, `BREAKING CHANGE` will revert to
+incrementing MAJOR. See `[tool.commitizen.bump_map]` in `pyproject.toml`
+for the current mapping.
+
 ---
 
 ## Migration History

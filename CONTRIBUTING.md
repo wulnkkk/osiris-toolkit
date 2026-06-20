@@ -209,6 +209,24 @@ Before submitting a PR, confirm each item:
 
 ---
 
+## Versioning
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/).
+
+**Current phase**: `0.y.z` — initial development. API is not yet stable.
+
+During 0.y.z, both `BREAKING CHANGE` and `feat` increment MINOR:
+
+| Commit type | Bump | Example |
+|-------------|------|---------|
+| `feat:` (new feature) | MINOR | `0.15.0` → `0.16.0` |
+| `fix:` (bug fix) | PATCH | `0.15.0` → `0.15.1` |
+| `refactor!:` / `BREAKING CHANGE` | MINOR | `0.15.0` → `0.16.0` |
+
+See `[tool.commitizen.bump_map]` in `pyproject.toml` for the current mapping.
+When ready to release 1.0.0, that section must be removed so that
+`BREAKING CHANGE` increments MAJOR as per standard SemVer.
+
 ## Release Process
 
 1. Ensure all features are merged to `main` and CI passes

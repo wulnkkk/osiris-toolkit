@@ -144,3 +144,11 @@ name = "cz_conventional_commits"
 version = "0.15.0"
 version_files = ["pyproject.toml:^version"]
 tag_format = "v$version"
+
+# During 0.x.y (initial development), breaking changes increment MINOR not MAJOR.
+# When ready to release 1.0.0, remove this [bump_map] section to restore default
+# behavior where BREAKING CHANGE increments MAJOR.
+[tool.commitizen.bump_map]
+BREAKING CHANGE = "MINOR"
+feat = "MINOR"
+fix = "PATCH"
