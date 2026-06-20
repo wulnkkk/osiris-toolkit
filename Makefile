@@ -2,7 +2,7 @@
 # Requires uv (https://docs.astral.sh/uv/)
 
 .PHONY: help install setup lint format typecheck test test-cov test-file \
-        docs-serve docs-build precommit bump clean clean-all
+        docs-serve docs-build precommit bump clean clean-all check-all check-arch check-docs check-english
 
 .DEFAULT_GOAL := help
 
@@ -82,6 +82,30 @@ docs-build: ## Build docs in strict mode
 
 precommit: ## Run all pre-commit hooks manually
 	uv run pre-commit run --all-files
+
+# ---------------------------------------------------------------------------
+# Compliance checks
+# ---------------------------------------------------------------------------
+
+check-arch: ## Check module dependency hierarchy (no reverse deps)
+	uv run python dev-tools/check_arch.py
+
+check-docs: ## Check documentation sync (manifest paths, nav entries, skill refs)
+	uv run python dev-tools/check_docs_sync.py
+
+check-english: ## Check all content is in English
+	uv run python dev-tools/check_english.py
+
+check-all: ## Run all checks: lint + format + typecheck + test + docs + compliance
+	$(MAKE) lint
+	$(MAKE) format-check
+	$(MAKE) typecheck
+	$(MAKE) test-quick
+	$(MAKE) docs-build
+	$(MAKE) check-arch
+	$(MAKE) check-docs
+	$(MAKE) check-english
+	@echo "All checks passed."
 
 cz: ## Interactive Commitizen commit
 	uv run cz commit

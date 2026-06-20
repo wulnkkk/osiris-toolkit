@@ -201,6 +201,8 @@ Before submitting a PR, confirm each item:
 - [ ] CHANGELOG.md updated
 - [ ] **No internal paths, usernames, or hostnames leaked**
 - [ ] **All text is in English** — code comments, docstrings, docs, and commit messages
+- [ ] **`make check-all` passes** — runs lint + typecheck + test + docs-build + arch check + doc sync + english check
+- [ ] **Sync targets updated if applicable** (see When Adding/Changing Public API above)
 - [ ] Branch rebased onto latest main
 
 > See [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) for the full template.

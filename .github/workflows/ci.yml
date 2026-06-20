@@ -35,3 +35,25 @@ jobs:
 
       - name: Run tests
         run: uv run pytest tests/ -v --ignore=tests/hpc -m "not slow"
+
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Architecture dependency check
+        run: uv run python dev-tools/check_arch.py
+
+      - name: Documentation sync check
+        run: uv run python dev-tools/check_docs_sync.py
+
+      - name: English language check
+        run: uv run python dev-tools/check_english.py

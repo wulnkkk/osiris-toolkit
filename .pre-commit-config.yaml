@@ -37,3 +37,25 @@ repos:
     hooks:
       - id: commitizen
         stages: [commit-msg]
+
+  - repo: local
+    hooks:
+      - id: check-arch
+        name: Architecture dependency check
+        entry: uv run python dev-tools/check_arch.py
+        language: system
+        pass_filenames: false
+        files: ^src/osiris_toolkit/
+
+      - id: check-english
+        name: English language check
+        entry: uv run python dev-tools/check_english.py
+        language: system
+        pass_filenames: false
+
+      - id: check-docs-sync
+        name: Documentation sync check
+        entry: uv run python dev-tools/check_docs_sync.py
+        language: system
+        pass_filenames: false
+        files: ^(docs/|skills/|mkdocs\.yml|AGENTS\.md)

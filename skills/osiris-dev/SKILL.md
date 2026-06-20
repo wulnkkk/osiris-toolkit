@@ -159,3 +159,25 @@ pytest --cov=osiris_toolkit --cov-report=html  # coverage
 ### Reference files
 
 - [Development Task Map](references/task-map.md) — intent-to-code-location mapping for common development tasks
+
+## Submit Checklist
+
+Before committing or opening a PR, verify each item:
+
+```markdown
+- [ ] `make lint` — ruff passes on `src/`
+- [ ] `make typecheck` — mypy has no new errors
+- [ ] `make test-quick` — all fast tests pass
+- [ ] `make format-check` — ruff formatting is clean
+- [ ] Language: all code/comments/docs/commits in **English**
+- [ ] No internal paths, usernames, or hostnames (`/work/home/...`, `/Users/...`)
+- [ ] CHANGELOG.md updated (if user-facing change)
+- [ ] Sync targets updated if applicable:
+      - CLI change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`
+      - API change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`
+      - Architecture change → `CONTRIBUTING.md` + `AGENTS.md`
+      - File added/removed → `mkdocs.yml` nav + `docs/manifest.json`
+- [ ] `make check-all` passes (runs lint + typecheck + test + docs-build + arch check)
+```
+
+> Tip: Pre-commit hooks catch most formatting/type issues automatically. Run `make precommit` to check before submitting.
