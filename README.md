@@ -45,6 +45,15 @@ osiris-toolkit vis plot /path/to/output/ --kind EMF --quantity e1 --iteration 50
 osiris-toolkit vis batch -o ./figures /path/to/output MySim
 ```
 
+## 🤖 AI-Assisted Usage
+
+This project includes **agent skills** that help AI coding tools (Claude Code, Cursor, GitHub Copilot, Reasonix) assist you:
+
+- **Using the toolkit** → agent skill loads CLI commands, Python API, decision trees for common tasks, and known limitations
+- **Developing the toolkit** → agent skill loads architecture rules, dev workflow, code style, testing, and release process
+
+No setup needed — open the project in any AI tool and it will automatically find the [entry point](AGENTS.md). See [AGENTS.md](AGENTS.md) for details.
+
 ## Documentation
 
 Full documentation: `pip install "osiris-toolkit[docs]" && mkdocs serve`

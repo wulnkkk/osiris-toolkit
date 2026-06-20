@@ -22,6 +22,8 @@ simulations — input deck parsing, data extraction, unit conversion, analysis, 
 | Generate figures | [Field Plotting](user-guide/field-plotting.md) · [K-Space](user-guide/kspace-analysis.md) · [Batch](user-guide/batch-processing.md) |
 | Understand the architecture | [Architecture Overview](architecture/overview.md) |
 | Look up a function or class | [API Reference](api/sim.md) |
+| Use AI to help process data | [`AGENTS.md` on GitHub](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) — AI assistants auto-load this entry point |
+| Use AI to help develop | [`AGENTS.md` on GitHub](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) — then load the dev skill |
 
 ## Key Features
 
