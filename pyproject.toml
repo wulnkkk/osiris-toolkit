@@ -149,6 +149,6 @@ tag_format = "v$version"
 # When ready to release 1.0.0, remove this [bump_map] section to restore default
 # behavior where BREAKING CHANGE increments MAJOR.
 [tool.commitizen.bump_map]
-BREAKING CHANGE = "MINOR"
+"BREAKING CHANGE" = "MINOR"
 feat = "MINOR"
 fix = "PATCH"
