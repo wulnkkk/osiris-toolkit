@@ -1,6 +1,6 @@
 """osiris-toolkit: Comprehensive toolkit for OSIRIS PIC simulation."""
 
-__version__ = "0.15.0"
+__version__ = "0.16.0"
 
 from osiris_toolkit.analysis.tracks import TracksAnalyzer
 from osiris_toolkit.compute import (

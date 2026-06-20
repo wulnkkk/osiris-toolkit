@@ -5,19 +5,38 @@ All notable changes to **osiris-toolkit** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.16.0] - 2026-06-20
 
 ### Added
-- Issue templates (Bug Report, Feature Request) and Pull Request template
-- pre-commit hooks configuration (ruff, mypy, trailing-whitespace, commitizen)
-- mypy type checking configuration
-- commitizen (Conventional Commits) setup
-- Makefile with common development commands
-- CONTRIBUTING.md contribution guide
+- AGENTS.md: cross-platform AI agent entry point (auto-loaded by Claude Code, Copilot, Cursor)
+- Two agent skills in Agent Skills open standard format (`skills/osiris-user/`, `skills/osiris-dev/`)
+- CODE_OF_CONDUCT.md (Contributor Covenant v2.1) and SECURITY.md
+- Compliance check system: `check_arch.py` (import architecture), `check_docs_sync.py` (path validity), `check_english.py` (language)
+- Makefile targets: `check-all`, `check-arch`, `check-docs`, `check-english`
+- Pre-commit hooks for architecture, English, and doc-sync checks
+- CI `checks` job (parallel to `test`) running all compliance scripts
+- Agent Submit Checklist in `skills/osiris-dev/SKILL.md`
+- SemVer versioning policy with explicit `[tool.commitizen.bump_map]` (0.x stays in MINOR for breaking changes)
+- Design record: `docs/design/doc-system-architecture.md`
 
 ### Changed
-- Enhanced ruff rules: enabled UP (pyupgrade), B (bugbear), SIM (simplify), ARG, RUF rule sets
-- Updated dev dependencies to include mypy, pre-commit, commitizen
+- **Agent skills adopted open standard**: migrated from `docs/agent-*` wrappers to `skills/*/SKILL.md` directories with proper `name`/`description` frontmatter
+- **Documentation architecture**: `docs/` is now pure human documentation; all agent content lives in `skills/`
+- Skills now contain full links to all relevant `docs/` documentation (API reference, user guides, architecture)
+- Architecture rules unified across CONTRIBUTING.md, skills, and architecture docs (5 rules, consistent wording)
+- README, CONTRIBUTING, docs/index all updated with AI-assisted development/usage guidance
+- All cross-references migrated from `docs/agent-*` (deleted) to `skills/`
+- Links from skills to human docs use GitHub absolute URLs (avoids mkdocs build issues)
+
+### Removed
+- `docs/agent-dev/` and `docs/agent-user/` directories — content migrated to `skills/`
+- `mkdocs-include-markdown-plugin` dependency (no longer needed)
+
+### Fixed
+- HDF5 support description in user skill (was incorrectly marked as unsupported)
+- Circular reference between CONTRIBUTING.md and docs/contributing.md
+- CLI command tables no longer duplicated (skill references `cli-reference.md`)
+- Mkdocs strict mode build failures from relative links crossing docs/ boundary
 
 ## [0.15.0] - 2025-06-09
 
@@ -205,7 +224,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic simulation browser
 - CLI entry point via click
 
-[Unreleased]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.12.0...v0.13.0
