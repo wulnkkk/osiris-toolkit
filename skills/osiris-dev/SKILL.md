@@ -1,11 +1,6 @@
 ---
 name: osiris-dev
 description: Develop and maintain the osiris-toolkit codebase — architecture, workflow, testing, release, and code standards. Use when contributing code, fixing bugs, writing tests, or publishing releases.
-audience: [agent]
-role: developer
-topic: dev-skill
-kind: skill
-updated: 2026-06-20
 ---
 
 # Agent Dev Skill — osiris-toolkit Development Manual
@@ -16,7 +11,7 @@ This document is the **Development** skill for AI agents working on the osiris-t
 
 > **Relationship to `CONTRIBUTING.md`:** This is the agent-facing counterpart to the human-oriented [`CONTRIBUTING.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/CONTRIBUTING.md). Both cover the same development workflow and **must be kept in sync** when the project's dev practices change (e.g., new lint rules, modified test commands, updated release process).
 
-> For the **User** skill (how to use the toolkit to process simulation data), see [`docs/agent-user/skill.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/agent-user/skill.md).
+> For the **User** skill (how to use the toolkit to process simulation data), see [`skills/osiris-user/SKILL.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/skills/osiris-user/SKILL.md).
 
 ---
 
@@ -40,6 +35,7 @@ osiris-toolkit/
 │   ├── config.py            Global configuration (OsirisConfig)
 │   ├── _models.py           Core data models (Field, ParticleData, GridAxis)
 │   └── _generated/          Auto-generated parameter/quantity definitions
+├── skills/                  Agent skills (open standard format)
 ├── tests/                   Test suite (pytest)
 ├── docs/                    Documentation (mkdocs)
 ├── dev-tools/               Development tools

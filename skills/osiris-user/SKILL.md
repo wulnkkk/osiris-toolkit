@@ -1,11 +1,6 @@
 ---
 name: osiris-user
 description: Process OSIRIS PIC simulation data using osiris-toolkit — CLI commands, Python API, deck parsing, visualization, and analysis. Use when the user needs to browse sim output, plot fields, convert units, or batch-process data.
-audience: [agent]
-role: user
-topic: agent
-kind: skill
-updated: 2026-06-20
 ---
 
 # Agent Skill — osiris-toolkit Operation Manual

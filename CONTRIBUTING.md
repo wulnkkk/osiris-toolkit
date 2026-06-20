@@ -6,7 +6,7 @@ Welcome! This document covers development setup, code style, commit conventions,
 >
 > This project provides a dedicated **agent development skill** that AI coding tools (Claude Code, Cursor, GitHub Copilot, etc.) use to understand the codebase:
 >
-> - **Canonical skill file**: `.claude/skills/osiris-dev/SKILL.md` (Agent Skills open standard format)
+> - **Canonical skill file**: `skills/osiris-dev/SKILL.md` (Agent Skills open standard format)
 > - **What it covers**: project structure, architecture rules (no reverse deps, layer hierarchy), dev workflow, code style, testing, release process, key entry point maps
 > - **How to use**: In Claude Code, run `/osiris-dev`; in Cursor, reference the `.claude/` rules; in Reasonix, run `/osiris-dev`. The skill loads on demand — the cross-platform entry point [`AGENTS.md`](AGENTS.md) is auto-loaded every session.
 > - **Keep in sync**: If you update dev practices here (e.g., new lint rules, modified test commands), also update `docs/agent-dev/dev-skill.md`.

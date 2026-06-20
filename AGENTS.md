@@ -27,7 +27,7 @@ This project provides two specialized agent skills, one for each role:
 Use when the task involves processing simulation data, plotting fields, converting units, or analyzing results.
 
 ```
-Skill: docs/agent-user/skill.md
+Skill: skills/osiris-user/SKILL.md
 Tasks: parse deck, browse sim, plot field, k-space analysis, batch process, unit conversion
 ```
 
@@ -36,9 +36,65 @@ Tasks: parse deck, browse sim, plot field, k-space analysis, batch process, unit
 Use when the task involves adding features, fixing bugs, running tests, or publishing releases.
 
 ```
-Skill: docs/agent-dev/dev-skill.md
+Skill: skills/osiris-dev/SKILL.md
 Tasks: add analysis function, add visualization, add CLI command, write tests, release
 ```
+
+## Configuring Your AI Tool
+
+These skills follow the [Agent Skills open standard](https://agentskills.io/). Depending on your AI tool, configure them as follows:
+
+### Claude Code
+
+```bash
+# The skills/ directory is automatically detected. Load on demand:
+/osiris-user     # User skill — data processing
+/osiris-dev      # Developer skill — code contribution
+```
+
+### Cursor
+
+Add rules pointing to the skill files in `.cursor/rules/`:
+
+```yaml
+# .cursor/rules/osiris-user.mdc
+description: osiris-toolkit user skill — CLI/Python API for simulation data
+globs: ["**/*.py", "**/*.md"]
+alwaysApply: false
+---
+See skills/osiris-user/SKILL.md for CLI commands, API usage, and decision trees.
+```
+
+```yaml
+# .cursor/rules/osiris-dev.mdc
+description: osiris-toolkit dev skill — architecture, workflow, testing
+globs: ["**/*.py", "**/*.md"]
+alwaysApply: false
+---
+See skills/osiris-dev/SKILL.md for architecture rules, dev workflow, and testing guidelines.
+```
+
+### GitHub Copilot
+
+Add a reference in `.github/copilot-instructions.md`:
+
+```markdown
+For data processing tasks, refer to skills/osiris-user/SKILL.md.
+For code contribution tasks, refer to skills/osiris-dev/SKILL.md.
+```
+
+### Reasonix
+
+```bash
+/osiris-user     # User skill — data processing
+/osiris-dev      # Developer skill — code contribution
+```
+
+### Any other tool
+
+Point your AI tool to read these files when relevant:
+- `skills/osiris-user/SKILL.md` — operational instructions
+- `skills/osiris-dev/SKILL.md` — development instructions
 
 ## Key Rules
 
@@ -70,6 +126,9 @@ osiris-toolkit/
 │   ├── cli.py               Click CLI entry point
 │   ├── config.py            Global configuration
 │   └── _generated/          Auto-generated parameter definitions
+├── skills/                  Agent skills (open standard format)
+│   ├── osiris-user/         User skill — data processing
+│   └── osiris-dev/          Developer skill — code contribution
 ├── tests/                   Test suite (pytest)
 ├── docs/                    Documentation (mkdocs)
 └── examples/                Example analysis scripts
