@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from osiris_toolkit._models import (
     FieldInfo,
@@ -15,6 +16,10 @@ from osiris_toolkit.exceptions import FormatError, MissingDependencyError
 
 class _InfoAccessors:
     """Mixin providing metadata-only accessors (no data loaded)."""
+
+    _fields: dict[str, Any]
+    _raw: dict[str, Any]
+    _tracks: dict[str, Any]
 
     @staticmethod
     def _read_info(path: Path):

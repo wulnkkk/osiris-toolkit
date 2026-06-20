@@ -42,7 +42,7 @@ def mask_energy(
     ky_k0 = system.wavenumber.to(ky_norm, "k0")
     kx_mask = (kx_k0 >= kx_range[0]) & (kx_k0 <= kx_range[1])
     ky_mask = (ky_k0 >= ky_range[0]) & (ky_k0 <= ky_range[1])
-    region = spectrum[np.ix_(kx_mask, ky_mask)]
+    region = spectrum[np.ix_(kx_mask, ky_mask)]  # type: ignore[arg-type]
     return float(np.sum(region**2))
 
 

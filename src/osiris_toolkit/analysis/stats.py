@@ -51,7 +51,7 @@ def total_energy(grid: GridData, dx: float = 1.0) -> float:
 def lineout(data: GridData, index: int, axis: int = 0) -> np.ndarray:
     """Extract a 1D slice along the specified axis."""
     slc = [slice(None)] * data.data.ndim
-    slc[axis] = index
+    slc[axis] = index  # type: ignore[call-overload]
     return data.data[tuple(slc)]
 
 

@@ -67,7 +67,7 @@ def plot_difference(
         extent = None
 
     fig, ax = plt.subplots(figsize=(10, 8))
-    im = ax.imshow(diff, origin="lower", aspect="auto", extent=extent, cmap=cmap)
+    im = ax.imshow(diff, origin="lower", aspect="auto", extent=tuple(extent) if extent is not None else None, cmap=cmap)  # type: ignore[arg-type]
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label(f"Delta({quantity})")
     ax.set_xlabel(f"x1 [{x_unit}]" if system else "x1")
@@ -141,7 +141,7 @@ def plot_overlay(
         g0.data,
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,  # type: ignore[arg-type]
         cmap="RdBu_r",
     )
     cbar0 = fig.colorbar(im0, ax=ax, location="left")
@@ -151,7 +151,7 @@ def plot_overlay(
         g1.data,
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,  # type: ignore[arg-type]
         cmap="Blues",
         alpha=alpha,
     )

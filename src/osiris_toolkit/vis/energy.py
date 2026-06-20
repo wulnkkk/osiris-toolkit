@@ -19,8 +19,8 @@ from osiris_toolkit.vis.common import save_or_show
 
 def plot_energy_timeline(
     results: list[EMDynamicsResult],
-    system: UnitSystem | None = None,
-    time_unit: str = "auto",
+    system: UnitSystem | None = None,  # noqa: ARG001
+    time_unit: str = "auto",  # noqa: ARG001
     output: str | Path | None = None,
 ) -> Path | None:
     """Plot E^2, B^2, and total EM energy over time.
@@ -113,7 +113,7 @@ def plot_spectrum(
         spectrum,
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,
         cmap=cmap,
     )
     cbar = fig.colorbar(im, ax=ax)

@@ -117,7 +117,7 @@ def _encoded_string_size(s: str) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _read_iteration(fh: BinaryIO, rec: ZdfRecord) -> ZdfIteration:
+def _read_iteration(fh: BinaryIO, _rec: ZdfRecord) -> ZdfIteration:
     n = _read_int32(fh)
     t = _read_float64(fh)
     tunits = _read_string(fh)

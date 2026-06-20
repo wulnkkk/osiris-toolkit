@@ -101,7 +101,7 @@ class PipelineContext:
         Rebuilds deck and sim from saved paths. Returns a fully
         functional PipelineContext ready for resumed execution.
         """
-        from osiris_toolkit.deck.parser import parse_deck_file
+        from osiris_toolkit.deck import parse_deck_file
         from osiris_toolkit.sim import Simulation
         from osiris_toolkit.units.converter import UnitConverter
         from osiris_toolkit.units.params import SimulationParams
@@ -252,7 +252,7 @@ class VisualizeStep(PipelineStep):
 
         from osiris_toolkit.postproc import PostProcessor
 
-        pp = PostProcessor(sim, converter=ctx.converter)
+        pp = PostProcessor(sim, converter=ctx.converter)  # type: ignore[call-arg]
 
         for kind in self.kinds:
             kind_lower = kind.lower()

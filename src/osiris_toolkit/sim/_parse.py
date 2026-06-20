@@ -132,10 +132,7 @@ def _parse_timings_file(filepath: Path) -> TimingsData:
 
     # Detect serial vs parallel
     start_idx: int
-    if lines[0].startswith(" Iterations"):
-        start_idx = 3  # skip "Iterations = N", blank line, header
-    else:
-        start_idx = 2  # skip header, separator line
+    start_idx = 3 if lines[0].startswith(" Iterations") else 2
 
     if start_idx >= len(lines):
         return TimingsData()

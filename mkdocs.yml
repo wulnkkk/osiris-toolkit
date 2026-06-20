@@ -54,6 +54,7 @@ nav:
       - Unit Conversion: architecture/unit-conversion.md
       - K-Space Pipeline: architecture/k-space-pipeline.md
       - Vis Architecture: architecture/vis-architecture.md
+      - Template: architecture/_template.md
   - Design:
       - Unit System: design/unit-system-architecture.md
       - Architecture Refactor v0.14: design/architecture-refactor.md

@@ -75,7 +75,7 @@ def process_simulation(
     y_unit: str = "um",
     time_unit: str = "ps",
     max_workers: int | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: ARG001
     *,
     progress_callback: Callable[[ProgressEvent], None] | None = None,
 ) -> BatchResult:
@@ -134,10 +134,7 @@ def process_simulation(
     all_errors: list[str] = []
 
     sim = Simulation(sim_path)
-    if output_root is None:
-        output_root = sim.output_root
-    else:
-        output_root = Path(output_root)
+    output_root = sim.output_root if output_root is None else Path(output_root)
     system = get_system(sim)
     if system is None:
         logger.info("[%s] Warning: no unit system available; using normalised units", sim_name)

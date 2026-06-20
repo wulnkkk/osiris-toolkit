@@ -59,7 +59,7 @@ class DensityAnalyzer(DiagnosticAnalyzer):
             n = grid.data.shape[axis]
             coord = np.linspace(grid.axes[axis].min, grid.axes[axis].max, n)
         else:
-            coord = np.arange(len(profile))
+            coord = np.arange(len(profile), dtype=np.float64)
 
         return DensityProfileResult(
             species=species,

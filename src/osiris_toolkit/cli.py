@@ -132,7 +132,7 @@ def deck_validate(file: Path) -> None:
     default=0.15,
     help="Sustained FLOP/s fraction of peak (default: 0.15).",
 )
-def deck_estimate(file: Path, cores_per_node: int | None, efficiency: float) -> None:
+def deck_estimate(file: Path, cores_per_node: int | None, efficiency: float) -> None:  # noqa: ARG001
     """Estimate computational resources for a simulation input deck.
 
     Predicts per-node memory usage, wall-clock runtime (order-of-magnitude),
@@ -301,7 +301,7 @@ def vis_plot(
     quantity: str,
     iteration: int,
     output: Path | None,
-    overwrite: bool,
+    overwrite: bool,  # noqa: ARG001
     k_unit: str,
     omega0_norm: float | None,
     xlim: str | None,

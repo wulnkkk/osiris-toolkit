@@ -67,10 +67,11 @@ def plot_phasespace(
 
     ps = sim_obj.get_phasespace(ps_name, species, iteration)
     if ps is None:
+        assert sim_obj is not None
         raise DataNotFoundError(
             f"Phasespace {ps_name!r}/{species!r} not found"
             f" at iteration {iteration}. "
-            f"Available: {sim.list_phasespaces()}"
+            f"Available: {sim_obj.list_phasespaces()}"
         )
 
     data = ps.data
@@ -102,7 +103,7 @@ def plot_phasespace(
         data,
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,

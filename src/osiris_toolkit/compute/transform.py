@@ -43,8 +43,8 @@ def remap_field(
     y_out = np.linspace(new_axes[1].min, new_axes[1].max, ny_out)
     xx, yy = np.meshgrid(x_out, y_out)
 
-    old_x_idx = old_axes[0].value_to_index(xx)
-    old_y_idx = old_axes[1].value_to_index(yy)
+    old_x_idx = old_axes[0].value_to_index(xx)  # type: ignore[arg-type]
+    old_y_idx = old_axes[1].value_to_index(yy)  # type: ignore[arg-type]
 
     if interpolation == "nearest":
         ix = np.clip(np.round(old_x_idx).astype(int), 0, old_axes[0].npoints - 1)

@@ -101,13 +101,7 @@ def plot_density(
 
     fig, ax = plt.subplots(figsize=(10, 8))
 
-    if log_scale:
-        norm = LogNorm(
-            vmin=vmin or max(data[data > 0].min(), 1e-30),
-            vmax=vmax or data.max(),
-        )
-    else:
-        norm = None
+    norm = LogNorm(vmin=vmin or max(data[data > 0].min(), 1e-30), vmax=vmax or data.max()) if log_scale else None
 
     if system is not None:
         display_data = system["density"].to(data, value_unit)
@@ -119,7 +113,7 @@ def plot_density(
         display_data,
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,

@@ -54,7 +54,7 @@ def _auto_k_range(
         (k_min, k_max) in the target unit.
     """
     threshold = spectrum.max() * threshold_frac
-    k_conv = quantity.to(k_norm, unit)
+    k_conv = np.asarray(quantity.to(k_norm, unit))
     # Determine which spectrum axis corresponds to this k-axis
     if len(k_norm) == spectrum.shape[0]:
         projection = spectrum.max(axis=1)  # project axis 0 → rows → length nx
@@ -136,10 +136,7 @@ def plot_k_space(
     dy = (grid.axes[1].max - grid.axes[1].min) / ny
     kx, ky, spectrum = _compute_k_space(grid.data, dx, dy)
 
-    if log_scale:
-        display = np.log(np.maximum(spectrum, 1e-30))
-    else:
-        display = spectrum
+    display = np.log(np.maximum(spectrum, 1e-30)) if log_scale else spectrum
 
     fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -155,7 +152,9 @@ def plot_k_space(
             np.ones(n_white),
         ]
     )
-    custom_cmap = plt.cm.colors.ListedColormap(np.vstack([white_fade, colors]))
+    from matplotlib.colors import ListedColormap
+
+    custom_cmap = ListedColormap(np.vstack([white_fade, colors]))
 
     if system is not None:
         qspec = QuantifiedSpectrum(
@@ -189,7 +188,7 @@ def plot_k_space(
         display,
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent),
         cmap=custom_cmap,
     )
 

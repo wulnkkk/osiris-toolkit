@@ -154,17 +154,16 @@ def _check_grid(deck: Deck, report: IssueReport):
                 break
         # Coordinates
         coord = _resolve(sec, "coordinates")
-        if coord is not None and isinstance(coord, str):
-            if coord.lower() not in _VALID_COORDINATES:
-                report.add(
-                    ValidationIssue(
-                        rule_id="V-GRID-002",
-                        severity=Severity.ERROR,
-                        message=f"Unknown coordinates type '{coord}'. Valid: {', '.join(sorted(_VALID_COORDINATES))}",
-                        section="grid",
-                        line=sec.line,
-                    )
+        if coord is not None and isinstance(coord, str) and coord.lower() not in _VALID_COORDINATES:
+            report.add(
+                ValidationIssue(
+                    rule_id="V-GRID-002",
+                    severity=Severity.ERROR,
+                    message=f"Unknown coordinates type '{coord}'. Valid: {', '.join(sorted(_VALID_COORDINATES))}",
+                    section="grid",
+                    line=sec.line,
                 )
+            )
 
 
 # ---- time_step ----
@@ -443,7 +442,7 @@ def _check_single_constraint(
             pass  # handled separately
 
 
-def _type_issue(key: str, ps, expected: str, got: str, sec: Section) -> ValidationIssue:
+def _type_issue(key: str, _ps, expected: str, got: str, sec: Section) -> ValidationIssue:
     return ValidationIssue(
         rule_id="V-PARAM-002",
         severity=Severity.WARNING,

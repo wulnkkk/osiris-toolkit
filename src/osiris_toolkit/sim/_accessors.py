@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from osiris_toolkit._models import (
     GridAxis,
@@ -21,6 +22,20 @@ from osiris_toolkit.sim._parse import (
 
 class _DataAccessors:
     """Mixin providing typed data accessors for all OSIRIS diagnostic types."""
+
+    # Attributes set by subclass initialisers
+    _fields: dict[str, Any]
+    _density: dict[str, Any]
+    _cell_avg: dict[str, Any]
+    _udist: dict[str, Any]
+    _raw: dict[str, Any]
+    _ion: dict[str, Any]
+    _phasespace: dict[str, Any]
+    _tracks: dict[str, Any]
+    _history: dict[str, Any]
+    _timings: list[Path]
+    _chargecons: list[Any]
+    _wall: dict[str, Any]
 
     # -- Listing methods ----------------------------------------------------
 

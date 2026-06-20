@@ -115,6 +115,8 @@ class EMFAnalyzer(DiagnosticAnalyzer):
         if any(g is None for g in (e1_g, e2_g, e3_g, b1_g, b2_g, b3_g)):
             return None
 
+        assert e1_g is not None and e2_g is not None and e3_g is not None
+        assert b1_g is not None and b2_g is not None and b3_g is not None
         e1, e2, e3 = e1_g.data, e2_g.data, e3_g.data
         b1, b2, b3 = b1_g.data, b2_g.data, b3_g.data
 

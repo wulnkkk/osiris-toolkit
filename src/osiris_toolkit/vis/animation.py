@@ -20,7 +20,7 @@ def animate_field(
     iterations: list[int] | None = None,
     fps: int = 10,
     cmap: str = "RdBu_r",
-    dpi: int = 100,
+    dpi: int = 100,  # noqa: ARG001
     overwrite: bool = False,
 ) -> Path:
     """Generate an animated GIF or MP4 from field frames over time.

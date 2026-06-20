@@ -67,7 +67,7 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
         quantity: str,
         iterations: list[int] | None = None,
         masks: dict | None = None,
-        omega0_norm: float = 1.0,
+        omega0_norm: float = 1.0,  # noqa: ARG002
         verbose: bool = False,
     ) -> ScatteringResult:
         """Analyse k-space scattering energy fractions over time.

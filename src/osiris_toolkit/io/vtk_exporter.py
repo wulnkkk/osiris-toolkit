@@ -16,10 +16,10 @@ from osiris_toolkit.exceptions import MissingDependencyError
 def to_vtk(
     field: Field,
     output: str | Path,
-    converter=None,
-    x_unit: str = "um",
-    y_unit: str = "um",
-    z_unit: str = "um",
+    converter=None,  # noqa: ARG001
+    x_unit: str = "um",  # noqa: ARG001
+    y_unit: str = "um",  # noqa: ARG001
+    z_unit: str = "um",  # noqa: ARG001
 ) -> Path:
     """Export a Field to VTK structured grid format.
 

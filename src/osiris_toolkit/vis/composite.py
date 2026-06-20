@@ -127,10 +127,7 @@ def plot_composite(
                 cmap="RdBu_r",
             )
             fig.colorbar(im, ax=ax)
-            if system is not None:
-                t_disp = system.time.to(grid.time, time_unit)
-            else:
-                t_disp = grid.time
+            t_disp = system.time.to(grid.time, time_unit) if system is not None else grid.time
             ax.set_title(f"{qty.upper()}  t={t_disp:.1f}")
             if system is not None:
                 ax.set_xlabel(system.length.label(x_unit))
@@ -178,10 +175,7 @@ def plot_composite(
             norm=safe_log_norm(data),
         )
         fig.colorbar(im, ax=ax)
-        if system is not None:
-            t_disp = system.time.to(grid.time, time_unit)
-        else:
-            t_disp = grid.time
+        t_disp = system.time.to(grid.time, time_unit) if system is not None else grid.time
         ax.set_title(f"Density ({species})  t={t_disp:.1f}")
         if system is not None:
             ax.set_xlabel(system.length.label(x_unit))

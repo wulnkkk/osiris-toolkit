@@ -90,6 +90,8 @@ select = [
     "UP",   # pyupgrade
     "B",    # flake8-bugbear
     "RUF",  # Ruff-specific rules
+    "ARG",  # unused arguments
+    "SIM",  # simplify expressions
 ]
 ignore = [
     "N999",  # Allow non-PEP8 names in specific cases
@@ -128,36 +130,14 @@ exclude = ["_generated/", "tests/hpc/"]
 module = "tests.*"
 ignore_errors = true
 
-# Pre-existing type issues — allow gradual cleanup
-[[tool.mypy.overrides]]
-module = [
-    "osiris_toolkit._models",
-    "osiris_toolkit.vis._quantified",
-    "osiris_toolkit.vis.field",
-    "osiris_toolkit.vis.kspace",
-    "osiris_toolkit.vis.comparison",
-    "osiris_toolkit.vis.density",
-    "osiris_toolkit.vis.energy",
-    "osiris_toolkit.vis.energy_summary",
-    "osiris_toolkit.vis.phasespace",
-    "osiris_toolkit.vis.parallel",
-    "osiris_toolkit.sim._accessors",
-    "osiris_toolkit.sim._info",
-    "osiris_toolkit.deck.parser",
-    "osiris_toolkit.deck.cross_validator",
-    "osiris_toolkit.resource._estimator",
-    "osiris_toolkit.io._parallel",
-    "osiris_toolkit.io._reader",
-    "osiris_toolkit.compute.deposit",
-    "osiris_toolkit.compute.transform",
-    "osiris_toolkit.compute.integrate",
-    "osiris_toolkit.analysis.emf",
-    "osiris_toolkit.analysis.density",
-    "osiris_toolkit.analysis.stats",
-    "osiris_toolkit.workflow.pipeline",
-    "osiris_toolkit.vis.common",
-]
-ignore_errors = true
+# Pre-existing type issues — ALL RESOLVED as of this commit.
+# The override block below is kept as reference only and can be removed
+# once no other branches need it.
+# [[tool.mypy.overrides]]
+# module = [
+#     ...
+# ]
+# ignore_errors = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"

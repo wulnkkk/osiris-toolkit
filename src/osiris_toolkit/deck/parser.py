@@ -37,7 +37,7 @@ class _Parser:
     def __init__(self, tokens: Iterator[Token], filename: str):
         self.tokens = tokens
         self.filename = filename
-        self._current: Token | None = None
+        self._current: Token = Token(TokenType.EOF, "", 0, 0)
         self._advance()
 
     def _advance(self):

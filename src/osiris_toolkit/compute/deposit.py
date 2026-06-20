@@ -19,7 +19,7 @@ try:
     _HAS_NUMBA = True
 except ImportError:
 
-    def _njit(*args, **kwargs):
+    def _njit(*_args, **_kwargs):
         return lambda f: f
 
 
@@ -32,7 +32,7 @@ def particles_to_grid(
     grid_shape: tuple[int, ...] = (),
     axes: list[GridAxis] | None = None,
     shape_function: str = "ngp",
-    use_numba: bool = False,
+    use_numba: bool = False,  # noqa: ARG001
 ) -> Field:
     """Deposit particle quantities onto a regular grid.
 
@@ -68,10 +68,7 @@ def particles_to_grid(
     positions = np.asarray(positions, dtype=np.float64)
     nparts, ndim = positions.shape
 
-    if weights is None:
-        weights_arr = np.ones(nparts, dtype=np.float64)
-    else:
-        weights_arr = np.asarray(weights, dtype=np.float64)
+    weights_arr = np.ones(nparts, dtype=np.float64) if weights is None else np.asarray(weights, dtype=np.float64)
 
     if len(grid_shape) != ndim:
         raise ValidationError(f"grid_shape has {len(grid_shape)} dims but positions have {ndim} dims; they must match")

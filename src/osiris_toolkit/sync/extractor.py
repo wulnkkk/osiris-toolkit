@@ -220,7 +220,7 @@ class FortranScanner:
     # Namelist scanner
     # ------------------------------------------------------------------
 
-    def _scan_namelists(self, fpath: Path, merged_text: str, original_lines: list[str]) -> None:
+    def _scan_namelists(self, fpath: Path, merged_text: str, _original_lines: list[str]) -> None:
         for m in _NAMELIST_RE.finditer(merged_text):
             name = m.group(1)
             var_text = m.group(2)

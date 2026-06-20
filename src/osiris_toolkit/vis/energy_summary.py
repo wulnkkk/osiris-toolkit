@@ -95,12 +95,14 @@ def plot_spectrum_colormap(
         spectrum,
         origin="lower",
         aspect="auto",
-        extent=[
-            result.kx_k0.min(),
-            result.kx_k0.max(),
-            result.ky_k0.min(),
-            result.ky_k0.max(),
-        ],
+        extent=tuple(
+            [
+                result.kx_k0.min(),
+                result.kx_k0.max(),
+                result.ky_k0.min(),
+                result.ky_k0.max(),
+            ]
+        ),
         cmap=cmap,
     )
     cbar = fig.colorbar(im, ax=ax)

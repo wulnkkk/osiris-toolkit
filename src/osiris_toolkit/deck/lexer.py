@@ -43,7 +43,7 @@ _ID_CONTINUE = _ID_START | set("0123456789")
 _VALUE_TERMINATORS = {",", "}", "\n", "!", " ", "\t", "\r"}
 
 
-def tokenize(source: str, filename: str = "<input>") -> Iterator[Token]:
+def tokenize(source: str, filename: str = "<input>") -> Iterator[Token]:  # noqa: ARG001
     """Generate tokens from an OSIRIS input deck source string.
 
     Args:
@@ -271,11 +271,10 @@ class _Tokenizer:
                 yield self._read_number_or_bool()
                 continue
 
-            if ch in ("+", "-") and self._expecting_value:
+            if ch in ("+", "-") and self._expecting_value and (self._peek(1).isdigit() or self._peek(1) == "."):
                 # Signed number
-                if self._peek(1).isdigit() or self._peek(1) == ".":
-                    yield self._read_number_or_bool()
-                    continue
+                yield self._read_number_or_bool()
+                continue
 
             # Identifier
             if ch in _ID_START:

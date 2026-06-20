@@ -98,7 +98,7 @@ def _worker_plot_density(
     iteration: int,
     species: str,
     output: str,
-    quantity: str = "charge",
+    quantity: str = "charge",  # noqa: ARG001
     x_unit: str = "um",
     y_unit: str = "um",
     time_unit: str = "ps",
@@ -148,10 +148,7 @@ def batch_process_parallel(
     """
     sim_path = str(sim_path)
     sim = Simulation(sim_path)
-    if output_root is None:
-        output_root = sim.output_root
-    else:
-        output_root = Path(output_root)
+    output_root = sim.output_root if output_root is None else Path(output_root)
 
     sim = Simulation(sim_path)  # discover ONCE, pickle to workers
 
@@ -235,7 +232,7 @@ def batch_process_parallel(
                 futures[
                     ex.submit(
                         _worker_plot_density,
-                        sim_path,
+                        sim,
                         it,
                         sp,
                         out,
@@ -243,14 +240,12 @@ def batch_process_parallel(
                     )
                 ] = f"density {sp} it={it}"
 
-        done = 0
-        for future in as_completed(futures):
+        for done, future in enumerate(as_completed(futures), start=1):
             label = futures[future]
             try:
                 future.result()
             except Exception as exc:
                 logger.info("  [%s] %s: %s", sim_name, label, exc)
-            done += 1
             if done % 50 == 0:
                 logger.info("  [%s] %d/%d tasks done", sim_name, done, len(futures))
 

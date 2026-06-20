@@ -243,7 +243,7 @@ class Field:
             n = self.data.shape[axis_idx]
             if isinstance(k, (int, np.integer)):
                 # Integer index: extract that slice, axis collapses
-                result = result.take(k, axis=current_dim)
+                result = result.take(k, axis=current_dim)  # type: ignore[assignment]
                 # current_dim stays — subsequent axes shift left
                 continue
             # Float index: bilinear interpolation along this axis
@@ -255,8 +255,8 @@ class Field:
 
             sl0 = [slice(None)] * result.ndim
             sl1 = [slice(None)] * result.ndim
-            sl0[current_dim] = i0
-            sl1[current_dim] = i1
+            sl0[current_dim] = i0  # type: ignore[call-overload]
+            sl1[current_dim] = i1  # type: ignore[call-overload]
             result = w0 * result[tuple(sl0)] + w1 * result[tuple(sl1)]
             # current_dim stays — float interp also collapses the axis
 
@@ -268,22 +268,21 @@ class Field:
         for i, k in enumerate(key):
             if i >= len(self.axes):
                 break
-            if isinstance(k, (slice, float)):
-                if kept_dim < result.ndim:
-                    ax = self.axes[i]
-                    npoints = result.shape[kept_dim]
-                    kept_axes.append(
-                        GridAxis(
-                            name=ax.name,
-                            type=ax.type,
-                            min=ax.min,
-                            max=ax.max,
-                            label=ax.label,
-                            units=ax.units,
-                            npoints=npoints,
-                        )
+            if isinstance(k, (slice, float)) and kept_dim < result.ndim:
+                ax = self.axes[i]
+                npoints = result.shape[kept_dim]
+                kept_axes.append(
+                    GridAxis(
+                        name=ax.name,
+                        type=ax.type,
+                        min=ax.min,
+                        max=ax.max,
+                        label=ax.label,
+                        units=ax.units,
+                        npoints=npoints,
                     )
-                    kept_dim += 1
+                )
+                kept_dim += 1
 
         return Field(
             data=result.astype(self.data.dtype),

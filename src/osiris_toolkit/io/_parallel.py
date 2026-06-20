@@ -94,5 +94,5 @@ def read_many_map(
     """
     raw = read_many(paths, reader_fn, max_workers=max_workers, on_error="raise")
     if post_fn is not None:
-        return [post_fn(r) for r in raw]
+        return [post_fn(r) for r in raw]  # type: ignore[arg-type]
     return raw

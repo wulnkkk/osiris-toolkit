@@ -21,7 +21,7 @@ class _QuantityView:
     quantity: QuantityKind
 
     def to(self, unit: str = "auto") -> np.ndarray:
-        return self.quantity.to(self.data, unit)
+        return self.quantity.to(self.data, unit)  # type: ignore[return-value]
 
     def label(self, unit: str = "auto") -> str:
         return self.quantity.label(unit)
@@ -47,7 +47,7 @@ class _AxisView:
                 return (axis.min, axis.max)
             raise UnitConversionError(f"No UnitSystem available to convert to {unit!r}. Provide a deck or use 'norm'.")
         q = self._get_quantity()
-        return (q.to(axis.min, unit), q.to(axis.max, unit))
+        return (q.to(axis.min, unit), q.to(axis.max, unit))  # type: ignore[return-value]
 
     def label(self, unit: str = "auto") -> str:
         if self.system is None or (unit in ("auto", "norm") and self.system is None):
@@ -102,7 +102,7 @@ class QuantifiedGrid:
                 return self.grid.data
             raise UnitConversionError(f"No UnitSystem available to convert to {unit!r}. Use 'norm'.")
         q = self._infer_quantity(unit)
-        return q.to(self.grid.data, unit)
+        return q.to(self.grid.data, unit)  # type: ignore[return-value]
 
     def norm(self) -> np.ndarray:
         """Return raw normalized data (always works, even without UnitSystem)."""

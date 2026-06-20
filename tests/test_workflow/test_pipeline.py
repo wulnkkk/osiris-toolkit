@@ -217,7 +217,7 @@ class TestPipelineSnapshot:
         assert result.exists()
 
         raw = json.loads(snap_path.read_text())
-        assert raw["deck_path"] == "/fake/deck.in"
-        assert raw["sim_path"] == "/fake/sim"
+        assert raw["deck_path"] == str(Path("/fake/deck.in"))
+        assert raw["sim_path"] == str(Path("/fake/sim"))
         assert raw["dry_run"] is True
         assert raw["extra"] == {"key": "value"}

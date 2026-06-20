@@ -99,7 +99,7 @@ class ResourceEstimator:
     # Memory
     # ------------------------------------------------------------------
 
-    def _estimate_memory(self, params: ResourceParams, warnings: list[str]) -> MemoryEstimate:
+    def _estimate_memory(self, params: ResourceParams, _warnings: list[str]) -> MemoryEstimate:
         notes: list[str] = []
         ndim = params.ndim
         ngrid = params.ngrid_total
@@ -187,7 +187,7 @@ class ResourceEstimator:
     # Runtime
     # ------------------------------------------------------------------
 
-    def _estimate_runtime(self, params: ResourceParams, mem: MemoryEstimate, warnings: list[str]) -> RuntimeEstimate:
+    def _estimate_runtime(self, params: ResourceParams, mem: MemoryEstimate, _warnings: list[str]) -> RuntimeEstimate:
         notes: list[str] = []
         n_steps = params.n_steps
         ngrid = params.ngrid_total
@@ -222,7 +222,7 @@ class ResourceEstimator:
         ops_sort = total_parts * 10 / 25
 
         # Collisions
-        ops_coll = 0
+        ops_coll = 0.0
         if params.if_collide:
             ops_coll = params.n_collide * 200 * total_parts / ngrid
             notes.append(f"collisions ({params.n_collide} pairs) add Monte Carlo overhead")
@@ -263,7 +263,7 @@ class ResourceEstimator:
     # Disk
     # ------------------------------------------------------------------
 
-    def _estimate_disk(self, params: ResourceParams, mem: MemoryEstimate, warnings: list[str]) -> DiskEstimate:
+    def _estimate_disk(self, params: ResourceParams, mem: MemoryEstimate, _warnings: list[str]) -> DiskEstimate:
         notes: list[str] = []
         n_steps = params.n_steps
         fb = params.field_precision_bytes

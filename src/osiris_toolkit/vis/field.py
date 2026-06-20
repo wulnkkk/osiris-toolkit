@@ -87,10 +87,7 @@ def plot_field(
         value_unit = "norm"
 
     # Spatial extent with unit conversion
-    if len(grid.axes) >= 2:
-        extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)]
-    else:
-        extent = None
+    extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)] if len(grid.axes) >= 2 else None
 
     # --- 1D data: line plot ---
     if display_val.ndim == 1:
@@ -98,7 +95,7 @@ def plot_field(
         if len(grid.axes) >= 1 and grid.axes[0].npoints > 0:
             x_coord = np.linspace(grid.axes[0].min, grid.axes[0].max, len(display_val))
         else:
-            x_coord = np.arange(len(display_val))
+            x_coord = np.arange(len(display_val), dtype=np.float64)
 
         ax.plot(x_coord, display_val, linewidth=2, color="steelblue")
         ax.grid(True, alpha=0.3)
@@ -127,18 +124,18 @@ def plot_field(
     else:
         norm = None
 
-    _vmin = vmin
+    _vmin = vmin  # type: ignore[var-annotated]
     _vmax = vmax
     if system is not None and _vmin is not None:
-        _vmin = qgrid.as_quantity(qtype).quantity.to(vmin, value_unit)
+        _vmin = qgrid.as_quantity(qtype).quantity.to(vmin, value_unit)  # type: ignore[assignment, arg-type]
     if system is not None and _vmax is not None:
-        _vmax = qgrid.as_quantity(qtype).quantity.to(vmax, value_unit)
+        _vmax = qgrid.as_quantity(qtype).quantity.to(vmax, value_unit)  # type: ignore[assignment, arg-type]
 
     im = ax.imshow(
         display_val if display_val.ndim == 2 else display_val.reshape(-1, 1),
         origin="lower",
         aspect="auto",
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,  # type: ignore[arg-type]
         cmap=cmap,
         vmin=_vmin,
         vmax=_vmax,
@@ -225,16 +222,16 @@ def plot_all_fields(
             ax.set_title(f"{qty.upper()} -- not found")
             continue
         qgrid = QuantifiedGrid(grid, system)
-        if len(grid.axes) >= 2:
-            extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)]
-        else:
-            extent = None
-        im = ax.imshow(qgrid.norm(), origin="lower", aspect="auto", extent=extent, cmap="RdBu_r")
+        extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)] if len(grid.axes) >= 2 else None
+        im = ax.imshow(
+            qgrid.norm(),
+            origin="lower",
+            aspect="auto",
+            extent=tuple(extent) if extent is not None else None,  # type: ignore[arg-type]
+            cmap="RdBu_r",
+        )
         fig.colorbar(im, ax=ax)
-        if system is not None:
-            t_disp = system.time.to(grid.time, time_unit)
-        else:
-            t_disp = grid.time
+        t_disp = system.time.to(grid.time, time_unit) if system is not None else grid.time
         ax.set_title(f"{qty.upper()}  t={t_disp:.1f}")
         if system is not None:
             ax.set_xlabel(qgrid.x.label(x_unit))

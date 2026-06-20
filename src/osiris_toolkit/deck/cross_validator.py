@@ -330,29 +330,27 @@ def _check_neutral_gas(deck: Deck, report: IssueReport) -> None:
         has_num_ene = _get_section_count(deck, "num_ene") > 0
         has_cross = _get_section_count(deck, "cross") > 0
 
-        if isinstance(neutral_gas, str) and neutral_gas.lower() == "custom":
-            if not has_num_ene and not has_cross:
-                report.add(
-                    ValidationIssue(
-                        rule_id="V-XSEC-030",
-                        severity=Severity.INFO,
-                        message="neutral_gas = 'custom' but no 'num_ene'/'cross' sections found",
-                        section="neutral",
-                        line=sec.line,
-                    )
+        if isinstance(neutral_gas, str) and neutral_gas.lower() == "custom" and not has_num_ene and not has_cross:
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-030",
+                    severity=Severity.INFO,
+                    message="neutral_gas = 'custom' but no 'num_ene'/'cross' sections found",
+                    section="neutral",
+                    line=sec.line,
                 )
+            )
 
-        if isinstance(if_impact, bool) and if_impact:
-            if not has_num_ene and not has_cross:
-                report.add(
-                    ValidationIssue(
-                        rule_id="V-XSEC-031",
-                        severity=Severity.WARNING,
-                        message="if_impact = .true. but no 'num_ene'/'cross' sections found",
-                        section="neutral",
-                        line=sec.line,
-                    )
+        if isinstance(if_impact, bool) and if_impact and not has_num_ene and not has_cross:
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-031",
+                    severity=Severity.WARNING,
+                    message="if_impact = .true. but no 'num_ene'/'cross' sections found",
+                    section="neutral",
+                    line=sec.line,
                 )
+            )
 
 
 # ---- E. Physics compatibility ----
@@ -388,16 +386,20 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
                 )
 
     # V-XSEC-101: Cylindrical r_min == 0.0 (migrated from V-SPACE-003)
-    if coordinates == "cylindrical" and len(xmin_list) >= 2:
-        if isinstance(xmin_list[1], (int, float)) and xmin_list[1] != 0.0:
-            report.add(
-                ValidationIssue(
-                    rule_id="V-XSEC-101",
-                    severity=Severity.ERROR,
-                    message=f"Cylindrical radial minimum must be 0.0 (got {xmin_list[1]})",
-                    section="space",
-                )
+    if (
+        coordinates == "cylindrical"
+        and len(xmin_list) >= 2
+        and isinstance(xmin_list[1], (int, float))
+        and xmin_list[1] != 0.0
+    ):
+        report.add(
+            ValidationIssue(
+                rule_id="V-XSEC-101",
+                severity=Severity.ERROR,
+                message=f"Cylindrical radial minimum must be 0.0 (got {xmin_list[1]})",
+                section="space",
             )
+        )
 
     # V-XSEC-102: Cylindrical requires 2D (migrated from V-GRID-004)
     if coordinates == "cylindrical" and p_x_dim != 2:
@@ -411,16 +413,15 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
         )
 
     # V-XSEC-103: No moving window along radial in cylindrical
-    if coordinates == "cylindrical" and len(im_list) >= 2:
-        if isinstance(im_list[1], bool) and im_list[1]:
-            report.add(
-                ValidationIssue(
-                    rule_id="V-XSEC-103",
-                    severity=Severity.ERROR,
-                    message="Moving window not allowed along radial direction in cylindrical geometry",
-                    section="space",
-                )
+    if coordinates == "cylindrical" and len(im_list) >= 2 and isinstance(im_list[1], bool) and im_list[1]:
+        report.add(
+            ValidationIssue(
+                rule_id="V-XSEC-103",
+                severity=Severity.ERROR,
+                message="Moving window not allowed along radial direction in cylindrical geometry",
+                section="space",
             )
+        )
 
     # V-XSEC-104: io_nmerge divides node_number evenly
     io_nmerge = _get_param(deck, "grid", "io_nmerge")
@@ -432,33 +433,31 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
         for i in range(n):
             io_val = io_list[i]
             nn_val = nn_list[i]
-            if isinstance(io_val, (int, float)) and isinstance(nn_val, (int, float)):
-                if int(nn_val) % int(io_val) != 0:
-                    report.add(
-                        ValidationIssue(
-                            rule_id="V-XSEC-104",
-                            severity=Severity.ERROR,
-                            message=f"io_nmerge[{i + 1}] ({int(io_val)}) must divide "
-                            f"node_number[{i + 1}] ({int(nn_val)}) evenly",
-                            section="grid",
-                        )
+            if isinstance(io_val, (int, float)) and isinstance(nn_val, (int, float)) and int(nn_val) % int(io_val) != 0:
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-104",
+                        severity=Severity.ERROR,
+                        message=f"io_nmerge[{i + 1}] ({int(io_val)}) must divide "
+                        f"node_number[{i + 1}] ({int(nn_val)}) evenly",
+                        section="grid",
                     )
+                )
 
     # V-XSEC-105: smooth_type="local" incompatible with PML
     smooth_type = _get_param(deck, "el_mag_fld", "smooth_type")
-    if isinstance(smooth_type, str) and smooth_type.lower() == "local":
-        if emb_types:
-            for t in emb_types:
-                if isinstance(t, str) and t.lower() == "vpml":
-                    report.add(
-                        ValidationIssue(
-                            rule_id="V-XSEC-105",
-                            severity=Severity.ERROR,
-                            message="PML boundary conditions cannot be used with 'local' EMF smoothing",
-                            section="el_mag_fld",
-                        )
+    if isinstance(smooth_type, str) and smooth_type.lower() == "local" and emb_types:
+        for t in emb_types:
+            if isinstance(t, str) and t.lower() == "vpml":
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-105",
+                        severity=Severity.ERROR,
+                        message="PML boundary conditions cannot be used with 'local' EMF smoothing",
+                        section="el_mag_fld",
                     )
-                    break
+                )
+                break
 
     # V-XSEC-106: Non-periodic non-moving directions must have valid boundary conditions
     if emb_types and ip_list is not None:
@@ -560,16 +559,15 @@ def _check_parameter_dependencies(deck: Deck, report: IssueReport) -> None:
         need_ionization_omega = True
     if isinstance(num_neutral_mov, (int, float)) and num_neutral_mov > 0:
         need_ionization_omega = True
-    if need_ionization_omega:
-        if omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0):
-            report.add(
-                ValidationIssue(
-                    rule_id="V-XSEC-120",
-                    severity=Severity.ERROR,
-                    message="num_neutral > 0 or num_neutral_mov_ions > 0 requires omega_p0 > 0 in simulation section",
-                    section="particles",
-                )
+    if need_ionization_omega and (omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0)):
+        report.add(
+            ValidationIssue(
+                rule_id="V-XSEC-120",
+                severity=Severity.ERROR,
+                message="num_neutral > 0 or num_neutral_mov_ions > 0 requires omega_p0 > 0 in simulation section",
+                section="particles",
             )
+        )
 
     # V-XSEC-121/122/123: Per-species checks
     for sec in deck.sections:
@@ -579,17 +577,20 @@ def _check_parameter_dependencies(deck: Deck, report: IssueReport) -> None:
         rad_react = sec.params.get("rad_react")
 
         # V-XSEC-121: push_type="radcool" requires omega_p0 > 0
-        if isinstance(push_type, str) and push_type.lower() == "radcool":
-            if omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0):
-                report.add(
-                    ValidationIssue(
-                        rule_id="V-XSEC-121",
-                        severity=Severity.ERROR,
-                        message="push_type='radcool' requires omega_p0 > 0 in simulation section",
-                        section=sec.name,
-                        line=sec.line,
-                    )
+        if (
+            isinstance(push_type, str)
+            and push_type.lower() == "radcool"
+            and (omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0))
+        ):
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-121",
+                    severity=Severity.ERROR,
+                    message="push_type='radcool' requires omega_p0 > 0 in simulation section",
+                    section=sec.name,
+                    line=sec.line,
                 )
+            )
 
         # V-XSEC-122: rad_react requires omega_p0 > 0
         if isinstance(rad_react, bool) and rad_react:
@@ -707,6 +708,7 @@ def _check_advanced(deck: Deck, report: IssueReport) -> None:
     nx_p = _get_param(deck, "grid", "nx_p")
 
     if all(v is not None for v in [dt, xmin, xmax, nx_p]):
+        assert dt is not None
         dt_val = float(dt)
         xmin_list = _to_list(xmin)
         xmax_list = _to_list(xmax)
