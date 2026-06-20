@@ -2,7 +2,9 @@
 
 Welcome! This document covers development setup, code style, commit conventions, testing, and release processes.
 
-> **📖 Full contributing guide at** [docs/contributing.md](docs/contributing.md)
+> For AI agents, a parallel development skill is at [`docs/agent-dev/dev-skill.md`](docs/agent-dev/dev-skill.md) (includes architecture rules, entry-point maps, and privacy checks). **Keep both in sync when dev practices change.**
+
+> This is the canonical contribution guide. A quick-reference version for the docs site is at [`docs/contributing.md`](docs/contributing.md).
 
 ---
 

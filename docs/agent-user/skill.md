@@ -14,68 +14,16 @@ osiris-toolkit is a Python CLI and library for post-processing OSIRIS PIC simula
 
 ## CLI Quick Reference
 
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit --help` | List all command groups |
-| `osiris-toolkit --version` | Print version |
-| `osiris-toolkit -v ...` | Verbose mode (DEBUG logging) |
-| `osiris-toolkit -q ...` | Quiet mode (ERROR only) |
+| Command group | Quick examples | Full reference |
+|---------------|----------------|----------------|
+| `deck` | `parse`, `lint`, `validate`, `estimate` | [CLI Reference](../user-guide/cli-reference.md#deck-parse) |
+| `sim` | `info`, `list` | [CLI Reference](../user-guide/cli-reference.md#sim-info) |
+| `vis` | `plot` (EMF/KSPACE/DENSITY/PHASESPACE), `batch` | [CLI Reference](../user-guide/cli-reference.md#vis-plot) |
+| `analyze` | `describe` | [CLI Reference](../user-guide/cli-reference.md#analyze-describe) |
+| `run` | `<workflow.yaml>` | [CLI Reference](../user-guide/cli-reference.md#run) |
+| `sync` | `extract` | [CLI Reference](../user-guide/cli-reference.md#sync-extract) |
 
-### deck
-
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit deck parse <FILE>` | Parse input deck to JSON or Python dict |
-| `osiris-toolkit deck parse <FILE> -o json` | JSON output (default) |
-| `osiris-toolkit deck parse <FILE> -o python` | Python repr output |
-| `osiris-toolkit deck lint <FILE>` | Validate and print issues |
-| `osiris-toolkit deck validate <FILE>` | Validate, exit non-zero on errors |
-| `osiris-toolkit deck estimate <FILE>` | Estimate memory/runtime/disk from deck |
-| `osiris-toolkit deck estimate <FILE> -c 64 -e 0.2` | With cores-per-node and efficiency |
-
-### sim
-
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit sim info <DIR>` | Summary of all diagnostics in output dir |
-| `osiris-toolkit sim info <DIR> -o json` | Machine-readable JSON output |
-| `osiris-toolkit sim list <DIR> -k EMF` | List fields and their iteration ranges |
-| `osiris-toolkit sim list <DIR> -k DENSITY` | List available species |
-| `osiris-toolkit sim list <DIR> -k PHASESPACE` | List phasespace/species pairs |
-| `osiris-toolkit sim list <DIR> -k TRACKS` | List track names |
-| `osiris-toolkit sim list <DIR> -k HISTORY` | List history file names |
-
-### vis
-
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit vis plot <DIR> -k EMF -q e1 -i 50` | Plot field e1 at iteration 50 |
-| `osiris-toolkit vis plot <DIR> -k KSPACE -q e1 -i 50 --k-unit k0` | K-space plot with k0 units |
-| `osiris-toolkit vis plot <DIR> -k KSPACE ... --omega0-norm 10.0` | Override laser frequency |
-| `osiris-toolkit vis plot <DIR> ... --clim -4,2 --log-scale` | Color range + log scale |
-| `osiris-toolkit vis plot <DIR> ... -o output.png --overwrite` | Specify output path |
-| `osiris-toolkit vis batch <PATH> <NAME> [<PATH2> <NAME2> ...]` | Batch process simulations |
-| `osiris-toolkit vis batch ... --dry-run` | Preview batch without processing |
-| `osiris-toolkit vis batch ... -j 8 --progress` | Parallel with progress bar |
-| `osiris-toolkit vis batch ... -o /output/root` | Custom output root directory |
-
-### analyze
-
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit analyze describe <DIR> -q e1 -i 50` | Stats (mean, std, min, max, rms) |
-
-### run
-
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit run <workflow.yaml>` | Execute a YAML workflow pipeline |
-
-### sync
-
-| Command | Purpose |
-|---------|---------|
-| `osiris-toolkit sync extract --osiris-path <PATH>` | Extract definitions from Fortran source |
+> See the **[complete CLI reference](../user-guide/cli-reference.md)** for detailed usage, all options, and examples.
 
 ## Python API Entry Points
 
@@ -180,7 +128,7 @@ User says: "parse deck" / "check input"
 
 ## Known Limitations
 
-1. **HDF5 output not supported.** Only ZDF format. If `sim_info` shows "hdf5" format, re-run the simulation with `file_format = "zdf"`.
+1. **HDF5 output supported since v0.12.0.** Both ZDF and HDF5 formats are auto-detected and handled transparently. No additional configuration is needed. The optional `hdf5` extra is required: `pip install osiris-toolkit[hdf5]`.
 2. **No unit conversion without input deck.** All plots default to normalized units when no deck is available. Physical units require `Deck -> SimulationParams -> UnitSystem`.
 3. **K-space requires 2-D data.** 1-D simulations will fail on `vis plot -k KSPACE`.
 4. **No streaming/out-of-core for large datasets.** GridData/ParticleData are loaded entirely into memory.
