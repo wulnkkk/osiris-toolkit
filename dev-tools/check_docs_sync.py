@@ -99,6 +99,23 @@ def main() -> int:
             if rel not in nav_entries and alt not in nav_entries:
                 issues.append(f"  docs/{rel}: no mkdocs.yml nav entry (orphan?)")
 
+    # ── Check 4: devlog exists for current version ──
+    pyproject = REPO_ROOT / "pyproject.toml"
+    try:
+        content = pyproject.read_text(encoding="utf-8")
+        m = re.search(r'^version = "(\d+\.\d+\.\d+)"', content, re.MULTILINE)
+        if m:
+            ver = m.group(1)
+            devlog = REPO_ROOT / "docs" / "devlog" / f"{ver}.md"
+            if not devlog.exists():
+                issues.append(
+                    f"  docs/devlog/{ver}.md not found — "
+                    f"each version bump requires a corresponding devlog "
+                    f"(see CONTRIBUTING.md Before Release checklist)"
+                )
+    except FileNotFoundError:
+        issues.append("  pyproject.toml not found — cannot verify devlog")
+
     # ── Report ──
     if issues:
         print(f"[FAIL] {len(issues)} documentation sync issue(s) found:\n")
