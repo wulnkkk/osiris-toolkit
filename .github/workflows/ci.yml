@@ -57,3 +57,6 @@ jobs:
 
       - name: English language check
         run: uv run python dev-tools/check_english.py
+
+      - name: Documentation build check
+        run: uv run mkdocs build --strict
