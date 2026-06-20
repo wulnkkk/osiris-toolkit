@@ -247,8 +247,8 @@ Items to verify when making changes, grouped by frequency.
 - [ ] Update `__init__.py` `__all__` — every new public symbol must be exported
 - [ ] Write NumPy-style docstring — feeds mkdocstrings API docs
 - [ ] Update `docs/modules/*.md` if module behavior changed
-- [ ] Update `docs/agent-user/task-map.md` if CLI or Python API changed
-- [ ] Update `docs/agent-dev/dev-task-map.md` if development entry points changed
+- [ ] Update `skills/osiris-user/SKILL.md` and `skills/osiris-user/references/task-map.md` if CLI or Python API changed
+- [ ] Update `skills/osiris-dev/SKILL.md` and `skills/osiris-dev/references/task-map.md` if development entry points changed
 - [ ] Update `docs/manifest.json` if entry point paths changed
 
 ### When Adding/Removing Files
