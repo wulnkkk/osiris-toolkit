@@ -160,6 +160,24 @@ pytest --cov=osiris_toolkit --cov-report=html  # coverage
 
 - [Development Task Map](references/task-map.md) — intent-to-code-location mapping for common development tasks
 
+### Human documentation reference
+
+For architecture details, design decisions, and module internals beyond this skill:
+
+- [Architecture Overview](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/overview.md)
+- [Dependency Hierarchy](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/dependency-hierarchy.md)
+- [Data Flow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/data-flow.md)
+- [Unit Conversion Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/unit-conversion.md)
+- [K-Space Pipeline](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/k-space-pipeline.md)
+- [Vis Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/vis-architecture.md)
+- [Design: Unit System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/unit-system-architecture.md)
+- [Design: PostProcessor](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/postproc-architecture.md)
+- [Design: Documentation System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/doc-system-architecture.md)
+- [Design: Architecture Refactor v0.14](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/architecture-refactor.md)
+- [Module Docs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/modules/) — per-module deep dives
+- [Contributing (mkdocs version)](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/contributing.md)
+- [Devlogs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/devlog/) — version history and technical decisions
+
 ## Submit Checklist
 
 Before committing or opening a PR, verify each item:

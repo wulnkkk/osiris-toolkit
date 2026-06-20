@@ -90,6 +90,47 @@ plot_k_space(sim=sim, system=system, quantity="e1", iteration=50, k_unit="k0")
 plot_density(sim=sim, system=system, species="electrons", iteration=50)
 ```
 
+## Full Documentation Reference
+
+For detailed guides, API signatures, and architecture docs beyond this skill:
+
+### User guides
+
+- [Installation](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/getting-started/installation.md)
+- [Quick Start](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/getting-started/quick-start.md)
+- [Basic Workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/getting-started/basic-workflow.md)
+- [Deck Parsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/deck-parsing.md)
+- [Simulation Browsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/simulation-browsing.md)
+- [Unit Conversion](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/unit-conversion.md)
+- [Field Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/field-plotting.md)
+- [K-Space Analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/kspace-analysis.md)
+- [Density Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/density-plotting.md)
+- [Phasespace Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/phasespace-plotting.md)
+- [Batch Processing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/batch-processing.md)
+- [Parallel Execution](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/parallel-execution.md)
+- [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md) (all commands, options, environment variables)
+
+### API reference (class signatures, method parameters, return types)
+
+- [sim](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/sim.md) — Simulation class, data access
+- [units](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/units.md) — UnitSystem, SimulationParams, QuantityKind
+- [io](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/io.md) — ZDF/HDF5 reader
+- [deck](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/deck.md) — Parsing and validation
+- [compute](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/compute.md) — FFT, integration, deposition
+- [analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/analysis.md) — Field energy, k-space, species, scattering
+- [vis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/vis.md) — Plot functions, customization, batch
+- [workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/workflow.md) — YAML pipeline
+- [resource](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/resource.md) — Memory/runtime/disk estimation
+- [exceptions](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/exceptions.md) — Error type hierarchy
+
+### Module overviews
+
+- [Modules index](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/modules/) — per-module deep dives
+
+### FAQ
+
+- [FAQ](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/faq.md)
+
 ## Decision Tree for Common User Intents
 
 ```
