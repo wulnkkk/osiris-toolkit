@@ -70,7 +70,8 @@ class _Parser:
             # Attempt recovery: skip to next SECTION_NAME or LBRACE
             raise ParseError(
                 f"Expected section name, got {name_token.type.name} ({name_token.value!r})",
-                name_token.line, name_token.col,
+                name_token.line,
+                name_token.col,
             )
         name = name_token.value
         line = name_token.line
@@ -82,7 +83,8 @@ class _Parser:
             # Allow section name and '{' on different lines
             raise ParseError(
                 f"Expected '{{' after section '{name}', got {brace_token.type.name}",
-                brace_token.line, brace_token.col,
+                brace_token.line,
+                brace_token.col,
             )
         self._advance()
 
@@ -94,7 +96,8 @@ class _Parser:
         if end_token.type != TokenType.RBRACE:
             raise ParseError(
                 f"Expected '}}' to close section '{name}', got {end_token.type.name} ({end_token.value!r})",
-                end_token.line, end_token.col,
+                end_token.line,
+                end_token.col,
             )
         self._advance()
 
@@ -110,7 +113,8 @@ class _Parser:
             if self._peek().type == TokenType.EOF:
                 raise ParseError(
                     "Unexpected end of file inside section (missing '}')",
-                    self._peek().line, self._peek().col,
+                    self._peek().line,
+                    self._peek().col,
                 )
             params.append(self._parse_assignment())
             # Consume optional trailing comma
@@ -168,7 +172,8 @@ class _Parser:
             else:
                 raise ParseError(
                     f"Expected ',' or '=' after parameter '{keys[-1].name}', got {self._peek().type.name}",
-                    self._peek().line, self._peek().col,
+                    self._peek().line,
+                    self._peek().col,
                 )
 
         # Expect '='
@@ -179,8 +184,7 @@ class _Parser:
         value_types: list[TokenType] = []
         while True:
             token = self._peek()
-            if token.type in (TokenType.STRING, TokenType.BOOLEAN,
-                              TokenType.REAL, TokenType.INTEGER):
+            if token.type in (TokenType.STRING, TokenType.BOOLEAN, TokenType.REAL, TokenType.INTEGER):
                 values.append(parse_value(token.value, token.type))
                 value_types.append(token.type)
                 self._advance()

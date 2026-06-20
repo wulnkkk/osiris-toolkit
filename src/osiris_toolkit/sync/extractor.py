@@ -65,17 +65,19 @@ _STRIP_QUOTES_RE = re.compile(r"""^['"](.*)['"]$""")
 @dataclass
 class NamelistVar:
     """A single variable in a namelist declaration."""
+
     name: str
     fortran_type: str = ""
-    dimensions: str = ""       # e.g. "3", "p_x_dim"
+    dimensions: str = ""  # e.g. "3", "p_x_dim"
     default: str | None = None
 
 
 @dataclass
 class NamelistEntry:
     """One namelist block."""
-    name: str                      # e.g. "nl_diag_emf"
-    section_name: str              # e.g. "diag_emf" (nl_ prefix stripped)
+
+    name: str  # e.g. "nl_diag_emf"
+    section_name: str  # e.g. "diag_emf" (nl_ prefix stripped)
     file_path: str
     line_number: int
     variables: list[NamelistVar] = field(default_factory=list)
@@ -84,9 +86,10 @@ class NamelistEntry:
 @dataclass
 class QuantitiesEntry:
     """One report_quants array definition."""
-    array_name: str                # e.g. "p_report_quants"
-    count: int                     # declared dimension
-    quantities: list[str]          # the quantity name strings
+
+    array_name: str  # e.g. "p_report_quants"
+    count: int  # declared dimension
+    quantities: list[str]  # the quantity name strings
     file_path: str
     line_number: int
 
@@ -94,8 +97,9 @@ class QuantitiesEntry:
 @dataclass
 class SectionEntry:
     """One get_namelist call mapping."""
-    section_nl: str               # e.g. "nl_diag_emf"
-    section_name: str              # e.g. "diag_emf"
+
+    section_nl: str  # e.g. "nl_diag_emf"
+    section_name: str  # e.g. "diag_emf"
     file_path: str
     line_number: int
 
@@ -154,9 +158,7 @@ class FortranScanner:
 
     def _find_files(self) -> None:
         self._fortran_files = sorted(
-            p for p in self._root.rglob("*")
-            if p.suffix.lower() in (".f90", ".f03", ".f", ".F90")
-            and p.is_file()
+            p for p in self._root.rglob("*") if p.suffix.lower() in (".f90", ".f03", ".f", ".F90") and p.is_file()
         )
 
     # ------------------------------------------------------------------
@@ -218,17 +220,13 @@ class FortranScanner:
     # Namelist scanner
     # ------------------------------------------------------------------
 
-    def _scan_namelists(
-        self, fpath: Path, merged_text: str, original_lines: list[str]
-    ) -> None:
+    def _scan_namelists(self, fpath: Path, merged_text: str, original_lines: list[str]) -> None:
         for m in _NAMELIST_RE.finditer(merged_text):
             name = m.group(1)
             var_text = m.group(2)
 
             # Parse variable names (comma-separated, possibly with line breaks)
-            var_names = [
-                v.strip() for v in var_text.replace("\n", " ").split(",") if v.strip()
-            ]
+            var_names = [v.strip() for v in var_text.replace("\n", " ").split(",") if v.strip()]
 
             # Find line number from original text
             line_num = self._find_line_number(merged_text[: m.start()])

@@ -39,10 +39,7 @@ class GridAxis:
             Fractional grid index (0 to npoints-1).
         """
         if self.npoints <= 0:
-            raise ValidationError(
-                f"GridAxis.npoints not set for axis {self.name!r}; "
-                "cannot convert coordinates"
-            )
+            raise ValidationError(f"GridAxis.npoints not set for axis {self.name!r}; cannot convert coordinates")
         span = self.max - self.min
         if span == 0:
             return 0.0
@@ -62,10 +59,7 @@ class GridAxis:
             Physical coordinate.
         """
         if self.npoints <= 0:
-            raise ValidationError(
-                f"GridAxis.npoints not set for axis {self.name!r}; "
-                "cannot convert coordinates"
-            )
+            raise ValidationError(f"GridAxis.npoints not set for axis {self.name!r}; cannot convert coordinates")
         if self.npoints == 1:
             return self.min
         return self.min + (idx / (self.npoints - 1)) * (self.max - self.min)
@@ -103,9 +97,7 @@ class Field:
     def __add__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ShapeError(
-                    f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
-                )
+                raise ShapeError(f"Shape mismatch: {self.data.shape} vs {other.data.shape}")
             return self._copy_meta(self.data + other.data)
         return self._copy_meta(self.data + other)
 
@@ -115,9 +107,7 @@ class Field:
     def __sub__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ShapeError(
-                    f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
-                )
+                raise ShapeError(f"Shape mismatch: {self.data.shape} vs {other.data.shape}")
             return self._copy_meta(self.data - other.data)
         return self._copy_meta(self.data - other)
 
@@ -127,9 +117,7 @@ class Field:
     def __mul__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ShapeError(
-                    f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
-                )
+                raise ShapeError(f"Shape mismatch: {self.data.shape} vs {other.data.shape}")
             return self._copy_meta(self.data * other.data)
         return self._copy_meta(self.data * other)
 
@@ -139,9 +127,7 @@ class Field:
     def __truediv__(self, other: Field | float | np.ndarray) -> Field:
         if isinstance(other, Field):
             if self.data.shape != other.data.shape:
-                raise ShapeError(
-                    f"Shape mismatch: {self.data.shape} vs {other.data.shape}"
-                )
+                raise ShapeError(f"Shape mismatch: {self.data.shape} vs {other.data.shape}")
             return self._copy_meta(self.data / other.data)
         return self._copy_meta(self.data / other)
 
@@ -149,7 +135,7 @@ class Field:
         return self._copy_meta(other / self.data)
 
     def __pow__(self, exponent: float) -> Field:
-        return self._copy_meta(self.data ** exponent)
+        return self._copy_meta(self.data**exponent)
 
     def __neg__(self) -> Field:
         return self._copy_meta(-self.data)
@@ -208,12 +194,17 @@ class Field:
                     new_min = float(start) if ax.npoints <= 0 else ax.min
                     new_max = float(stop_val) if ax.npoints <= 0 else ax.max
 
-                new_axes.append(GridAxis(
-                    name=ax.name, type=ax.type,
-                    min=new_min, max=new_max,
-                    label=ax.label, units=ax.units,
-                    npoints=new_npoints,
-                ))
+                new_axes.append(
+                    GridAxis(
+                        name=ax.name,
+                        type=ax.type,
+                        min=new_min,
+                        max=new_max,
+                        label=ax.label,
+                        units=ax.units,
+                        npoints=new_npoints,
+                    )
+                )
                 sliced_dim += 1
             # scalar index: axis is removed (skip)
 
@@ -281,19 +272,26 @@ class Field:
                 if kept_dim < result.ndim:
                     ax = self.axes[i]
                     npoints = result.shape[kept_dim]
-                    kept_axes.append(GridAxis(
-                        name=ax.name, type=ax.type,
-                        min=ax.min, max=ax.max,
-                        label=ax.label, units=ax.units,
-                        npoints=npoints,
-                    ))
+                    kept_axes.append(
+                        GridAxis(
+                            name=ax.name,
+                            type=ax.type,
+                            min=ax.min,
+                            max=ax.max,
+                            label=ax.label,
+                            units=ax.units,
+                            npoints=npoints,
+                        )
+                    )
                     kept_dim += 1
 
         return Field(
             data=result.astype(self.data.dtype),
             axes=kept_axes,
-            iteration=self.iteration, time=self.time,
-            label=self.label, units=self.units,
+            iteration=self.iteration,
+            time=self.time,
+            label=self.label,
+            units=self.units,
         )
 
     # --- Properties ---
@@ -348,9 +346,7 @@ class Field:
         np.savez(str(output), **d)
         return output
 
-    def to_csv(
-        self, output: str | Path, delimiter: str = ","
-    ) -> Path:
+    def to_csv(self, output: str | Path, delimiter: str = ",") -> Path:
         """Export field data as CSV.
 
         1-D arrays produce ``index,value`` columns.
@@ -378,10 +374,10 @@ class Field:
         else:
             with open(str(output), "w", newline="") as fh:
                 w = csv.writer(fh, delimiter=delimiter)
-                col_names = [f"x{i+1}" for i in range(ndim)] + [self.label or "value"]
+                col_names = [f"x{i + 1}" for i in range(ndim)] + [self.label or "value"]
                 w.writerow(col_names)
                 for idx in np.ndindex(self.data.shape):
-                    w.writerow(list(idx) + [float(self.data[idx])])
+                    w.writerow([*list(idx), float(self.data[idx])])
         return output
 
     def to_vtk(self, output: str | Path, **kwargs) -> Path:
@@ -481,9 +477,7 @@ class ParticleData:
         np.savez(str(output), **d)
         return output
 
-    def to_csv(
-        self, output: str | Path, delimiter: str = ","
-    ) -> Path:
+    def to_csv(self, output: str | Path, delimiter: str = ",") -> Path:
         """Export particle data as CSV. One row per particle.
 
         Parameters
@@ -627,9 +621,7 @@ def _eval_particle_expr(expr: str, data: dict[str, np.ndarray]) -> np.ndarray:
     except ImportError:
         pass
     except Exception as e:
-        raise ValidationError(
-            f"Failed to evaluate filter expression {expr!r}: {e}"
-        ) from e
+        raise ValidationError(f"Failed to evaluate filter expression {expr!r}: {e}") from e
 
     # Fallback: use Python eval with restricted namespace
     try:
@@ -637,6 +629,4 @@ def _eval_particle_expr(expr: str, data: dict[str, np.ndarray]) -> np.ndarray:
         mask = eval(expr, {"__builtins__": {}}, safe_locals)
         return np.asarray(mask, dtype=bool)
     except Exception as e:
-        raise ValidationError(
-            f"Failed to evaluate filter expression {expr!r}: {e}"
-        ) from e
+        raise ValidationError(f"Failed to evaluate filter expression {expr!r}: {e}") from e

@@ -62,17 +62,14 @@ def _auto_k_range(
         projection = spectrum.max(axis=0)  # project axis 1 → cols → length ny
     else:
         from osiris_toolkit.exceptions import ShapeError
-        raise ShapeError(
-            f"k_norm length {len(k_norm)} does not match "
-            f"spectrum shape {spectrum.shape}"
-        )
+
+        raise ShapeError(f"k_norm length {len(k_norm)} does not match spectrum shape {spectrum.shape}")
     mask = projection > threshold
     if not mask.any():
         return (float(k_conv.min()), float(k_conv.max()))
     k_active = k_conv[mask]
     span = float(k_active.max() - k_active.min())
-    return (float(k_active.min()) - span * margin,
-            float(k_active.max()) + span * margin)
+    return (float(k_active.min()) - span * margin, float(k_active.max()) + span * margin)
 
 
 def plot_k_space(
@@ -131,9 +128,7 @@ def plot_k_space(
 
     grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
-        raise DataNotFoundError(
-            f"Field {quantity!r} not found at iteration {iteration}"
-        )
+        raise DataNotFoundError(f"Field {quantity!r} not found at iteration {iteration}")
 
     # Compute FFT
     nx, ny = grid.data.shape
@@ -160,15 +155,17 @@ def plot_k_space(
             np.ones(n_white),
         ]
     )
-    custom_cmap = plt.cm.colors.ListedColormap(
-        np.vstack([white_fade, colors])
-    )
+    custom_cmap = plt.cm.colors.ListedColormap(np.vstack([white_fade, colors]))
 
     if system is not None:
         qspec = QuantifiedSpectrum(
-            kx_norm=kx, ky_norm=ky, spectrum=spectrum,
-            quantity=grid.label, iteration=grid.iteration,
-            time=grid.time, system=system,
+            kx_norm=kx,
+            ky_norm=ky,
+            spectrum=spectrum,
+            quantity=grid.label,
+            iteration=grid.iteration,
+            time=grid.time,
+            system=system,
         )
         extent = [
             qspec.kx.to(k_unit).min(),
@@ -208,15 +205,9 @@ def plot_k_space(
 
     if system is not None:
         t_disp = system.time.to(grid.time, time_unit)
-        ax.set_title(
-            f"{quantity.upper()} k-space  |  iteration={iteration}"
-            f"  |  t={t_disp:.1f}"
-        )
+        ax.set_title(f"{quantity.upper()} k-space  |  iteration={iteration}  |  t={t_disp:.1f}")
     else:
-        ax.set_title(
-            f"{quantity.upper()} k-space  |  iteration={iteration}"
-            f"  |  t={grid.time:.1f}"
-        )
+        ax.set_title(f"{quantity.upper()} k-space  |  iteration={iteration}  |  t={grid.time:.1f}")
 
     if xlim is None and system is not None:
         xlim = _auto_k_range(kx, spectrum, k_unit, system.wavenumber)
@@ -285,9 +276,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        logger.info(
-            "Usage: python -m osiris_toolkit.vis.kspace SIM_PATH [ITERATION]"
-        )
+        logger.info("Usage: python -m osiris_toolkit.vis.kspace SIM_PATH [ITERATION]")
         sys.exit(1)
 
     sim_path = sys.argv[1]
@@ -298,7 +287,11 @@ if __name__ == "__main__":
     if iters:
         it = iters[iteration] if iteration < len(iters) else iters[-1]
         plot_k_space(
-            "e1", it, sim_path=sim_path, system=system,
-            time_unit="ps", output="k_space_e1.png",
+            "e1",
+            it,
+            sim_path=sim_path,
+            system=system,
+            time_unit="ps",
+            output="k_space_e1.png",
         )
         logger.info("Done -- see k_space_e1.png")

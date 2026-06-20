@@ -89,16 +89,14 @@ class SimulationParams:
 
         if sim_section is None:
             raise MissingParameterError(
-                "Missing 'simulation' section in deck. "
-                "Cannot determine omega_p0 for unit conversion."
+                "Missing 'simulation' section in deck. Cannot determine omega_p0 for unit conversion."
             )
 
         params = sim_section.get("params", {})
         omega_p0 = params.get("omega_p0")
         if omega_p0 is None:
             raise MissingParameterError(
-                "Parameter 'omega_p0' not found in 'simulation' section. "
-                "This is required for unit conversion."
+                "Parameter 'omega_p0' not found in 'simulation' section. This is required for unit conversion."
             )
 
         if isinstance(omega_p0, (list, dict)):
@@ -158,8 +156,6 @@ class SimulationParams:
         sim_path = Path(sim_path)
         candidates = sorted(sim_path.glob("*.in"))
         if not candidates:
-            raise FileNotFoundError(
-                f"No input deck (*.in) found in {sim_path}"
-            )
+            raise FileNotFoundError(f"No input deck (*.in) found in {sim_path}")
         deck = parse_deck_file(str(candidates[0]))
         return cls.from_deck(deck)

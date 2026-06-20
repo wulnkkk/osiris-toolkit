@@ -81,8 +81,7 @@ class QuantityKind:
             scale = self.scales[unit]
         except KeyError:
             raise UnitConversionError(
-                f"Unknown unit '{unit}' for quantity '{self.name}'. "
-                f"Available: {sorted(self.scales.keys())}"
+                f"Unknown unit '{unit}' for quantity '{self.name}'. Available: {sorted(self.scales.keys())}"
             ) from None
         if isinstance(data, np.ndarray):
             return data * scale  # type: ignore[return-value]

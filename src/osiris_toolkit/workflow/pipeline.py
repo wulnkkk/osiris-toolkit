@@ -137,8 +137,7 @@ class PipelineStep(ABC):
     name: str = "step"
 
     @abstractmethod
-    def run(self, ctx: PipelineContext) -> PipelineContext:
-        ...
+    def run(self, ctx: PipelineContext) -> PipelineContext: ...
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self.name}>"
@@ -178,10 +177,7 @@ class DeckValidateStep(PipelineStep):
         report = lint_deck_file(str(ctx.deck_path))
         if report.has_errors():
             issues = [f"[{i.rule_id}] {i.message}" for i in report.errors()]
-            raise PipelineError(
-                f"Deck validation failed with {len(issues)} error(s):\n  "
-                + "\n  ".join(issues)
-            )
+            raise PipelineError(f"Deck validation failed with {len(issues)} error(s):\n  " + "\n  ".join(issues))
         return ctx
 
 
@@ -308,6 +304,7 @@ class Pipeline:
             If any step fails.
         """
         import logging
+
         _log = logging.getLogger(__name__)
 
         if ctx is None:

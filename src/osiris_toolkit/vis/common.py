@@ -86,7 +86,8 @@ def get_converter(sim: Simulation) -> UnitConverter | None:
     """
     warnings.warn(
         "get_converter() is deprecated. Use get_system() instead.",
-        DeprecationWarning, stacklevel=2,
+        DeprecationWarning,
+        stacklevel=2,
     )
     if hasattr(sim, "converter") and sim.converter is not None:
         return sim.converter
@@ -154,13 +155,11 @@ def save_or_show(
     if filepath:
         if overwrite is None:
             from osiris_toolkit.config import OsirisConfig
+
             overwrite = OsirisConfig.get().overwrite
         p = Path(filepath)
         if p.exists() and not overwrite:
-            raise FileExistsError(
-                f"Output file {p} already exists. "
-                f"Use overwrite=True to replace."
-            )
+            raise FileExistsError(f"Output file {p} already exists. Use overwrite=True to replace.")
         p.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(str(p), dpi=150, bbox_inches="tight")
         logger.info("Saved to %s", p)

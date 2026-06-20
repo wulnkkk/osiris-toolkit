@@ -38,6 +38,7 @@ class ProgressEvent:
     eta : float
         Estimated remaining time (seconds).
     """
+
     iteration: int
     total: int
     elapsed: float
@@ -59,6 +60,7 @@ class BatchResult:
     errors : list of str
         Non-fatal error messages collected during processing.
     """
+
     sim_name: str
     files: list[Path]
     elapsed: float
@@ -109,9 +111,14 @@ def process_simulation(
     """
     if max_workers is not None and max_workers > 0:
         from osiris_toolkit.vis.parallel import batch_process_parallel
+
         batch_process_parallel(
-            sim_path, sim_name, output_root,
-            x_unit=x_unit, y_unit=y_unit, time_unit=time_unit,
+            sim_path,
+            sim_name,
+            output_root,
+            x_unit=x_unit,
+            y_unit=y_unit,
+            time_unit=time_unit,
             max_workers=max_workers,
         )
         return BatchResult(
@@ -147,9 +154,7 @@ def process_simulation(
     species_list = sim.list_species()
     if not available_fields:
         logger.info("[%s] No field data found.", sim_name)
-        return BatchResult(
-            sim_name=sim_name, files=[], elapsed=time.time() - t_start, errors=[]
-        )
+        return BatchResult(sim_name=sim_name, files=[], elapsed=time.time() - t_start, errors=[])
     if not species_list:
         logger.info("[%s] No species data found.", sim_name)
 
@@ -157,7 +162,10 @@ def process_simulation(
     n_total = len(iterations)
     logger.info(
         "[%s] %d iterations, %d fields, %d species",
-        sim_name, n_total, len(available_fields), len(species_list),
+        sim_name,
+        n_total,
+        len(available_fields),
+        len(species_list),
     )
     logger.info("[%s] Output directory: %s", sim_name, base.resolve())
 
@@ -170,7 +178,8 @@ def process_simulation(
                 fpath = plot_field(
                     quantity=qty,
                     iteration=it,
-                    sim=sim, system=system,
+                    sim=sim,
+                    system=system,
                     x_unit=x_unit,
                     y_unit=y_unit,
                     time_unit=time_unit,
@@ -188,7 +197,8 @@ def process_simulation(
                 fpath = plot_k_space(
                     quantity=qty,
                     iteration=it,
-                    sim=sim, system=system,
+                    sim=sim,
+                    system=system,
                     time_unit=time_unit,
                     output=str(kspace_dir / f"kspace_{qty}_{it:06d}.png"),
                 )
@@ -204,7 +214,8 @@ def process_simulation(
                 fpath = plot_density(
                     species=sp,
                     iteration=it,
-                    sim=sim, system=system,
+                    sim=sim,
+                    system=system,
                     x_unit=x_unit,
                     y_unit=y_unit,
                     time_unit=time_unit,
@@ -220,16 +231,23 @@ def process_simulation(
         eta = elapsed * (n_total - idx - 1)
         logger.info(
             "  [%s] iter=%06d (%d/%d) done %.1fs, ETA %.0fs",
-            sim_name, it, idx + 1, n_total, elapsed, eta,
+            sim_name,
+            it,
+            idx + 1,
+            n_total,
+            elapsed,
+            eta,
         )
 
         if progress_callback is not None:
-            progress_callback(ProgressEvent(
-                iteration=it,
-                total=n_total,
-                elapsed=elapsed,
-                eta=elapsed * (n_total - idx - 1),
-            ))
+            progress_callback(
+                ProgressEvent(
+                    iteration=it,
+                    total=n_total,
+                    elapsed=elapsed,
+                    eta=elapsed * (n_total - idx - 1),
+                )
+            )
 
     # --- Scattering analysis (delegate to scattering.py) ---
     logger.info("[%s] Scattering analysis...", sim_name)
@@ -281,13 +299,15 @@ def main() -> None:
         description="Batch-process OSIRIS simulations: fields, k-space, density, scattering.",
     )
     parser.add_argument(
-        "-o", "--output-dir",
+        "-o",
+        "--output-dir",
         type=Path,
         required=True,
         help="Root directory for all output.",
     )
     parser.add_argument(
-        "-j", "--max-workers",
+        "-j",
+        "--max-workers",
         type=int,
         default=None,
         help="Number of parallel workers (default: sequential).",
@@ -311,8 +331,7 @@ def main() -> None:
         logger.info("=" * 60)
         logger.info("Batch processing: %s", sim_name)
         logger.info("=" * 60)
-        process_simulation(sim_path, sim_name, output_root=args.output_dir,
-                           max_workers=args.max_workers)
+        process_simulation(sim_path, sim_name, output_root=args.output_dir, max_workers=args.max_workers)
         logger.info("")
 
 

@@ -41,10 +41,7 @@ class KSpaceAnalyzer(DiagnosticAnalyzer):
         QuantifiedSpectrum
         """
         if self._system is None:
-            raise UnitConversionError(
-                "K-space spectrum requires a UnitSystem. "
-                "Provide an input deck to construct one."
-            )
+            raise UnitConversionError("K-space spectrum requires a UnitSystem. Provide an input deck to construct one.")
 
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:

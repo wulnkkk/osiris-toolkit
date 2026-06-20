@@ -3,6 +3,7 @@
 Validates constraints that span multiple sections, all derived from
 OSIRIS v1.0.0 Fortran source code.
 """
+
 from __future__ import annotations
 
 from collections.abc import Iterator
@@ -86,8 +87,8 @@ def _get_boundary_types(deck: Deck) -> list:
                 dims: list = raw.get("dims", [])
                 if len(dims) == 2 and isinstance(value, list):
                     full: list = [None, None, None, None]
-                    r1_range = dims[0]   # (row_start, row_end)
-                    r2_range = dims[1]   # (col_start, col_end)
+                    r1_range = dims[0]  # (row_start, row_end)
+                    r2_range = dims[1]  # (col_start, col_end)
                     idx = 0
                     for col in range(r2_range[0], r2_range[1] + 1):
                         for row in range(r1_range[0], r1_range[1] + 1):
@@ -107,15 +108,14 @@ def _get_boundary_types(deck: Deck) -> list:
 @dataclass
 class SpeciesGroup:
     """One species and its associated child sections."""
+
     species: Section
     subsections: dict[str, list[Section]] = field(default_factory=dict)
     index: int = 0
 
 
 _SPECIES_GROUP_NAMES: set[str] = set(get_species_group_sections())
-_SPECIES_GROUP_ORDER: list[str] = [
-    "udist", "sdist", "profile", "spe_bound", "piston", "diag_species"
-]
+_SPECIES_GROUP_ORDER: list[str] = ["udist", "sdist", "profile", "spe_bound", "piston", "diag_species"]
 
 
 def _iter_species_groups(deck: Deck) -> Iterator[SpeciesGroup]:
@@ -165,15 +165,16 @@ def _check_count_match(deck: Deck, report: IssueReport) -> None:
         declared_int = int(declared)
         actual = _get_section_count(deck, target_name)
         if declared_int != actual:
-            report.add(ValidationIssue(
-                rule_id=rule_id,
-                severity=Severity.ERROR,
-                message=(
-                    f"{parent_name}.{param_name} = {declared_int}, "
-                    f"but found {actual} '{target_name}' section(s)"
-                ),
-                section=parent_name,
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id=rule_id,
+                    severity=Severity.ERROR,
+                    message=(
+                        f"{parent_name}.{param_name} = {declared_int}, but found {actual} '{target_name}' section(s)"
+                    ),
+                    section=parent_name,
+                )
+            )
 
 
 # ---- B. Dimensional consistency ----
@@ -188,13 +189,14 @@ def _check_dimensional_consistency(deck: Deck, report: IssueReport) -> None:
     if node_number is not None:
         nn_list = _to_list(node_number)
         if len(nn_list) != p_x_dim:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-011",
-                severity=Severity.ERROR,
-                message=f"node_number has {len(nn_list)} component(s), "
-                        f"but nx_p has {p_x_dim} (they must match)",
-                section="node_conf",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-011",
+                    severity=Severity.ERROR,
+                    message=f"node_number has {len(nn_list)} component(s), but nx_p has {p_x_dim} (they must match)",
+                    section="node_conf",
+                )
+            )
 
     # V-XSEC-012/013: xmin/xmax dimensions
     space_sec = None
@@ -209,39 +211,43 @@ def _check_dimensional_consistency(deck: Deck, report: IssueReport) -> None:
             if arr is not None:
                 arr_list = _to_list(arr)
                 if len(arr_list) != p_x_dim:
-                    report.add(ValidationIssue(
-                        rule_id=rule_id,
-                        severity=Severity.ERROR,
-                        message=f"{arr_name} has {len(arr_list)} component(s), "
-                                f"but nx_p has {p_x_dim} (they must match)",
-                        section="space",
-                    ))
+                    report.add(
+                        ValidationIssue(
+                            rule_id=rule_id,
+                            severity=Severity.ERROR,
+                            message=f"{arr_name} has {len(arr_list)} component(s), "
+                            f"but nx_p has {p_x_dim} (they must match)",
+                            section="space",
+                        )
+                    )
 
     # V-XSEC-014: if_periodic dimension
     if_periodic = _get_periodic(deck)
     if if_periodic is not None:
         ip_list = _to_list(if_periodic)
         if len(ip_list) != p_x_dim:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-014",
-                severity=Severity.WARNING,
-                message=f"if_periodic has {len(ip_list)} component(s), "
-                        f"but nx_p has {p_x_dim}",
-                section="node_conf",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-014",
+                    severity=Severity.WARNING,
+                    message=f"if_periodic has {len(ip_list)} component(s), but nx_p has {p_x_dim}",
+                    section="node_conf",
+                )
+            )
 
     # V-XSEC-015: if_move dimension
     if_move = _get_param(deck, "space", "if_move")
     if if_move is not None:
         im_list = _to_list(if_move)
         if len(im_list) != p_x_dim:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-015",
-                severity=Severity.WARNING,
-                message=f"if_move has {len(im_list)} component(s), "
-                        f"but nx_p has {p_x_dim}",
-                section="space",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-015",
+                    severity=Severity.WARNING,
+                    message=f"if_move has {len(im_list)} component(s), but nx_p has {p_x_dim}",
+                    section="space",
+                )
+            )
 
 
 # ---- C. Species group structure ----
@@ -267,13 +273,16 @@ def _check_species_group_structure(deck: Deck, report: IssueReport) -> None:
             if s.name in group.subsections and s.name in _SPECIES_GROUP_ORDER:
                 order_idx = _SPECIES_GROUP_ORDER.index(s.name)
                 if order_idx < prev_order_idx:
-                    report.add(ValidationIssue(
-                        rule_id="V-XSEC-020",
-                        severity=Severity.WARNING,
-                        message=f"In species group #{group.index}: '{s.name}' "
-                                f"appears after '{prev_name}' — may be out of order",
-                        section=sec.name, line=sec.line,
-                    ))
+                    report.add(
+                        ValidationIssue(
+                            rule_id="V-XSEC-020",
+                            severity=Severity.WARNING,
+                            message=f"In species group #{group.index}: '{s.name}' "
+                            f"appears after '{prev_name}' — may be out of order",
+                            section=sec.name,
+                            line=sec.line,
+                        )
+                    )
                 prev_order_idx = order_idx
                 prev_name = s.name
 
@@ -283,27 +292,33 @@ def _check_species_group_structure(deck: Deck, report: IssueReport) -> None:
             np_int = int(num_pistons)
             actual_pistons = len(group.subsections.get("piston", []))
             if np_int != actual_pistons:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-021",
-                    severity=Severity.ERROR,
-                    message=f"Species #{group.index}: num_pistons = {np_int}, "
-                            f"but found {actual_pistons} piston section(s)",
-                    section=sec.name, line=sec.line,
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-021",
+                        severity=Severity.ERROR,
+                        message=f"Species #{group.index}: num_pistons = {np_int}, "
+                        f"but found {actual_pistons} piston section(s)",
+                        section=sec.name,
+                        line=sec.line,
+                    )
+                )
 
         # V-XSEC-022: Standard species should have a profile
         has_profile = "profile" in group.subsections
         if not has_profile:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-022",
-                severity=Severity.INFO,
-                message=f"Species #{group.index}: no 'profile' section found "
-                        "(expected for standard species)",
-                section=sec.name, line=sec.line,
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-022",
+                    severity=Severity.INFO,
+                    message=f"Species #{group.index}: no 'profile' section found (expected for standard species)",
+                    section=sec.name,
+                    line=sec.line,
+                )
+            )
 
 
 # ---- D. Neutral gas custom ----
+
 
 def _check_neutral_gas(deck: Deck, report: IssueReport) -> None:
     """Validate neutral gas custom cross-section setup."""
@@ -317,21 +332,27 @@ def _check_neutral_gas(deck: Deck, report: IssueReport) -> None:
 
         if isinstance(neutral_gas, str) and neutral_gas.lower() == "custom":
             if not has_num_ene and not has_cross:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-030",
-                    severity=Severity.INFO,
-                    message="neutral_gas = 'custom' but no 'num_ene'/'cross' sections found",
-                    section="neutral", line=sec.line,
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-030",
+                        severity=Severity.INFO,
+                        message="neutral_gas = 'custom' but no 'num_ene'/'cross' sections found",
+                        section="neutral",
+                        line=sec.line,
+                    )
+                )
 
         if isinstance(if_impact, bool) and if_impact:
             if not has_num_ene and not has_cross:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-031",
-                    severity=Severity.WARNING,
-                    message="if_impact = .true. but no 'num_ene'/'cross' sections found",
-                    section="neutral", line=sec.line,
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-031",
+                        severity=Severity.WARNING,
+                        message="if_impact = .true. but no 'num_ene'/'cross' sections found",
+                        section="neutral",
+                        line=sec.line,
+                    )
+                )
 
 
 # ---- E. Physics compatibility ----
@@ -357,43 +378,49 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
             pi = ip_list[i]
             mi = im_list[i]
             if isinstance(pi, bool) and isinstance(mi, bool) and pi and mi:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-100",
-                    severity=Severity.ERROR,
-                    message=f"Direction {i + 1}: moving window and periodic boundaries "
-                            "are mutually exclusive",
-                    section="space",
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-100",
+                        severity=Severity.ERROR,
+                        message=f"Direction {i + 1}: moving window and periodic boundaries are mutually exclusive",
+                        section="space",
+                    )
+                )
 
     # V-XSEC-101: Cylindrical r_min == 0.0 (migrated from V-SPACE-003)
     if coordinates == "cylindrical" and len(xmin_list) >= 2:
         if isinstance(xmin_list[1], (int, float)) and xmin_list[1] != 0.0:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-101",
-                severity=Severity.ERROR,
-                message=f"Cylindrical radial minimum must be 0.0 (got {xmin_list[1]})",
-                section="space",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-101",
+                    severity=Severity.ERROR,
+                    message=f"Cylindrical radial minimum must be 0.0 (got {xmin_list[1]})",
+                    section="space",
+                )
+            )
 
     # V-XSEC-102: Cylindrical requires 2D (migrated from V-GRID-004)
     if coordinates == "cylindrical" and p_x_dim != 2:
-        report.add(ValidationIssue(
-            rule_id="V-XSEC-102",
-            severity=Severity.ERROR,
-            message=f"Cylindrical coordinates require 2D, but nx_p has {p_x_dim} component(s)",
-            section="grid",
-        ))
+        report.add(
+            ValidationIssue(
+                rule_id="V-XSEC-102",
+                severity=Severity.ERROR,
+                message=f"Cylindrical coordinates require 2D, but nx_p has {p_x_dim} component(s)",
+                section="grid",
+            )
+        )
 
     # V-XSEC-103: No moving window along radial in cylindrical
     if coordinates == "cylindrical" and len(im_list) >= 2:
         if isinstance(im_list[1], bool) and im_list[1]:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-103",
-                severity=Severity.ERROR,
-                message="Moving window not allowed along radial direction "
-                        "in cylindrical geometry",
-                section="space",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-103",
+                    severity=Severity.ERROR,
+                    message="Moving window not allowed along radial direction in cylindrical geometry",
+                    section="space",
+                )
+            )
 
     # V-XSEC-104: io_nmerge divides node_number evenly
     io_nmerge = _get_param(deck, "grid", "io_nmerge")
@@ -407,13 +434,15 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
             nn_val = nn_list[i]
             if isinstance(io_val, (int, float)) and isinstance(nn_val, (int, float)):
                 if int(nn_val) % int(io_val) != 0:
-                    report.add(ValidationIssue(
-                        rule_id="V-XSEC-104",
-                        severity=Severity.ERROR,
-                        message=f"io_nmerge[{i + 1}] ({int(io_val)}) must divide "
-                                f"node_number[{i + 1}] ({int(nn_val)}) evenly",
-                        section="grid",
-                    ))
+                    report.add(
+                        ValidationIssue(
+                            rule_id="V-XSEC-104",
+                            severity=Severity.ERROR,
+                            message=f"io_nmerge[{i + 1}] ({int(io_val)}) must divide "
+                            f"node_number[{i + 1}] ({int(nn_val)}) evenly",
+                            section="grid",
+                        )
+                    )
 
     # V-XSEC-105: smooth_type="local" incompatible with PML
     smooth_type = _get_param(deck, "el_mag_fld", "smooth_type")
@@ -421,13 +450,14 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
         if emb_types:
             for t in emb_types:
                 if isinstance(t, str) and t.lower() == "vpml":
-                    report.add(ValidationIssue(
-                        rule_id="V-XSEC-105",
-                        severity=Severity.ERROR,
-                        message="PML boundary conditions cannot be used "
-                                "with 'local' EMF smoothing",
-                        section="el_mag_fld",
-                    ))
+                    report.add(
+                        ValidationIssue(
+                            rule_id="V-XSEC-105",
+                            severity=Severity.ERROR,
+                            message="PML boundary conditions cannot be used with 'local' EMF smoothing",
+                            section="el_mag_fld",
+                        )
+                    )
                     break
 
     # V-XSEC-106: Non-periodic non-moving directions must have valid boundary conditions
@@ -442,13 +472,15 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
                         continue  # Unspecified boundary → Fortran default
                     if isinstance(bc, str) and bc.lower() in ("", "none"):
                         side = "lower" if j == 0 else "upper"
-                        report.add(ValidationIssue(
-                            rule_id="V-XSEC-106",
-                            severity=Severity.ERROR,
-                            message=f"Direction {i + 1} ({side}) is non-periodic "
-                                    "but has no boundary condition specified",
-                            section="emf_bound",
-                        ))
+                        report.add(
+                            ValidationIssue(
+                                rule_id="V-XSEC-106",
+                                severity=Severity.ERROR,
+                                message=f"Direction {i + 1} ({side}) is non-periodic "
+                                "but has no boundary condition specified",
+                                section="emf_bound",
+                            )
+                        )
 
     # V-XSEC-107: type="periodic" requires global periodic already set
     if emb_types and ip_list is not None:
@@ -459,13 +491,15 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
                     if idx < len(emb_types):
                         bc = emb_types[idx]
                         if isinstance(bc, str) and bc.lower() == "periodic":
-                            report.add(ValidationIssue(
-                                rule_id="V-XSEC-107",
-                                severity=Severity.ERROR,
-                                message=f"Direction {i + 1}: periodic EMF boundary "
-                                        "requires global periodic in node_conf",
-                                section="emf_bound",
-                            ))
+                            report.add(
+                                ValidationIssue(
+                                    rule_id="V-XSEC-107",
+                                    severity=Severity.ERROR,
+                                    message=f"Direction {i + 1}: periodic EMF boundary "
+                                    "requires global periodic in node_conf",
+                                    section="emf_bound",
+                                )
+                            )
 
     # V-XSEC-108: Axial boundary only on radial lower boundary
     if emb_types and coordinates == "cylindrical":
@@ -474,13 +508,15 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
                 direction = idx // 2 + 1  # 1-based direction
                 side = "lower" if idx % 2 == 0 else "upper"
                 if direction != 2 or side != "lower":
-                    report.add(ValidationIssue(
-                        rule_id="V-XSEC-108",
-                        severity=Severity.ERROR,
-                        message=f"'axial' boundary on direction {direction} "
-                                f"({side}) — must be on radial lower boundary only",
-                        section="emf_bound",
-                    ))
+                    report.add(
+                        ValidationIssue(
+                            rule_id="V-XSEC-108",
+                            severity=Severity.ERROR,
+                            message=f"'axial' boundary on direction {direction} "
+                            f"({side}) — must be on radial lower boundary only",
+                            section="emf_bound",
+                        )
+                    )
 
     # V-XSEC-109: Lindman at most one direction
     if emb_types and ip_list is not None:
@@ -495,13 +531,14 @@ def _check_physics_compatibility(deck: Deck, report: IssueReport) -> None:
                             lindman_dirs += 1
                             break
         if lindman_dirs > 1:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-109",
-                severity=Severity.ERROR,
-                message="Lindman boundaries cannot be specified "
-                        "for more than one direction",
-                section="emf_bound",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-109",
+                    severity=Severity.ERROR,
+                    message="Lindman boundaries cannot be specified for more than one direction",
+                    section="emf_bound",
+                )
+            )
 
 
 # ---- F. Parameter dependencies ----
@@ -525,13 +562,14 @@ def _check_parameter_dependencies(deck: Deck, report: IssueReport) -> None:
         need_ionization_omega = True
     if need_ionization_omega:
         if omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0):
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-120",
-                severity=Severity.ERROR,
-                message="num_neutral > 0 or num_neutral_mov_ions > 0 requires "
-                        "omega_p0 > 0 in simulation section",
-                section="particles",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-120",
+                    severity=Severity.ERROR,
+                    message="num_neutral > 0 or num_neutral_mov_ions > 0 requires omega_p0 > 0 in simulation section",
+                    section="particles",
+                )
+            )
 
     # V-XSEC-121/122/123: Per-species checks
     for sec in deck.sections:
@@ -543,34 +581,42 @@ def _check_parameter_dependencies(deck: Deck, report: IssueReport) -> None:
         # V-XSEC-121: push_type="radcool" requires omega_p0 > 0
         if isinstance(push_type, str) and push_type.lower() == "radcool":
             if omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0):
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-121",
-                    severity=Severity.ERROR,
-                    message="push_type='radcool' requires omega_p0 > 0 in simulation section",
-                    section=sec.name, line=sec.line,
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-121",
+                        severity=Severity.ERROR,
+                        message="push_type='radcool' requires omega_p0 > 0 in simulation section",
+                        section=sec.name,
+                        line=sec.line,
+                    )
+                )
 
         # V-XSEC-122: rad_react requires omega_p0 > 0
         if isinstance(rad_react, bool) and rad_react:
             if omega_p0 is None or (isinstance(omega_p0, (int, float)) and omega_p0 <= 0):
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-122",
-                    severity=Severity.ERROR,
-                    message="rad_react=.true. requires omega_p0 > 0 in simulation section",
-                    section=sec.name, line=sec.line,
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-122",
+                        severity=Severity.ERROR,
+                        message="rad_react=.true. requires omega_p0 > 0 in simulation section",
+                        section=sec.name,
+                        line=sec.line,
+                    )
+                )
 
             # V-XSEC-123: rad_react only compatible with standard/exact push
             if isinstance(push_type, str):
                 pt_lower = push_type.lower()
                 if pt_lower not in ("standard", "exact", "analytic"):
-                    report.add(ValidationIssue(
-                        rule_id="V-XSEC-123",
-                        severity=Severity.ERROR,
-                        message=f"rad_react=.true. requires push_type='standard' or "
-                                f"'exact', got '{push_type}'",
-                        section=sec.name, line=sec.line,
-                    ))
+                    report.add(
+                        ValidationIssue(
+                            rule_id="V-XSEC-123",
+                            severity=Severity.ERROR,
+                            message=f"rad_react=.true. requires push_type='standard' or 'exact', got '{push_type}'",
+                            section=sec.name,
+                            line=sec.line,
+                        )
+                    )
 
     # V-XSEC-124: Solver compatibility
     solver = _get_param(deck, "el_mag_fld", "solver")
@@ -580,22 +626,24 @@ def _check_parameter_dependencies(deck: Deck, report: IssueReport) -> None:
         coordinates = _get_coordinates(deck)
 
         if p_x_dim == 1 and solver_lower in _SOLVER_1D_RESTRICTED:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-124",
-                severity=Severity.ERROR,
-                message=f"EMF solver '{solver}' is not implemented in 1D",
-                section="el_mag_fld",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-124",
+                    severity=Severity.ERROR,
+                    message=f"EMF solver '{solver}' is not implemented in 1D",
+                    section="el_mag_fld",
+                )
+            )
 
-        if (coordinates == "cylindrical"
-                and solver_lower in _SOLVER_CYLINDRICAL_RESTRICTED):
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-124",
-                severity=Severity.ERROR,
-                message=f"EMF solver '{solver}' is not implemented "
-                        "in 2D cylindrical geometry",
-                section="el_mag_fld",
-            ))
+        if coordinates == "cylindrical" and solver_lower in _SOLVER_CYLINDRICAL_RESTRICTED:
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-124",
+                    severity=Severity.ERROR,
+                    message=f"EMF solver '{solver}' is not implemented in 2D cylindrical geometry",
+                    section="el_mag_fld",
+                )
+            )
 
 
 # ---- G. Smooth section structure ----
@@ -607,45 +655,44 @@ def _check_smooth_structure(deck: Deck, report: IssueReport) -> None:
 
     # V-XSEC-040: At most 2
     if smooth_count > 2:
-        report.add(ValidationIssue(
-            rule_id="V-XSEC-040",
-            severity=Severity.ERROR,
-            message=f"Found {smooth_count} 'smooth' sections; at most 2 are allowed "
-                    "(EM smoothing before diag_emf, current smoothing after current)",
-            section="smooth",
-        ))
+        report.add(
+            ValidationIssue(
+                rule_id="V-XSEC-040",
+                severity=Severity.ERROR,
+                message=f"Found {smooth_count} 'smooth' sections; at most 2 are allowed "
+                "(EM smoothing before diag_emf, current smoothing after current)",
+                section="smooth",
+            )
+        )
 
     # V-XSEC-041: Position validation
     if smooth_count >= 1:
-        smooth_positions = [
-            i for i, s in enumerate(deck.sections) if s.name == "smooth"
-        ]
-        diag_emf_positions = [
-            i for i, s in enumerate(deck.sections) if s.name == "diag_emf"
-        ]
-        current_positions = [
-            i for i, s in enumerate(deck.sections) if s.name == "current"
-        ]
+        smooth_positions = [i for i, s in enumerate(deck.sections) if s.name == "smooth"]
+        diag_emf_positions = [i for i, s in enumerate(deck.sections) if s.name == "diag_emf"]
+        current_positions = [i for i, s in enumerate(deck.sections) if s.name == "current"]
 
         first_smooth = smooth_positions[0]
         if diag_emf_positions and first_smooth > diag_emf_positions[0]:
-            report.add(ValidationIssue(
-                rule_id="V-XSEC-041",
-                severity=Severity.WARNING,
-                message="First 'smooth' (EM smoothing) should appear before 'diag_emf'",
-                section="smooth",
-            ))
+            report.add(
+                ValidationIssue(
+                    rule_id="V-XSEC-041",
+                    severity=Severity.WARNING,
+                    message="First 'smooth' (EM smoothing) should appear before 'diag_emf'",
+                    section="smooth",
+                )
+            )
 
         if smooth_count >= 2 and current_positions:
             second_smooth = smooth_positions[1]
             if second_smooth < current_positions[0]:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-041",
-                    severity=Severity.WARNING,
-                    message="Second 'smooth' (current smoothing) should appear "
-                            "after 'current'",
-                    section="smooth",
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-041",
+                        severity=Severity.WARNING,
+                        message="Second 'smooth' (current smoothing) should appear after 'current'",
+                        section="smooth",
+                    )
+                )
 
 
 # ---- H. Advanced checks ----
@@ -676,13 +723,14 @@ def _check_advanced(deck: Deck, report: IssueReport) -> None:
                 continue
             dx = (hi - lo) / ncells
             if dt_val > dx:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-130",
-                    severity=Severity.WARNING,
-                    message=f"Direction {i + 1}: dt ({dt_val}) > dx ({dx:.4g}) — "
-                            "Courant condition may be violated",
-                    section="time_step",
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-130",
+                        severity=Severity.WARNING,
+                        message=f"Direction {i + 1}: dt ({dt_val}) > dx ({dx:.4g}) — Courant condition may be violated",
+                        section="time_step",
+                    )
+                )
                 break
 
     # V-XSEC-131: Grid partition feasibility
@@ -694,13 +742,15 @@ def _check_advanced(deck: Deck, report: IssueReport) -> None:
             nn = int(nn_list[i]) if isinstance(nn_list[i], (int, float)) else 0
             nx = int(nx_list[i]) if isinstance(nx_list[i], (int, float)) else 0
             if nn > 0 and nx > 0 and nn > nx:
-                report.add(ValidationIssue(
-                    rule_id="V-XSEC-131",
-                    severity=Severity.ERROR,
-                    message=f"Direction {i + 1}: node_number ({nn}) exceeds "
-                            f"nx_p ({nx}) — too many partitions for grid size",
-                    section="node_conf",
-                ))
+                report.add(
+                    ValidationIssue(
+                        rule_id="V-XSEC-131",
+                        severity=Severity.ERROR,
+                        message=f"Direction {i + 1}: node_number ({nn}) exceeds "
+                        f"nx_p ({nx}) — too many partitions for grid size",
+                        section="node_conf",
+                    )
+                )
 
 
 # ---- Entry point ----

@@ -30,15 +30,11 @@ class SpeciesAnalyzer(DiagnosticAnalyzer):
     def list_available(self) -> list[str]:
         return self._sim.list_species()
 
-    def energy_spectrum(
-        self, species: str, iteration: int, bins: int = 100
-    ) -> ParticleSpectrumResult:
+    def energy_spectrum(self, species: str, iteration: int, bins: int = 100) -> ParticleSpectrumResult:
         """Energy histogram from raw particle data."""
         raw = self._sim.get_raw(species, iteration)
         if raw is None:
-            raise DataNotFoundError(
-                f"No raw particle data for species '{species}' at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No raw particle data for species '{species}' at iteration {iteration}")
 
         ene = raw.data.get("ene", raw.data.get("p"))
         if ene is None:
@@ -68,9 +64,7 @@ class SpeciesAnalyzer(DiagnosticAnalyzer):
             components=result,
         )
 
-    def momentum_stats(
-        self, species: str, iteration: int
-    ) -> MomentumStatsResult:
+    def momentum_stats(self, species: str, iteration: int) -> MomentumStatsResult:
         """Per-axis momentum statistics from raw particle data.
 
         Parameters
@@ -86,9 +80,7 @@ class SpeciesAnalyzer(DiagnosticAnalyzer):
         """
         raw = self._sim.get_raw(species, iteration)
         if raw is None:
-            raise DataNotFoundError(
-                f"No raw particle data for species '{species}' at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No raw particle data for species '{species}' at iteration {iteration}")
 
         def _stats(key: str):
             arr = raw.data.get(key)

@@ -11,17 +11,17 @@ from enum import Enum, auto
 
 class TokenType(Enum):
     SECTION_NAME = auto()  # identifier followed by '{' (on same or next line)
-    NAME = auto()          # parameter name or other identifier
-    LBRACE = auto()        # '{'
-    RBRACE = auto()        # '}'
-    EQUALS = auto()        # '='
-    COMMA = auto()         # ','
-    STRING = auto()        # "..." or '...'
-    BOOLEAN = auto()       # .true. / .false.
-    REAL = auto()          # floating-point number, may contain 'd' exponent
-    INTEGER = auto()       # signed integer
-    SLICE = auto()         # (1:3) or (1:2,1) — appended to preceding NAME
-    EOF = auto()           # end of input
+    NAME = auto()  # parameter name or other identifier
+    LBRACE = auto()  # '{'
+    RBRACE = auto()  # '}'
+    EQUALS = auto()  # '='
+    COMMA = auto()  # ','
+    STRING = auto()  # "..." or '...'
+    BOOLEAN = auto()  # .true. / .false.
+    REAL = auto()  # floating-point number, may contain 'd' exponent
+    INTEGER = auto()  # signed integer
+    SLICE = auto()  # (1:3) or (1:2,1) — appended to preceding NAME
+    EOF = auto()  # end of input
 
 
 @dataclass(frozen=True)
@@ -40,7 +40,7 @@ _ID_START = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_")
 _ID_CONTINUE = _ID_START | set("0123456789")
 
 # Characters that always terminate a value token
-_VALUE_TERMINATORS = {',', '}', '\n', '!', ' ', '\t', '\r'}
+_VALUE_TERMINATORS = {",", "}", "\n", "!", " ", "\t", "\r"}
 
 
 def tokenize(source: str, filename: str = "<input>") -> Iterator[Token]:
@@ -71,12 +71,12 @@ class _Tokenizer:
         p = self.pos + offset
         if p < self._len:
             return self.src[p]
-        return '\0'
+        return "\0"
 
     def _advance(self, n: int = 1):
         for _ in range(n):
             if self.pos < self._len:
-                if self.src[self.pos] == '\n':
+                if self.src[self.pos] == "\n":
                     self.line += 1
                     self.col = 1
                 else:
@@ -84,23 +84,23 @@ class _Tokenizer:
                 self.pos += 1
 
     def _skip_whitespace(self):
-        while self.pos < self._len and self.src[self.pos] in (' ', '\t', '\r'):
+        while self.pos < self._len and self.src[self.pos] in (" ", "\t", "\r"):
             self._advance()
 
     def _skip_whitespace_and_newlines(self):
-        while self.pos < self._len and self.src[self.pos] in (' ', '\t', '\r', '\n'):
+        while self.pos < self._len and self.src[self.pos] in (" ", "\t", "\r", "\n"):
             self._advance()
 
     def _read_comment(self):
         """Read from '!' to end of line (discard)."""
-        while self.pos < self._len and self.src[self.pos] != '\n':
+        while self.pos < self._len and self.src[self.pos] != "\n":
             self._advance()
 
     def _read_identifier(self) -> str:
         start = self.pos
         while self.pos < self._len and self.src[self.pos] in _ID_CONTINUE:
             self._advance()
-        return self.src[start:self.pos]
+        return self.src[start : self.pos]
 
     def _read_string(self, quote: str) -> str:
         """Read a quoted string, handling escaped quotes."""
@@ -108,16 +108,16 @@ class _Tokenizer:
         start = self.pos
         while self.pos < self._len:
             ch = self.src[self.pos]
-            if ch == '\\' and self._peek(1) == quote:
+            if ch == "\\" and self._peek(1) == quote:
                 self._advance(2)  # skip escaped quote
             elif ch == quote:
-                val = self.src[start:self.pos]
+                val = self.src[start : self.pos]
                 self._advance()  # skip closing quote
                 return val
             else:
                 self._advance()
         # Unterminated string — return what was read
-        return self.src[start:self.pos]
+        return self.src[start : self.pos]
 
     def _read_number_or_bool(self) -> Token:
         """Read a number (integer or real) or boolean (.true./.false.)."""
@@ -126,28 +126,28 @@ class _Tokenizer:
         start_col = self.col
 
         # Check for boolean
-        if self.src[self.pos] == '.':
-            rest = self.src[self.pos:self.pos + 7].lower()
-            if rest.startswith('.true.'):
+        if self.src[self.pos] == ".":
+            rest = self.src[self.pos : self.pos + 7].lower()
+            if rest.startswith(".true."):
                 for _ in range(6):
                     self._advance()
-                return Token(TokenType.BOOLEAN, 'true', start_line, start_col)
-            if rest.startswith('.false.'):
+                return Token(TokenType.BOOLEAN, "true", start_line, start_col)
+            if rest.startswith(".false."):
                 for _ in range(7):
                     self._advance()
-                return Token(TokenType.BOOLEAN, 'false', start_line, start_col)
+                return Token(TokenType.BOOLEAN, "false", start_line, start_col)
             # Not a valid boolean (e.g. misspelled .Ture.) — don't fall into
             # number parsing, which would produce float(".")
             self._advance()  # skip leading '.'
             while self.pos < self._len and self.src[self.pos] in _ID_CONTINUE:
                 self._advance()
-            if self.pos < self._len and self.src[self.pos] == '.':
+            if self.pos < self._len and self.src[self.pos] == ".":
                 self._advance()  # skip trailing '.'
-            raw = self.src[start_pos:self.pos]
+            raw = self.src[start_pos : self.pos]
             return Token(TokenType.NAME, raw, start_line, start_col)
 
         # Read optional leading sign
-        if self.src[self.pos] in ('+', '-'):
+        if self.src[self.pos] in ("+", "-"):
             self._advance()
 
         # Read digits before decimal point / exponent
@@ -159,7 +159,7 @@ class _Tokenizer:
         is_real = False
 
         # Fractional part
-        if self.pos < self._len and self.src[self.pos] == '.':
+        if self.pos < self._len and self.src[self.pos] == ".":
             is_real = True
             self._advance()
             while self.pos < self._len and self.src[self.pos].isdigit():
@@ -167,15 +167,15 @@ class _Tokenizer:
                 has_digits = True
 
         # Exponent: e or d, optionally signed
-        if self.pos < self._len and self.src[self.pos].lower() in ('e', 'd'):
+        if self.pos < self._len and self.src[self.pos].lower() in ("e", "d"):
             is_real = True
             self._advance()
-            if self.pos < self._len and self.src[self.pos] in ('+', '-'):
+            if self.pos < self._len and self.src[self.pos] in ("+", "-"):
                 self._advance()
             while self.pos < self._len and self.src[self.pos].isdigit():
                 self._advance()
 
-        raw = self.src[start_pos:self.pos]
+        raw = self.src[start_pos : self.pos]
 
         if not has_digits and not is_real:
             # Should not occur in valid input; return as-is
@@ -183,7 +183,7 @@ class _Tokenizer:
 
         if is_real:
             # Normalize 'd' exponent to 'e' for Python parsing
-            normalized = raw.lower().replace('d', 'e')
+            normalized = raw.lower().replace("d", "e")
             return Token(TokenType.REAL, normalized, start_line, start_col)
         else:
             return Token(TokenType.INTEGER, raw, start_line, start_col)
@@ -195,16 +195,16 @@ class _Tokenizer:
         depth = 1
         while self.pos < self._len and depth > 0:
             ch = self.src[self.pos]
-            if ch == '(':
+            if ch == "(":
                 depth += 1
-            elif ch == ')':
+            elif ch == ")":
                 depth -= 1
                 if depth == 0:
-                    val = self.src[start:self.pos]
+                    val = self.src[start : self.pos]
                     self._advance()  # skip ')'
                     return val
             self._advance()
-        return self.src[start:self.pos]
+        return self.src[start : self.pos]
 
     def tokenize(self) -> Iterator[Token]:
         while self.pos < self._len:
@@ -219,45 +219,45 @@ class _Tokenizer:
 
             # Handle newlines — important for comment termination and
             # deciding SECTION_NAME vs NAME context
-            if ch == '\n':
+            if ch == "\n":
                 self._advance()
                 self._expecting_value = False
                 self._just_saw_section_name = False
                 continue
 
             # Comment
-            if ch == '!':
+            if ch == "!":
                 self._read_comment()
                 continue
 
             # Braces
-            if ch == '{':
+            if ch == "{":
                 self._advance()
                 self._expecting_value = False
                 self._just_saw_section_name = False
-                yield Token(TokenType.LBRACE, '{', start_line, start_col)
+                yield Token(TokenType.LBRACE, "{", start_line, start_col)
                 continue
 
-            if ch == '}':
+            if ch == "}":
                 self._advance()
                 self._expecting_value = False
                 self._just_saw_section_name = False
-                yield Token(TokenType.RBRACE, '}', start_line, start_col)
+                yield Token(TokenType.RBRACE, "}", start_line, start_col)
                 # After closing a section, the next identifier is a section name
                 continue
 
             # Equals
-            if ch == '=':
+            if ch == "=":
                 self._advance()
                 self._expecting_value = True
-                yield Token(TokenType.EQUALS, '=', start_line, start_col)
+                yield Token(TokenType.EQUALS, "=", start_line, start_col)
                 continue
 
             # Comma
-            if ch == ',':
+            if ch == ",":
                 self._advance()
                 self._expecting_value = False
-                yield Token(TokenType.COMMA, ',', start_line, start_col)
+                yield Token(TokenType.COMMA, ",", start_line, start_col)
                 continue
 
             # Strings
@@ -267,13 +267,13 @@ class _Tokenizer:
                 continue
 
             # Number or boolean (starts with digit, '.', '+', '-')
-            if ch.isdigit() or (ch == '.' and self._peek(1).isalpha()):
+            if ch.isdigit() or (ch == "." and self._peek(1).isalpha()):
                 yield self._read_number_or_bool()
                 continue
 
-            if ch in ('+', '-') and self._expecting_value:
+            if ch in ("+", "-") and self._expecting_value:
                 # Signed number
-                if self._peek(1).isdigit() or self._peek(1) == '.':
+                if self._peek(1).isdigit() or self._peek(1) == ".":
                     yield self._read_number_or_bool()
                     continue
 
@@ -288,9 +288,9 @@ class _Tokenizer:
                 ss_line = self.line
                 ss_col = self.col
                 # Skip whitespace to see if '(' follows
-                while ss_pos < self._len and self.src[ss_pos] in (' ', '\t'):
+                while ss_pos < self._len and self.src[ss_pos] in (" ", "\t"):
                     ss_pos += 1
-                if ss_pos < self._len and self.src[ss_pos] == '(':
+                if ss_pos < self._len and self.src[ss_pos] == "(":
                     self.pos = ss_pos
                     self.line = ss_line
                     self.col = ss_col
@@ -310,9 +310,9 @@ class _Tokenizer:
                 if not self._expecting_value and not self._just_saw_section_name:
                     # Look ahead: skip whitespace/newlines, check for '{'
                     peek_pos = self.pos
-                    while peek_pos < self._len and self.src[peek_pos] in (' ', '\t', '\r', '\n'):
+                    while peek_pos < self._len and self.src[peek_pos] in (" ", "\t", "\r", "\n"):
                         peek_pos += 1
-                    if peek_pos < self._len and self.src[peek_pos] == '{':
+                    if peek_pos < self._len and self.src[peek_pos] == "{":
                         is_section = True
 
                 if is_section:
@@ -325,4 +325,4 @@ class _Tokenizer:
             # Unknown character — skip (with warning?)
             self._advance()
 
-        yield Token(TokenType.EOF, '', self.line, self.col)
+        yield Token(TokenType.EOF, "", self.line, self.col)

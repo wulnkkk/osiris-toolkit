@@ -43,7 +43,7 @@ def mask_energy(
     kx_mask = (kx_k0 >= kx_range[0]) & (kx_k0 <= kx_range[1])
     ky_mask = (ky_k0 >= ky_range[0]) & (ky_k0 <= ky_range[1])
     region = spectrum[np.ix_(kx_mask, ky_mask)]
-    return float(np.sum(region ** 2))
+    return float(np.sum(region**2))
 
 
 def trapz_2d(

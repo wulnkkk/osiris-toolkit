@@ -13,23 +13,26 @@ from dataclasses import dataclass, field
 @dataclass
 class ZdfRecord:
     """Header of a single ZDF record within a file."""
-    pos: int       # byte offset of the record
-    id: int        # id_version field (type + version)
-    name: str      # record name
-    length: int    # data length in bytes
+
+    pos: int  # byte offset of the record
+    id: int  # id_version field (type + version)
+    name: str  # record name
+    length: int  # data length in bytes
 
 
 @dataclass
 class ZdfIteration:
     """Iteration metadata record."""
-    n: int         # iteration number
-    t: float       # simulation time
-    tunits: str    # time units
+
+    n: int  # iteration number
+    t: float  # simulation time
+    tunits: str  # time units
 
 
 @dataclass
 class ZdfAxis:
     """Single grid axis descriptor."""
+
     name: str = ""
     axis_type: int = 0
     min: float = 0.0
@@ -41,6 +44,7 @@ class ZdfAxis:
 @dataclass
 class ZdfGridInfo:
     """Grid metadata record."""
+
     ndims: int = 0
     nx: list[int] = field(default_factory=list)
     label: str = ""
@@ -52,6 +56,7 @@ class ZdfGridInfo:
 @dataclass
 class ZdfPartInfo:
     """Particle metadata record."""
+
     name: str = ""
     label: str = ""
     nparts: int = 0
@@ -64,6 +69,7 @@ class ZdfPartInfo:
 @dataclass
 class ZdfTrackInfo:
     """Track metadata record."""
+
     name: str = ""
     label: str = ""
     ntracks: int = 0
@@ -78,9 +84,10 @@ class ZdfTrackInfo:
 @dataclass
 class ZdfFileInfo:
     """Complete metadata for a ZDF or HDF5 file."""
-    file_type: str = ""                     # "grid", "particles", "tracks-2"
+
+    file_type: str = ""  # "grid", "particles", "tracks-2"
     grid: ZdfGridInfo | None = None
     particles: ZdfPartInfo | None = None
     tracks: ZdfTrackInfo | None = None
     iteration: ZdfIteration | None = None
-    simulation_info: str | None = None      # HDF5-only: git version, compile time, input file
+    simulation_info: str | None = None  # HDF5-only: git version, compile time, input file

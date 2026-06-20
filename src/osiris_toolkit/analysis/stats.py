@@ -40,12 +40,12 @@ def energy_weighted_center(data: GridData, axis: int = 0) -> float:
 
 def rms(data: GridData) -> float:
     """Root-mean-square of grid data."""
-    return float(np.sqrt(np.mean(data.data ** 2)))
+    return float(np.sqrt(np.mean(data.data**2)))
 
 
 def total_energy(grid: GridData, dx: float = 1.0) -> float:
     """Total integrated |value|^2 over the grid."""
-    return float(np.sum(grid.data ** 2) * dx)
+    return float(np.sum(grid.data**2) * dx)
 
 
 def lineout(data: GridData, index: int, axis: int = 0) -> np.ndarray:
@@ -69,7 +69,7 @@ def describe(grid: GridData) -> dict:
         "std": float(np.std(d)),
         "min": float(np.min(d)),
         "max": float(np.max(d)),
-        "rms": float(np.sqrt(np.mean(d ** 2))),
+        "rms": float(np.sqrt(np.mean(d**2))),
         "iteration": grid.iteration,
         "time": grid.time,
     }

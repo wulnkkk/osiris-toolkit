@@ -46,7 +46,8 @@ def deck() -> None:
 @deck.command("parse")
 @click.argument("file", type=click.Path(exists=True, path_type=Path))
 @click.option(
-    "--output", "-o",
+    "--output",
+    "-o",
     type=click.Choice(["json", "python"]),
     default="json",
     help="Output format.",
@@ -96,10 +97,7 @@ def deck_lint(file: Path) -> None:
             Severity.INFO: "INFO",
         }.get(issue.severity, "?")
 
-        click.echo(
-            f"{prefix}: [{issue.rule_id}] {issue.message} "
-            f"(section={issue.section}, line={issue.line})"
-        )
+        click.echo(f"{prefix}: [{issue.rule_id}] {issue.message} (section={issue.section}, line={issue.line})")
 
     click.echo(f"\n{report.summary()}")
 
@@ -113,10 +111,7 @@ def deck_validate(file: Path) -> None:
     report = lint_deck_file(str(file))
     if report.has_errors():
         for issue in report.errors():
-            click.echo(
-                f"ERROR: [{issue.rule_id}] {issue.message} "
-                f"(section={issue.section}, line={issue.line})"
-            )
+            click.echo(f"ERROR: [{issue.rule_id}] {issue.message} (section={issue.section}, line={issue.line})")
         raise SystemExit(1)
     click.echo("Deck is valid.")
 
@@ -124,13 +119,17 @@ def deck_validate(file: Path) -> None:
 @deck.command("estimate")
 @click.argument("file", type=click.Path(exists=True, path_type=Path))
 @click.option(
-    "--cores-per-node", "-c",
-    type=int, default=None,
-    help="CPU cores per compute node (default: auto-detect from node_conf × n_threads).",
+    "--cores-per-node",
+    "-c",
+    type=int,
+    default=None,
+    help="CPU cores per compute node (default: auto-detect from node_conf x n_threads).",
 )
 @click.option(
-    "--efficiency", "-e",
-    type=float, default=0.15,
+    "--efficiency",
+    "-e",
+    type=float,
+    default=0.15,
     help="Sustained FLOP/s fraction of peak (default: 0.15).",
 )
 def deck_estimate(file: Path, cores_per_node: int | None, efficiency: float) -> None:
@@ -277,30 +276,39 @@ def vis() -> None:
 @click.option("--quantity", "-q", default="e1", help="Quantity name.")
 @click.option("--iteration", "-i", type=int, default=0, help="Iteration number.")
 @click.option(
-    "--output", "-o", type=Path, default=None,
+    "--output",
+    "-o",
+    type=Path,
+    default=None,
     help="Output file path.  Default: auto-generated under {sim}/figures/.",
 )
 @click.option("--overwrite", is_flag=True, help="Overwrite existing output files.")
-@click.option("--k-unit", default="k0",
-              type=click.Choice(["k0", "rad/um", "rad/nm", "um^-1", "norm"]),
-              help="Wavenumber unit for k-space axes (KSPACE kind only).")
-@click.option("--omega0-norm", type=float, default=None,
-              help="Laser frequency in normalized units.")
-@click.option("--xlim", type=str, default=None,
-              help="k-space x-axis range: 'min,max'.")
-@click.option("--ylim", type=str, default=None,
-              help="k-space y-axis range: 'min,max'.")
-@click.option("--clim", type=str, default=None,
-              help="Color range for k-space: 'vmin,vmax'.")
-@click.option("--white-low", type=float, default=0.05,
-              help="Fraction of colormap low end to fade to white.")
-@click.option("--log-scale/--no-log-scale", default=True,
-              help="Log-scale the FFT amplitude.")
+@click.option(
+    "--k-unit",
+    default="k0",
+    type=click.Choice(["k0", "rad/um", "rad/nm", "um^-1", "norm"]),
+    help="Wavenumber unit for k-space axes (KSPACE kind only).",
+)
+@click.option("--omega0-norm", type=float, default=None, help="Laser frequency in normalized units.")
+@click.option("--xlim", type=str, default=None, help="k-space x-axis range: 'min,max'.")
+@click.option("--ylim", type=str, default=None, help="k-space y-axis range: 'min,max'.")
+@click.option("--clim", type=str, default=None, help="Color range for k-space: 'vmin,vmax'.")
+@click.option("--white-low", type=float, default=0.05, help="Fraction of colormap low end to fade to white.")
+@click.option("--log-scale/--no-log-scale", default=True, help="Log-scale the FFT amplitude.")
 def vis_plot(
-    directory: Path, kind: str, quantity: str, iteration: int,
-    output: Path | None, overwrite: bool,
-    k_unit: str, omega0_norm: float | None, xlim: str | None,
-    ylim: str | None, clim: str | None, white_low: float, log_scale: bool,
+    directory: Path,
+    kind: str,
+    quantity: str,
+    iteration: int,
+    output: Path | None,
+    overwrite: bool,
+    k_unit: str,
+    omega0_norm: float | None,
+    xlim: str | None,
+    ylim: str | None,
+    clim: str | None,
+    white_low: float,
+    log_scale: bool,
 ) -> None:
     """Plot a single diagnostic frame."""
     from osiris_toolkit.postproc import PostProcessor
@@ -320,8 +328,7 @@ def vis_plot(
 
     pp = PostProcessor(sim_obj, system=system)
 
-    kwargs: dict = {"quantity": quantity, "iteration": iteration,
-                    "output": str(output) if output else None}
+    kwargs: dict = {"quantity": quantity, "iteration": iteration, "output": str(output) if output else None}
 
     if kind.upper() == "KSPACE":
         kwargs.update(k_unit=k_unit, log_scale=log_scale, white_low=white_low)
@@ -334,21 +341,21 @@ def vis_plot(
 
     fig = pp.vis.plot(kind, **kwargs)
     if fig is None:
-        click.echo(
-            f"No data for {kind}/{quantity} at iteration {iteration}"
-        )
+        click.echo(f"No data for {kind}/{quantity} at iteration {iteration}")
 
 
 @vis.command("batch")
 @click.argument("sims", nargs=-1, type=str)
 @click.option(
-    "--output-dir", "-o",
+    "--output-dir",
+    "-o",
     type=Path,
     default=None,
     help="Root directory for all output.  Default: {sim_path}/figures/.",
 )
 @click.option(
-    "--max-workers", "-j",
+    "--max-workers",
+    "-j",
     type=int,
     default=None,
     help="Number of parallel workers. Default: auto-detect (SLURM_CPUS_PER_TASK or CPU count).",
@@ -375,8 +382,7 @@ def vis_batch(
 
     if len(sims) < 2 or len(sims) % 2 != 0:
         raise click.UsageError(
-            "Requires at least one pair of SIM_PATH SIM_NAME arguments. "
-            f"Got {len(sims)} argument(s)."
+            f"Requires at least one pair of SIM_PATH SIM_NAME arguments. Got {len(sims)} argument(s)."
         )
 
     for i in range(0, len(sims), 2):
@@ -404,10 +410,7 @@ def vis_batch(
             est_fields = n_fields * n_iters
             est_kspace = n_fields * n_iters
             est_density = n_species * n_iters
-            click.echo(
-                f"  Would generate ~{est_fields} field PNGs, "
-                f"~{est_kspace} k-space PNGs"
-            )
+            click.echo(f"  Would generate ~{est_fields} field PNGs, ~{est_kspace} k-space PNGs")
             if n_species > 0:
                 click.echo(f"  Would generate ~{est_density} density PNGs")
             click.echo()
@@ -426,20 +429,22 @@ def vis_batch(
                 n_total = len(sim_obj.list_iterations(available_fields[0]))
                 pbar = tqdm(total=n_total, desc=f"Processing {sim_name}")
 
-                def _progress_callback(event):
+                def _progress_callback(event, pbar=pbar):
                     pbar.update(1)
                     pbar.set_postfix(iter=event.iteration)
 
-                process_simulation(sim_path, sim_name, output_root=output_dir,
-                                   max_workers=max_workers,
-                                   progress_callback=_progress_callback)
+                process_simulation(
+                    sim_path,
+                    sim_name,
+                    output_root=output_dir,
+                    max_workers=max_workers,
+                    progress_callback=_progress_callback,
+                )
                 pbar.close()
             else:
-                process_simulation(sim_path, sim_name, output_root=output_dir,
-                                   max_workers=max_workers)
+                process_simulation(sim_path, sim_name, output_root=output_dir, max_workers=max_workers)
         else:
-            process_simulation(sim_path, sim_name, output_root=output_dir,
-                               max_workers=max_workers)
+            process_simulation(sim_path, sim_name, output_root=output_dir, max_workers=max_workers)
         click.echo()
 
 
@@ -523,9 +528,7 @@ def sync_extract(osiris_path: Path, docs_path: Path | None) -> None:
     import osiris_toolkit.sync.namelist as _nl
     import osiris_toolkit.sync.sections as _sec
 
-    generated_dir = (
-        Path(__file__).resolve().parent / "_generated"
-    )
+    generated_dir = Path(__file__).resolve().parent / "_generated"
     generated_dir.mkdir(parents=True, exist_ok=True)
 
     click.echo(f"Scanning Fortran source: {osiris_path}")

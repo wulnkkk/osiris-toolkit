@@ -97,9 +97,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        logger.info(
-            "Usage: python -m osiris_toolkit.vis.scattering SIM_PATH [QUANTITY]"
-        )
+        logger.info("Usage: python -m osiris_toolkit.vis.scattering SIM_PATH [QUANTITY]")
         sys.exit(1)
 
     sim_path = sys.argv[1]
@@ -127,7 +125,9 @@ if __name__ == "__main__":
     analyzer = ScatteringAnalyzer(sim)
     result = analyzer.analyze(quantity=quantity, verbose=True)
     plot_scattering_fraction(
-        result, system=system, time_unit="ps",
+        result,
+        system=system,
+        time_unit="ps",
         output=f"scattering_{quantity}.png",
     )
     logger.info("Done -- see scattering_%s.png", quantity)

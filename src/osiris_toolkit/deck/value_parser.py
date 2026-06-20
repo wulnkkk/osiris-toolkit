@@ -16,7 +16,7 @@ from .schemas.parameters import ParamSpec, get_param_spec
 
 def parse_real(raw: str) -> float:
     """Parse a real number, normalizing Fortran 'd' exponent to 'e'."""
-    return float(raw.lower().replace('d', 'e'))
+    return float(raw.lower().replace("d", "e"))
 
 
 def parse_integer(raw: str) -> int:
@@ -25,7 +25,7 @@ def parse_integer(raw: str) -> int:
 
 def parse_boolean(raw: str) -> bool:
     """Parse .true. / .false. (case-insensitive)."""
-    return raw.lower() == 'true'
+    return raw.lower() == "true"
 
 
 def parse_string(raw: str) -> str:
@@ -39,10 +39,10 @@ def parse_slice_dims(raw: str) -> list[tuple[int | None, int | None]]:
     Returns a list of (start, end) tuples. None means wildcard colon.
     """
     dims = []
-    for part in raw.split(','):
+    for part in raw.split(","):
         part = part.strip()
-        if ':' in part:
-            s_str, e_str = part.split(':', 1)
+        if ":" in part:
+            s_str, e_str = part.split(":", 1)
             s = int(s_str.strip()) if s_str.strip() else None
             e = int(e_str.strip()) if e_str.strip() else None
             dims.append((s, e))
@@ -80,9 +80,9 @@ def _coerce_to_type(value: Any, spec: ParamSpec) -> Any:
         return int(value)
     elif target is bool and isinstance(value, str):
         lower = value.lower()
-        if lower in ('.true.', 'true', 't', '.t.', '1'):
+        if lower in (".true.", "true", "t", ".t.", "1"):
             return True
-        if lower in ('.false.', 'false', 'f', '.f.', '0'):
+        if lower in (".false.", "false", "f", ".f.", "0"):
             return False
     return value
 
@@ -163,13 +163,19 @@ def assemble_params(
         if len(entries) == 1:
             _, _, vals = entries[0]
             result[name] = _wrap_sliced_value(
-                _build_array(dims, vals), slice_raw, dims, spec,
+                _build_array(dims, vals),
+                slice_raw,
+                dims,
+                spec,
             )
         else:
             # Multi-line assignment: build N-dimensional array
             all_dims = [e[1] for e in entries]
             result[name] = _wrap_sliced_value(
-                _build_nd_array(entries), slice_raw, _dedup_dims(all_dims), spec,
+                _build_nd_array(entries),
+                slice_raw,
+                _dedup_dims(all_dims),
+                spec,
             )
 
     return result
@@ -195,9 +201,7 @@ def _dedup_dims(
     return primary
 
 
-def _build_array(
-    dims: list[tuple[int | None, int | None]], vals: list[Any]
-) -> Any:
+def _build_array(dims: list[tuple[int | None, int | None]], vals: list[Any]) -> Any:
     """Build a 1D array from slice dimensions and values.
 
     If the slice is exactly one element in all dimensions, return a scalar.
@@ -210,7 +214,7 @@ def _build_array(
     total_size = 1
     for s, e in dims:
         if s is not None and e is not None:
-            total_size *= (e - s + 1)
+            total_size *= e - s + 1
 
     if total_size == 1 and len(vals) == 1:
         return vals[0]
@@ -241,10 +245,8 @@ def _build_nd_array(
     if len(entries[0][1]) > 1:
         # Sort by non-varying (fixed) dimension index
         def sort_key(entry):
-            return tuple(
-                dims_i[0] if dims_i[0] == dims_i[1] else 0
-                for dims_i in entry[1]
-            )
+            return tuple(dims_i[0] if dims_i[0] == dims_i[1] else 0 for dims_i in entry[1])
+
         sorted_entries = sorted(entries, key=sort_key)
 
         result_2d = []
@@ -256,7 +258,7 @@ def _build_nd_array(
                 inner_size = 1
                 for s, e in inner_dims:
                     if s is not None and e is not None:
-                        inner_size *= (e - s + 1)
+                        inner_size *= e - s + 1
 
                 if inner_size == len(vals):
                     result_2d.append(list(vals))

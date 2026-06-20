@@ -55,10 +55,7 @@ def read_many(
     results: list[Any] = [None] * len(paths)
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_idx = {
-            executor.submit(reader_fn, str(p)): i
-            for i, p in enumerate(paths)
-        }
+        future_to_idx = {executor.submit(reader_fn, str(p)): i for i, p in enumerate(paths)}
 
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]

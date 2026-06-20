@@ -89,8 +89,6 @@ select = [
     "N",    # pep8-naming (exceptions below)
     "UP",   # pyupgrade
     "B",    # flake8-bugbear
-    "SIM",  # flake8-simplify
-    "ARG",  # flake8-unused-arguments
     "RUF",  # Ruff-specific rules
 ]
 ignore = [
@@ -99,7 +97,6 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*.py" = ["ARG"]  # Test fixtures often have unused args
 
 [tool.ruff.format]
 quote-style = "double"

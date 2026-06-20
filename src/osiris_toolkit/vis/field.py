@@ -74,8 +74,7 @@ def plot_field(
     grid = sim_obj.get_field(quantity, iteration)
     if grid is None:
         raise DataNotFoundError(
-            f"Field {quantity!r} not found at iteration {iteration}. "
-            f"Available: {sim_obj.list_fields()}"
+            f"Field {quantity!r} not found at iteration {iteration}. Available: {sim_obj.list_fields()}"
         )
 
     qgrid = QuantifiedGrid(grid, system)
@@ -117,10 +116,13 @@ def plot_field(
     fig, ax = plt.subplots(figsize=(10, 8))
 
     if log_scale and display_val.ndim == 2:
-        linthresh = max(
-            abs(vmin or np.nanpercentile(display_val, 1)),
-            abs(vmax or np.nanpercentile(display_val, 99)),
-        ) * 0.01
+        linthresh = (
+            max(
+                abs(vmin or np.nanpercentile(display_val, 1)),
+                abs(vmax or np.nanpercentile(display_val, 99)),
+            )
+            * 0.01
+        )
         norm = SymLogNorm(linthresh=linthresh if linthresh > 0 else 0.1)
     else:
         norm = None
@@ -147,26 +149,16 @@ def plot_field(
     if system is not None:
         cbar.set_label(qgrid.as_quantity(qtype).label(value_unit))
     else:
-        cbar.set_label(
-            f"{grid.label} [{grid.units}]" if grid.units else grid.label
-        )
+        cbar.set_label(f"{grid.label} [{grid.units}]" if grid.units else grid.label)
 
     if system is not None:
         ax.set_xlabel(qgrid.x.latex(x_unit))
         if display_val.ndim >= 2:
             ax.set_ylabel(qgrid.y.latex(y_unit))
     else:
-        ax.set_xlabel(
-            f"x1 [{grid.axes[0].units}]"
-            if grid.axes and grid.axes[0].units
-            else "x1"
-        )
+        ax.set_xlabel(f"x1 [{grid.axes[0].units}]" if grid.axes and grid.axes[0].units else "x1")
         if display_val.ndim >= 2:
-            ax.set_ylabel(
-                f"x2 [{grid.axes[1].units}]"
-                if len(grid.axes) > 1 and grid.axes[1].units
-                else "x2"
-            )
+            ax.set_ylabel(f"x2 [{grid.axes[1].units}]" if len(grid.axes) > 1 and grid.axes[1].units else "x2")
 
     # Title with time
     ax.set_title(_make_title(grid, quantity, iteration, system, time_unit))
@@ -180,14 +172,8 @@ def _make_title(grid, quantity, iteration, system, time_unit):
     if system is not None:
         t_disp = system.time.to(grid.time, time_unit)
         t_label = system.time.label(time_unit).replace("t [", "").rstrip("]")
-        return (
-            f"{quantity.upper()}  |  iteration={iteration}"
-            f"  |  t={t_disp:.1f} {t_label}"
-        )
-    return (
-        f"{quantity.upper()}  |  iteration={iteration}"
-        f"  |  t={grid.time:.1f}"
-    )
+        return f"{quantity.upper()}  |  iteration={iteration}  |  t={t_disp:.1f} {t_label}"
+    return f"{quantity.upper()}  |  iteration={iteration}  |  t={grid.time:.1f}"
 
 
 def plot_all_fields(
@@ -233,7 +219,7 @@ def plot_all_fields(
     fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 4 * rows))
     axes = np.atleast_1d(axes).flatten()
 
-    for ax, qty in zip(axes, fields):
+    for ax, qty in zip(axes, fields, strict=True):
         grid = sim_obj.get_field(qty, iteration)
         if grid is None:
             ax.set_title(f"{qty.upper()} -- not found")
@@ -243,9 +229,7 @@ def plot_all_fields(
             extent = [*qgrid.x.to(x_unit), *qgrid.y.to(y_unit)]
         else:
             extent = None
-        im = ax.imshow(
-            qgrid.norm(), origin="lower", aspect="auto", extent=extent, cmap="RdBu_r"
-        )
+        im = ax.imshow(qgrid.norm(), origin="lower", aspect="auto", extent=extent, cmap="RdBu_r")
         fig.colorbar(im, ax=ax)
         if system is not None:
             t_disp = system.time.to(grid.time, time_unit)
@@ -271,9 +255,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        logger.info(
-            "Usage: python -m osiris_toolkit.vis.field SIM_PATH [ITERATION]"
-        )
+        logger.info("Usage: python -m osiris_toolkit.vis.field SIM_PATH [ITERATION]")
         sys.exit(1)
 
     sim_path = sys.argv[1]
@@ -283,8 +265,13 @@ if __name__ == "__main__":
     iters = sim.list_iterations("e1")
     it = iters[iteration] if iters and iteration < len(iters) else (iters[-1] if iters else 0)
     plot_field(
-        "e1", it, sim_path=sim_path, system=system,
-        x_unit="um", y_unit="um", time_unit="ps",
+        "e1",
+        it,
+        sim_path=sim_path,
+        system=system,
+        x_unit="um",
+        y_unit="um",
+        time_unit="ps",
         output="field_e1.png",
     )
     logger.info("Done -- see field_e1.png")

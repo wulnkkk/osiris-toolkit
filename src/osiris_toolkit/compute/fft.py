@@ -68,4 +68,4 @@ def spectral_power(
         |FFT|^2 amplitude, fftshifted.
     """
     kx, ky, spectrum = compute_k_space(data, dx, dy)
-    return kx, ky, spectrum ** 2
+    return kx, ky, spectrum**2

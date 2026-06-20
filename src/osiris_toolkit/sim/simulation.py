@@ -223,9 +223,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
         for quant_dir in sorted(dir_path.iterdir()):
             if not quant_dir.is_dir():
                 continue
-            files = sorted(
-                list(quant_dir.glob("*.zdf")) + list(quant_dir.glob("*.h5"))
-            )
+            files = sorted(list(quant_dir.glob("*.zdf")) + list(quant_dir.glob("*.h5")))
             for f in files:
                 result.append((quant_dir.name, f))
         return result
@@ -258,9 +256,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
                 )
             )
 
-    def _discover_species_dir(
-        self, parent: Path, target: dict[str, dict[str, list[_FieldEntry]]]
-    ) -> None:
+    def _discover_species_dir(self, parent: Path, target: dict[str, dict[str, list[_FieldEntry]]]) -> None:
         for sp_dir in parent.iterdir():
             if not sp_dir.is_dir():
                 continue
@@ -308,9 +304,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
                 continue
             species = sp_dir.name
             entries: list[_FieldEntry] = []
-            for data_file in sorted(
-                list(sp_dir.glob("*.zdf")) + list(sp_dir.glob("*.h5"))
-            ):
+            for data_file in sorted(list(sp_dir.glob("*.zdf")) + list(sp_dir.glob("*.h5"))):
                 quant_label, iteration = _parse_iter_file(data_file.name)
                 entries.append(
                     _FieldEntry(
@@ -323,9 +317,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
             self._raw[species] = entries
 
     def _discover_tracks(self, tracks_dir: Path) -> None:
-        for data_file in sorted(
-            list(tracks_dir.glob("*.zdf")) + list(tracks_dir.glob("*.h5"))
-        ):
+        for data_file in sorted(list(tracks_dir.glob("*.zdf")) + list(tracks_dir.glob("*.h5"))):
             self._tracks[data_file.stem] = data_file
 
     def _discover_wall(self, wall_dir: Path) -> None:
@@ -334,9 +326,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
                 continue
             name = name_dir.name
             entries: list[_FieldEntry] = []
-            for data_file in sorted(
-                list(name_dir.glob("*.zdf")) + list(name_dir.glob("*.h5"))
-            ):
+            for data_file in sorted(list(name_dir.glob("*.zdf")) + list(name_dir.glob("*.h5"))):
                 quant_label, iteration = _parse_iter_file(data_file.name)
                 entries.append(
                     _FieldEntry(
@@ -379,4 +369,3 @@ class Simulation(_DataAccessors, _InfoAccessors):
         elif zdf_files and h5_files:
             return "mixed"
         return "unknown"
-

@@ -20,9 +20,7 @@ def _find_col(quants: list[str], target: str) -> int:
     for i, q in enumerate(quants):
         if q.lower() == t:
             return i
-    raise DataNotFoundError(
-        f"Quantity '{target}' not found in track quants: {quants}"
-    )
+    raise DataNotFoundError(f"Quantity '{target}' not found in track quants: {quants}")
 
 
 _VALID_PROJ = {"x1-x2", "x1-x3", "x2-x3"}
@@ -31,9 +29,7 @@ _VALID_PROJ = {"x1-x2", "x1-x3", "x2-x3"}
 def _resolve_proj(proj: str) -> tuple[str, str]:
     """Parse 'x1-x2' style projection into two column names."""
     if proj not in _VALID_PROJ:
-        raise ValidationError(
-            f"Invalid projection '{proj}'. Expected one of: {sorted(_VALID_PROJ)}."
-        )
+        raise ValidationError(f"Invalid projection '{proj}'. Expected one of: {sorted(_VALID_PROJ)}.")
     parts = proj.split("-")
     return parts[0], parts[1]
 
@@ -72,11 +68,9 @@ def plot_tracks_orbit(
 
     for i, track in enumerate(td.tracks):
         if i in highlight:
-            ax.plot(track[:, ix], track[:, iy], linewidth=1.5, alpha=0.9,
-                    label=f"track {i}")
+            ax.plot(track[:, ix], track[:, iy], linewidth=1.5, alpha=0.9, label=f"track {i}")
         else:
-            ax.plot(track[:, ix], track[:, iy], linewidth=0.5,
-                    alpha=0.4, color="grey")
+            ax.plot(track[:, ix], track[:, iy], linewidth=0.5, alpha=0.4, color="grey")
 
     ax.set_xlabel(qx)
     ax.set_ylabel(qy)
@@ -115,8 +109,7 @@ def plot_tracks_energy(
 
     if per_track:
         for i, track in enumerate(td.tracks):
-            ax.plot(track[:, itime], track[:, iene],
-                    linewidth=0.8, alpha=0.7, label=f"track {i}")
+            ax.plot(track[:, itime], track[:, iene], linewidth=0.8, alpha=0.7, label=f"track {i}")
         if len(td.tracks) <= 10:
             ax.legend(fontsize=7)
     else:
@@ -135,8 +128,7 @@ def plot_tracks_energy(
             mean = np.mean(stacked, axis=0)
             std = np.std(stacked, axis=0)
             ax.plot(t_grid, mean, color="steelblue", linewidth=2, label="mean")
-            ax.fill_between(t_grid, mean - std, mean + std,
-                            color="steelblue", alpha=0.2, label="±1 std")
+            ax.fill_between(t_grid, mean - std, mean + std, color="steelblue", alpha=0.2, label="±1 std")
             ax.legend()
 
     ax.set_xlabel("Time (norm)")
@@ -180,18 +172,13 @@ def plot_tracks_field(
 
     for i, track in enumerate(td.tracks):
         if i in highlight:
-            ax.plot(track[:, ix], track[:, icomp],
-                    linewidth=1.2, alpha=0.9, label=f"track {i}")
+            ax.plot(track[:, ix], track[:, icomp], linewidth=1.2, alpha=0.9, label=f"track {i}")
         else:
-            ax.plot(track[:, ix], track[:, icomp],
-                    linewidth=0.5, alpha=0.4, color="grey")
+            ax.plot(track[:, ix], track[:, icomp], linewidth=0.5, alpha=0.4, color="grey")
 
     ax.set_xlabel(vs)
     ax.set_ylabel(component)
-    ax.set_title(
-        f"{component} along track  |  "
-        f"{len(td.tracks)} tracks  |  {td.niter} pts"
-    )
+    ax.set_title(f"{component} along track  |  {len(td.tracks)} tracks  |  {td.niter} pts")
     if highlight:
         ax.legend(fontsize=8)
 

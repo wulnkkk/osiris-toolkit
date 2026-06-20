@@ -45,10 +45,7 @@ class _AxisView:
         if self.system is None:
             if unit in ("auto", "norm"):
                 return (axis.min, axis.max)
-            raise UnitConversionError(
-                f"No UnitSystem available to convert to {unit!r}. "
-                f"Provide a deck or use 'norm'."
-            )
+            raise UnitConversionError(f"No UnitSystem available to convert to {unit!r}. Provide a deck or use 'norm'.")
         q = self._get_quantity()
         return (q.to(axis.min, unit), q.to(axis.max, unit))
 
@@ -103,9 +100,7 @@ class QuantifiedGrid:
         if self.system is None:
             if unit in ("auto", "norm"):
                 return self.grid.data
-            raise UnitConversionError(
-                f"No UnitSystem available to convert to {unit!r}. Use 'norm'."
-            )
+            raise UnitConversionError(f"No UnitSystem available to convert to {unit!r}. Use 'norm'.")
         q = self._infer_quantity(unit)
         return q.to(self.grid.data, unit)
 
@@ -126,9 +121,7 @@ class QuantifiedGrid:
         _QuantityView
         """
         if self.system is None:
-            raise UnitConversionError(
-                f"No UnitSystem available; cannot resolve quantity {name!r}."
-            )
+            raise UnitConversionError(f"No UnitSystem available; cannot resolve quantity {name!r}.")
         return _QuantityView(self.grid.data, self.system[name])
 
     @property
@@ -152,15 +145,12 @@ class QuantifiedGrid:
         """Find the unique QuantityKind where *unit* is valid."""
         candidates = [q for q in self.system.quantities if unit in q.scales]  # type: ignore[union-attr]
         if len(candidates) == 0:
-            raise UnitConversionError(
-                f"No quantity supports unit {unit!r}."
-            )
+            raise UnitConversionError(f"No quantity supports unit {unit!r}.")
         if len(candidates) == 1:
             return candidates[0]
         names = [c.name for c in candidates]
         raise UnitConversionError(
-            f"Unit {unit!r} is ambiguous among {names}. "
-            f"Use .as_quantity(name).to(unit) to disambiguate."
+            f"Unit {unit!r} is ambiguous among {names}. Use .as_quantity(name).to(unit) to disambiguate."
         )
 
 
@@ -221,7 +211,11 @@ class QuantifiedSpectrum:
         dy = (grid.axes[1].max - grid.axes[1].min) / ny
         kx, ky, spectrum = compute_k_space(grid.data, dx, dy)
         return cls(
-            kx_norm=kx, ky_norm=ky, spectrum=spectrum,
-            quantity=grid.label, iteration=grid.iteration,
-            time=grid.time, system=system,
+            kx_norm=kx,
+            ky_norm=ky,
+            spectrum=spectrum,
+            quantity=grid.label,
+            iteration=grid.iteration,
+            time=grid.time,
+            system=system,
         )

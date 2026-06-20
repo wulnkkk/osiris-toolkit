@@ -18,11 +18,10 @@ def detect_available_workers() -> int:
 def limit_blas_threads(n: int = 1) -> None:
     """Call at start of every worker process to prevent BLAS thread inflation.
 
-    Without this, N workers × M BLAS threads per worker = N×M threads
+    Without this, N workers x M BLAS threads per worker = NxM threads
     competing for N physical cores.
     """
-    for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS",
-                "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
         os.environ[var] = str(n)
 
 

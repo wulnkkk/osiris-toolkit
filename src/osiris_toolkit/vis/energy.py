@@ -82,9 +82,13 @@ def plot_spectrum(
 
     if system is not None:
         qspec = QuantifiedSpectrum(
-            kx_norm=result.kx_k0, ky_norm=result.ky_k0,
-            spectrum=result.spectrum, quantity=result.quantity,
-            iteration=result.iteration, time=result.time, system=system,
+            kx_norm=result.kx_k0,
+            ky_norm=result.ky_k0,
+            spectrum=result.spectrum,
+            quantity=result.quantity,
+            iteration=result.iteration,
+            time=result.time,
+            system=system,
         )
         extent = [
             qspec.kx.to("k0").min(),
@@ -116,10 +120,7 @@ def plot_spectrum(
     cbar.set_label("ln|FFT|" if log_scale else "|FFT|")
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_title(
-        f"{result.quantity.upper()} k-space  |  iteration={result.iteration}"
-        f"  |  t={result.time:.1f}"
-    )
+    ax.set_title(f"{result.quantity.upper()} k-space  |  iteration={result.iteration}  |  t={result.time:.1f}")
     fig.tight_layout()
     save_or_show(fig, output)
     return Path(output) if output else None

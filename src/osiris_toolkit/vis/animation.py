@@ -59,9 +59,7 @@ def animate_field(
     try:
         import imageio
     except ImportError:
-        raise MissingDependencyError(
-            "imageio is required for animation. Install with: pip install imageio"
-        )
+        raise MissingDependencyError("imageio is required for animation. Install with: pip install imageio")
 
     if iterations is None:
         iterations = sim.list_iterations(quantity)

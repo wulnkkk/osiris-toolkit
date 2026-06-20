@@ -48,10 +48,7 @@ def to_vtk(
     try:
         from pyevtk.hl import gridToVTK
     except ImportError:
-        raise MissingDependencyError(
-            "pyevtk is required for VTK export. "
-            "Install with: pip install osiris-toolkit[vtk]"
-        )
+        raise MissingDependencyError("pyevtk is required for VTK export. Install with: pip install osiris-toolkit[vtk]")
 
     output = Path(output)
     ndim = field.data.ndim

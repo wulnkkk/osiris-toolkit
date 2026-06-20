@@ -138,24 +138,29 @@ def plot_overlay(
     fig, ax = plt.subplots(figsize=(10, 8))
 
     im0 = ax.imshow(
-        g0.data, origin="lower", aspect="auto",
-        extent=extent, cmap="RdBu_r",
+        g0.data,
+        origin="lower",
+        aspect="auto",
+        extent=extent,
+        cmap="RdBu_r",
     )
     cbar0 = fig.colorbar(im0, ax=ax, location="left")
     cbar0.set_label(quantities[0])
 
     im1 = ax.imshow(
-        g1.data, origin="lower", aspect="auto",
-        extent=extent, cmap="Blues", alpha=alpha,
+        g1.data,
+        origin="lower",
+        aspect="auto",
+        extent=extent,
+        cmap="Blues",
+        alpha=alpha,
     )
     cbar1 = fig.colorbar(im1, ax=ax, location="right")
     cbar1.set_label(quantities[1])
 
     ax.set_xlabel(f"x1 [{x_unit}]" if system else "x1")
     ax.set_ylabel(f"x2 [{y_unit}]" if system else "x2")
-    ax.set_title(
-        f"Overlay: {' + '.join(q.upper() for q in quantities)}  |  iter={iteration}"
-    )
+    ax.set_title(f"Overlay: {' + '.join(q.upper() for q in quantities)}  |  iter={iteration}")
     fig.tight_layout()
     save_or_show(fig, output, overwrite=overwrite)
     return Path(output) if output else None

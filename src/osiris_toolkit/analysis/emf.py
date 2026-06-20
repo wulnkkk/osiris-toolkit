@@ -34,7 +34,7 @@ class EMFAnalyzer(DiagnosticAnalyzer):
         grid = self._sim.get_field(quantity, iteration)
         if grid is None:
             raise DataNotFoundError(f"No data for {quantity} at iteration {iteration}")
-        total = float(np.sum(grid.data ** 2))
+        total = float(np.sum(grid.data**2))
         return FieldEnergyResult(
             quantity=quantity,
             iteration=iteration,
@@ -51,12 +51,12 @@ class EMFAnalyzer(DiagnosticAnalyzer):
         for q in ("e1", "e2", "e3"):
             grid = self._sim.get_field(q, iteration)
             if grid is not None:
-                e_energy += float(np.sum(grid.data ** 2))
+                e_energy += float(np.sum(grid.data**2))
 
         for q in ("b1", "b2", "b3"):
             grid = self._sim.get_field(q, iteration)
             if grid is not None:
-                b_energy += float(np.sum(grid.data ** 2))
+                b_energy += float(np.sum(grid.data**2))
 
         # pick up time from the first available field
         time = 0.0

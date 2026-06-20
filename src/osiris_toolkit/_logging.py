@@ -30,9 +30,7 @@ def get_logger(name: str = "osiris_toolkit") -> logging.Logger:
     _logger.setLevel(logging.WARNING)
     if not _logger.handlers:
         handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(logging.Formatter(
-            "[%(levelname)s] %(name)s: %(message)s"
-        ))
+        handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))
         _logger.addHandler(handler)
     return _logger
 
@@ -61,8 +59,11 @@ class _JSONFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         import json
-        return json.dumps({
-            "level": record.levelname,
-            "name": record.name,
-            "message": record.getMessage(),
-        })
+
+        return json.dumps(
+            {
+                "level": record.levelname,
+                "name": record.name,
+                "message": record.getMessage(),
+            }
+        )

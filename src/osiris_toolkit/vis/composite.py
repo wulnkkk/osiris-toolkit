@@ -98,12 +98,16 @@ def plot_composite(
         if grid is not None:
             data = grid.data
             if system is not None:
-                extent = [
-                    system["length"].to(grid.axes[0].min, x_unit),
-                    system["length"].to(grid.axes[0].max, x_unit),
-                    system["length"].to(grid.axes[1].min, y_unit),
-                    system["length"].to(grid.axes[1].max, y_unit),
-                ] if len(grid.axes) >= 2 else None
+                extent = (
+                    [
+                        system["length"].to(grid.axes[0].min, x_unit),
+                        system["length"].to(grid.axes[0].max, x_unit),
+                        system["length"].to(grid.axes[1].min, y_unit),
+                        system["length"].to(grid.axes[1].max, y_unit),
+                    ]
+                    if len(grid.axes) >= 2
+                    else None
+                )
             else:
                 extent = (
                     [
@@ -144,12 +148,16 @@ def plot_composite(
     if grid is not None:
         data = grid.data
         if system is not None:
-            extent = [
-                system["length"].to(grid.axes[0].min, x_unit),
-                system["length"].to(grid.axes[0].max, x_unit),
-                system["length"].to(grid.axes[1].min, y_unit),
-                system["length"].to(grid.axes[1].max, y_unit),
-            ] if len(grid.axes) >= 2 else None
+            extent = (
+                [
+                    system["length"].to(grid.axes[0].min, x_unit),
+                    system["length"].to(grid.axes[0].max, x_unit),
+                    system["length"].to(grid.axes[1].min, y_unit),
+                    system["length"].to(grid.axes[1].max, y_unit),
+                ]
+                if len(grid.axes) >= 2
+                else None
+            )
         else:
             extent = (
                 [
@@ -189,16 +197,8 @@ def plot_composite(
     if has_ps:
         ax = axes[panel_idx]
         ps_list = sim_obj.list_phasespaces()
-        ps_name = (
-            phasespace
-            if any(p[0] == phasespace for p in ps_list)
-            else ps_list[0][0]
-        )
-        ps_sp = (
-            species
-            if any(p[1] == species for p in ps_list)
-            else ps_list[0][1]
-        )
+        ps_name = phasespace if any(p[0] == phasespace for p in ps_list) else ps_list[0][0]
+        ps_sp = species if any(p[1] == species for p in ps_list) else ps_list[0][1]
         ps = sim_obj.get_phasespace(ps_name, ps_sp, iteration)
         if ps is not None:
             data = ps.data
@@ -232,18 +232,10 @@ def plot_composite(
                 ax.set_ylabel(system["momentum"].label(p_unit))
                 t_disp = system.time.to(ps.time, time_unit)
             else:
-                ax.set_xlabel(
-                    f"{ps.axes[0].get('name', 'p1')}" if ps.axes else "p1"
-                )
-                ax.set_ylabel(
-                    f"{ps.axes[1].get('name', 'p2')}"
-                    if len(ps.axes) > 1
-                    else "p2"
-                )
+                ax.set_xlabel(f"{ps.axes[0].get('name', 'p1')}" if ps.axes else "p1")
+                ax.set_ylabel(f"{ps.axes[1].get('name', 'p2')}" if len(ps.axes) > 1 else "p2")
                 t_disp = ps.time
-            ax.set_title(
-                f"Phasespace {ps_name} ({ps_sp})  t={t_disp:.1f}"
-            )
+            ax.set_title(f"Phasespace {ps_name} ({ps_sp})  t={t_disp:.1f}")
         else:
             ax.set_title("Phasespace -- not found")
         panel_idx += 1
@@ -251,9 +243,7 @@ def plot_composite(
     for ax in axes[panel_idx:]:
         ax.set_visible(False)
 
-    fig.suptitle(
-        f"Simulation overview -- iteration {iteration}", fontsize=16, y=1.01
-    )
+    fig.suptitle(f"Simulation overview -- iteration {iteration}", fontsize=16, y=1.01)
     fig.tight_layout()
     save_or_show(fig, output)
     return Path(output) if output else None
@@ -263,9 +253,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        logger.info(
-            "Usage: python -m osiris_toolkit.vis.composite SIM_PATH [ITERATION]"
-        )
+        logger.info("Usage: python -m osiris_toolkit.vis.composite SIM_PATH [ITERATION]")
         sys.exit(1)
 
     sim_path = sys.argv[1]
@@ -276,8 +264,12 @@ if __name__ == "__main__":
     if iters:
         it = iters[iteration] if iteration < len(iters) else iters[-1]
         plot_composite(
-            it, sim_path=sim_path, system=system,
-            x_unit="um", y_unit="um", time_unit="ps",
+            it,
+            sim_path=sim_path,
+            system=system,
+            x_unit="um",
+            y_unit="um",
+            time_unit="ps",
             output="composite.png",
         )
         logger.info("Done -- see composite.png")

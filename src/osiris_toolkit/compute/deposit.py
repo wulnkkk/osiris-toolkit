@@ -15,10 +15,13 @@ from osiris_toolkit.exceptions import ValidationError
 _HAS_NUMBA = False
 try:
     from numba import njit as _njit
+
     _HAS_NUMBA = True
 except ImportError:
+
     def _njit(*args, **kwargs):
         return lambda f: f
+
 
 _SHAPE_FUNCTIONS = {"ngp", "tophat", "triangular", "spline3"}
 
@@ -55,10 +58,7 @@ def particles_to_grid(
         Deposited grid data.
     """
     if shape_function not in _SHAPE_FUNCTIONS:
-        raise ValidationError(
-            f"Unknown shape function {shape_function!r}. "
-            f"Choose from: {sorted(_SHAPE_FUNCTIONS)}"
-        )
+        raise ValidationError(f"Unknown shape function {shape_function!r}. Choose from: {sorted(_SHAPE_FUNCTIONS)}")
     if positions.size == 0:
         return Field(
             data=np.zeros(grid_shape, dtype=np.float64),
@@ -74,10 +74,7 @@ def particles_to_grid(
         weights_arr = np.asarray(weights, dtype=np.float64)
 
     if len(grid_shape) != ndim:
-        raise ValidationError(
-            f"grid_shape has {len(grid_shape)} dims but positions "
-            f"have {ndim} dims; they must match"
-        )
+        raise ValidationError(f"grid_shape has {len(grid_shape)} dims but positions have {ndim} dims; they must match")
 
     grid = np.zeros(grid_shape, dtype=np.float64)
 
@@ -126,14 +123,14 @@ def _deposit_tophat(positions, weights, grid):
             i0 = int(np.floor(x))
             new_offsets = []
             new_factors = []
-            for prev_off, prev_w in zip(offsets, weight_factors):
+            for prev_off, prev_w in zip(offsets, weight_factors, strict=True):
                 for cell_idx in (i0, i0 + 1):
                     w_cell = 1.0 - abs(cell_idx - x)
-                    new_offsets.append(prev_off + [cell_idx])
-                    new_factors.append(prev_w + [w_cell])
+                    new_offsets.append([*prev_off, cell_idx])
+                    new_factors.append([*prev_w, w_cell])
             offsets = new_offsets
             weight_factors = new_factors
-        for off_list, w_list in zip(offsets, weight_factors):
+        for off_list, w_list in zip(offsets, weight_factors, strict=True):
             in_bounds = all(0 <= o < grid.shape[d] for d, o in enumerate(off_list))
             if in_bounds:
                 w_total = np.prod(w_list)
@@ -152,7 +149,7 @@ def _deposit_triangular(positions, weights, grid):
             i0 = int(np.floor(x)) - 1
             new_offsets = []
             new_factors = []
-            for prev_off, prev_w in zip(offsets, weight_factors):
+            for prev_off, prev_w in zip(offsets, weight_factors, strict=True):
                 for k in range(3):
                     cell_idx = i0 + k
                     dx = abs(cell_idx - x)
@@ -162,11 +159,11 @@ def _deposit_triangular(positions, weights, grid):
                         w_cell = 0.5 * (1.5 - dx) ** 2
                     else:
                         w_cell = 0.0
-                    new_offsets.append(prev_off + [cell_idx])
-                    new_factors.append(prev_w + [w_cell])
+                    new_offsets.append([*prev_off, cell_idx])
+                    new_factors.append([*prev_w, w_cell])
             offsets = new_offsets
             weight_factors = new_factors
-        for off_list, w_list in zip(offsets, weight_factors):
+        for off_list, w_list in zip(offsets, weight_factors, strict=True):
             in_bounds = all(0 <= o < grid.shape[d] for d, o in enumerate(off_list))
             if in_bounds:
                 w_total = np.prod(w_list)
@@ -185,21 +182,21 @@ def _deposit_spline3(positions, weights, grid):
             i0 = int(np.floor(x)) - 1
             new_offsets = []
             new_factors = []
-            for prev_off, prev_w in zip(offsets, weight_factors):
+            for prev_off, prev_w in zip(offsets, weight_factors, strict=True):
                 for k in range(4):
                     cell_idx = i0 + k
                     dx = abs(cell_idx - x)
                     if dx <= 1.0:
-                        w_cell = (2.0 / 3.0) - dx * dx + 0.5 * dx ** 3
+                        w_cell = (2.0 / 3.0) - dx * dx + 0.5 * dx**3
                     elif dx <= 2.0:
                         w_cell = (1.0 / 6.0) * (2.0 - dx) ** 3
                     else:
                         w_cell = 0.0
-                    new_offsets.append(prev_off + [cell_idx])
-                    new_factors.append(prev_w + [w_cell])
+                    new_offsets.append([*prev_off, cell_idx])
+                    new_factors.append([*prev_w, w_cell])
             offsets = new_offsets
             weight_factors = new_factors
-        for off_list, w_list in zip(offsets, weight_factors):
+        for off_list, w_list in zip(offsets, weight_factors, strict=True):
             in_bounds = all(0 <= o < grid.shape[d] for d, o in enumerate(off_list))
             if in_bounds:
                 w_total = np.prod(w_list)

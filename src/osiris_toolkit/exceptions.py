@@ -14,11 +14,13 @@ class OsirisToolkitError(Exception):
 
 # -- Data availability --------------------------------------------------------
 
+
 class DataNotFoundError(OsirisToolkitError):
     """Requested data, quantity, or diagnostic does not exist."""
 
 
 # -- Format / file integrity --------------------------------------------------
+
 
 class FormatError(OsirisToolkitError):
     """File format is invalid or unrecognised."""
@@ -29,6 +31,7 @@ class UnsupportedVersionError(FormatError):
 
 
 # -- Validation ---------------------------------------------------------------
+
 
 class ValidationError(OsirisToolkitError):
     """Parameter or input validation failed."""
@@ -44,11 +47,13 @@ class MissingParameterError(ValidationError):
 
 # -- Pipeline -----------------------------------------------------------------
 
+
 class PipelineError(OsirisToolkitError):
     """Pipeline execution failed (missing prerequisite step, etc.)."""
 
 
 # -- Configuration ------------------------------------------------------------
+
 
 class ConfigurationError(OsirisToolkitError):
     """Simulation or OsirisConfig is invalid or incomplete."""
@@ -56,11 +61,13 @@ class ConfigurationError(OsirisToolkitError):
 
 # -- Units --------------------------------------------------------------------
 
+
 class UnitConversionError(OsirisToolkitError):
     """Unit conversion failed (missing plasma frequency, etc.)."""
 
 
 # -- Dependencies -------------------------------------------------------------
+
 
 class MissingDependencyError(OsirisToolkitError):
     """Optional dependency (h5py, pyevtk, etc.) is not installed."""

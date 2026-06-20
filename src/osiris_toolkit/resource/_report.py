@@ -55,7 +55,7 @@ def format_report(report: EstimationReport) -> str:
             for x in ppc:
                 ppc_total *= x
             name_str = f" ({p.species_names[i]})" if i < len(p.species_names) and p.species_names[i] else ""
-            lines.append(f"  Species #{i+1}{name_str}: {ppc_str} = {ppc_total} ppc")
+            lines.append(f"  Species #{i + 1}{name_str}: {ppc_str} = {ppc_total} ppc")
         lines.append(f"  Total particles:       {p.total_particles:,}")
     else:
         lines.append("  Species:               none (num_species=0)")
@@ -88,8 +88,7 @@ def format_report(report: EstimationReport) -> str:
     lines.append(f"  TOTAL (per node):       {_fmt_size(m.total_mb)} ({m.total_gb:.2f} GB)")
     if m.total_gb > 0:
         lines.append(
-            f"  TOTAL (all nodes):      ~{_fmt_size(m.total_mb * p.total_nodes)}"
-            f" ({m.total_gb * p.total_nodes:.1f} GB)"
+            f"  TOTAL (all nodes):      ~{_fmt_size(m.total_mb * p.total_nodes)} ({m.total_gb * p.total_nodes:.1f} GB)"
         )
     if m.notes:
         for n in m.notes:
@@ -116,15 +115,13 @@ def format_report(report: EstimationReport) -> str:
     lines.append("--- Disk Space ---")
     if d.emf_n_dumps > 0:
         lines.append(
-            f"  EMF dumps:             {_fmt_size(d.emf_dump_mb)}"
-            f" x{d.emf_n_dumps:,} = {d.emf_total_gb:.2f} GB"
+            f"  EMF dumps:             {_fmt_size(d.emf_dump_mb)} x{d.emf_n_dumps:,} = {d.emf_total_gb:.2f} GB"
         )
     else:
         lines.append("  EMF dumps:             disabled")
     if d.raw_n_dumps > 0:
         lines.append(
-            f"  Raw particle dumps:    {_fmt_size(d.raw_dump_mb)}"
-            f" x{d.raw_n_dumps:,} = {d.raw_total_gb:.2f} GB"
+            f"  Raw particle dumps:    {_fmt_size(d.raw_dump_mb)} x{d.raw_n_dumps:,} = {d.raw_total_gb:.2f} GB"
         )
     else:
         lines.append("  Raw particle dumps:    disabled")

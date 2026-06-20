@@ -35,30 +35,25 @@ from osiris_toolkit.io._types import (
 from osiris_toolkit.io.vtk_exporter import to_vtk
 
 __all__ = [
-    # Reader functions
-    "read_info",
-    "read_grid",
-    "read_particles",
-    "read_tracks",
-    "list_records",
-    # Parallel I/O
-    "read_many",
-    "read_many_map",
-    # VTK export
-    "to_vtk",
-    # Format constants
-    "MAGIC",
-    "RecordType",
     "DTYPE_NAMES",
     "DTYPE_TO_NUMPY",
-    "numpy_dtype",
-    "record_type_name",
-    # Types
-    "ZdfRecord",
-    "ZdfIteration",
+    "MAGIC",
+    "RecordType",
     "ZdfAxis",
-    "ZdfGridInfo",
-    "ZdfPartInfo",
-    "ZdfTrackInfo",
     "ZdfFileInfo",
+    "ZdfGridInfo",
+    "ZdfIteration",
+    "ZdfPartInfo",
+    "ZdfRecord",
+    "ZdfTrackInfo",
+    "list_records",
+    "numpy_dtype",
+    "read_grid",
+    "read_info",
+    "read_many",
+    "read_many_map",
+    "read_particles",
+    "read_tracks",
+    "record_type_name",
+    "to_vtk",
 ]

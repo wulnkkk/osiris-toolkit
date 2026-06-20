@@ -112,11 +112,7 @@ class ResourceEstimator:
             n_cells_node = ngrid // nodes
             cells_per_dim = []
             for i in range(ndim):
-                n_cells = (
-                    params.nx_p[i] // params.node_number[i]
-                    if i < len(params.node_number)
-                    else params.nx_p[i]
-                )
+                n_cells = params.nx_p[i] // params.node_number[i] if i < len(params.node_number) else params.nx_p[i]
                 cells_per_dim.append(max(1, n_cells))
         else:
             n_cells_node = ngrid
@@ -138,7 +134,7 @@ class ResourceEstimator:
             for p in ppc:
                 ppc_total *= p
             particle_bytes += n_cells_node * ppc_total * bpp
-        particle_mb = particle_bytes / (1024 ** 2)
+        particle_mb = particle_bytes / (1024**2)
 
         # VDF count: e, b = 2 always. +e_part+b_part if smoothing or part_grid_center
         n_vdfs = 2
@@ -151,11 +147,11 @@ class ResourceEstimator:
 
         # Field memory
         field_bytes = n_vdfs * 3 * n_with_guard * fb
-        field_mb = field_bytes / (1024 ** 2)
+        field_mb = field_bytes / (1024**2)
 
         # Current memory: n_threads VDFs
         current_bytes = params.n_threads * 3 * n_with_guard * fb
-        current_mb = current_bytes / (1024 ** 2)
+        current_mb = current_bytes / (1024**2)
 
         # PML memory
         pml_mb = 0.0
@@ -169,7 +165,7 @@ class ResourceEstimator:
                 n_cells_per_surface += prod
             pml_cells = params.n_pml_boundaries // 2 * params.vpml_bnd_size * n_cells_per_surface // ndim
             pml_bytes = pml_cells * 4 * fb
-            pml_mb = pml_bytes / (1024 ** 2)
+            pml_mb = pml_bytes / (1024**2)
 
         # Diagnostic buffers (~30% of field arrays, rough)
         diag_mb = field_mb * 0.3
@@ -191,9 +187,7 @@ class ResourceEstimator:
     # Runtime
     # ------------------------------------------------------------------
 
-    def _estimate_runtime(
-        self, params: ResourceParams, mem: MemoryEstimate, warnings: list[str]
-    ) -> RuntimeEstimate:
+    def _estimate_runtime(self, params: ResourceParams, mem: MemoryEstimate, warnings: list[str]) -> RuntimeEstimate:
         notes: list[str] = []
         n_steps = params.n_steps
         ngrid = params.ngrid_total
@@ -208,13 +202,13 @@ class ResourceEstimator:
         # Push (60) + Deposit (80) per particle
         ops_push_deposit = total_parts * 140
 
-        # FDTD: 6 components × 2 stencil ops × 12 flops
+        # FDTD: 6 components x 2 stencil ops x 12 flops
         solver_factor = 1.0
         if params.solver == "psatd":
             solver_factor = 3.0
-            notes.append("PSATD solver: ~3× more expensive per cell than Yee")
+            notes.append("PSATD solver: ~3x more expensive per cell than Yee")
         if params.solver_ord > 2:
-            solver_factor *= (params.solver_ord / 2)
+            solver_factor *= params.solver_ord / 2
             notes.append(f"solver_ord={params.solver_ord}: higher-order stencil increases cost")
         ops_fdtd = ngrid * 3 * 12 * solver_factor
 
@@ -222,7 +216,7 @@ class ResourceEstimator:
         ops_smooth = 0
         if params.smooth_type not in ("none", "") and params.smooth_order > 0:
             ops_smooth = ngrid * 3 * 20 * params.smooth_order * params.n_threads
-            notes.append(f"current smoothing ({params.smooth_order} passes) adds ~{ops_smooth/1e9:.1f} GFLOP/step")
+            notes.append(f"current smoothing ({params.smooth_order} passes) adds ~{ops_smooth / 1e9:.1f} GFLOP/step")
 
         # Sort (amortized)
         ops_sort = total_parts * 10 / 25
@@ -248,7 +242,7 @@ class ResourceEstimator:
         io_gb = 0.0
         if mem.total_gb > 0 and params.emf_ndump_fac > 0:
             n_emf_dumps = n_steps // params.emf_ndump_fac if params.emf_ndump_fac > 0 else 0
-            io_gb += (ngrid * 3 * 2 * params.field_precision_bytes / (1024 ** 3)) * n_emf_dumps
+            io_gb += (ngrid * 3 * 2 * params.field_precision_bytes / (1024**3)) * n_emf_dumps
         io_hours = io_gb / (self.io_bandwidth_gbs * 3600) if self.io_bandwidth_gbs > 0 else 0
         if io_hours > wall_hours_lower * 0.1:
             notes.append(f"I/O overhead ({io_hours:.1f} h) may be significant")
@@ -269,18 +263,16 @@ class ResourceEstimator:
     # Disk
     # ------------------------------------------------------------------
 
-    def _estimate_disk(
-        self, params: ResourceParams, mem: MemoryEstimate, warnings: list[str]
-    ) -> DiskEstimate:
+    def _estimate_disk(self, params: ResourceParams, mem: MemoryEstimate, warnings: list[str]) -> DiskEstimate:
         notes: list[str] = []
         n_steps = params.n_steps
         fb = params.field_precision_bytes
 
-        # EMF dumps: 6 components × global grid × precision
+        # EMF dumps: 6 components x global grid x precision
         emf_bytes_per_dump = 6 * params.ngrid_total * fb
-        emf_mb_per_dump = emf_bytes_per_dump / (1024 ** 2)
+        emf_mb_per_dump = emf_bytes_per_dump / (1024**2)
         emf_n_dumps = n_steps // params.emf_ndump_fac if params.emf_ndump_fac > 0 else 0
-        emf_total_gb = (emf_bytes_per_dump * emf_n_dumps) / (1024 ** 3)
+        emf_total_gb = (emf_bytes_per_dump * emf_n_dumps) / (1024**3)
 
         # Raw particle dumps
         raw_bytes_per_dump = 0
@@ -292,20 +284,20 @@ class ResourceEstimator:
             n_parts = params.ngrid_total * ppc_total
             frac = params.species_raw_fraction[i] if i < len(params.species_raw_fraction) else 1.0
             raw_bytes_per_dump += int(n_parts * frac * bpp)
-        raw_mb_per_dump = raw_bytes_per_dump / (1024 ** 2)
+        raw_mb_per_dump = raw_bytes_per_dump / (1024**2)
 
         max_raw_ndump = 0
         for f in params.species_ndump_fac_raw:
             if f > 0:
                 max_raw_ndump = max(max_raw_ndump, f)
         raw_n_dumps = n_steps // max_raw_ndump if max_raw_ndump > 0 else 0
-        raw_total_gb = (raw_bytes_per_dump * raw_n_dumps) / (1024 ** 3)
+        raw_total_gb = (raw_bytes_per_dump * raw_n_dumps) / (1024**3)
 
         # Restart dumps
-        restart_bytes_per_dump = (mem.total_gb * (1024 ** 3)) * params.total_nodes
-        restart_mb_per_dump = restart_bytes_per_dump / (1024 ** 2)
+        restart_bytes_per_dump = (mem.total_gb * (1024**3)) * params.total_nodes
+        restart_mb_per_dump = restart_bytes_per_dump / (1024**2)
         restart_n_dumps = n_steps // params.restart_ndump_fac if params.restart_ndump_fac > 0 else 0
-        restart_total_gb = (restart_bytes_per_dump * restart_n_dumps) / (1024 ** 3)
+        restart_total_gb = (restart_bytes_per_dump * restart_n_dumps) / (1024**3)
 
         total_gb = emf_total_gb + raw_total_gb + restart_total_gb
 

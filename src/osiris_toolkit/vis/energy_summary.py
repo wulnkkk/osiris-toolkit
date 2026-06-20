@@ -108,8 +108,7 @@ def plot_spectrum_colormap(
     ax.set_xlabel("kx / k0")
     ax.set_ylabel("ky / k0")
     ax.set_title(
-        f"k-space Spectrum — {result.quantity.upper()}  |  "
-        f"iteration={result.iteration}  |  t={result.time:.1f}"
+        f"k-space Spectrum — {result.quantity.upper()}  |  iteration={result.iteration}  |  t={result.time:.1f}"
     )
     fig.tight_layout()
     save_or_show(fig, output, overwrite=overwrite)
@@ -144,9 +143,7 @@ def plot_poynting_vector(
     im = ax.imshow(data, origin="lower", aspect="auto", cmap=cmap)
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label("Poynting flux (norm)")
-    ax.set_title(
-        f"Poynting {component.upper()}  |  iteration={result.iteration}"
-    )
+    ax.set_title(f"Poynting {component.upper()}  |  iteration={result.iteration}")
     fig.tight_layout()
     save_or_show(fig, output, overwrite=overwrite)
     return Path(output) if output else None

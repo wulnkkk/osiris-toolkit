@@ -117,8 +117,14 @@ class OsirisConfig:
 
 # Module-level fields for copy iteration
 _FIELDS = [
-    "output_root", "log_level", "log_json", "parallel_workers",
-    "overwrite", "x_unit", "y_unit", "time_unit",
+    "output_root",
+    "log_level",
+    "log_json",
+    "parallel_workers",
+    "overwrite",
+    "x_unit",
+    "y_unit",
+    "time_unit",
 ]
 
 # Global singleton

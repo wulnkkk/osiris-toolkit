@@ -60,21 +60,15 @@ def symmetrical_colormap(
     else:
         colors = np.vstack([neg, pos])
 
-    return LinearSegmentedColormap.from_list(
-        f"{negative_cmap}_{positive_cmap}", colors, N=len(colors)
-    )
+    return LinearSegmentedColormap.from_list(f"{negative_cmap}_{positive_cmap}", colors, N=len(colors))
 
 
 def register_cmaps() -> None:
     """Register EField and BField symmetric colormaps with matplotlib."""
     import matplotlib
 
-    matplotlib.colormaps.register(
-        cmap=symmetrical_colormap("Reds", "Blues"), name="EField"
-    )
-    matplotlib.colormaps.register(
-        cmap=symmetrical_colormap("Oranges", "Greens"), name="BField"
-    )
+    matplotlib.colormaps.register(cmap=symmetrical_colormap("Reds", "Blues"), name="EField")
+    matplotlib.colormaps.register(cmap=symmetrical_colormap("Oranges", "Greens"), name="BField")
 
 
 __all__ = ["register_cmaps", "symmetrical_colormap"]

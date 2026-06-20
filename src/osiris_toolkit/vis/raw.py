@@ -54,8 +54,7 @@ def plot_raw_scatter(
     y = raw.data.get(y_axis)
     if x is None or y is None:
         raise DataNotFoundError(
-            f"Quantity '{x_axis}' or '{y_axis}' not in raw data. "
-            f"Available: {list(raw.data.keys())}"
+            f"Quantity '{x_axis}' or '{y_axis}' not in raw data. Available: {list(raw.data.keys())}"
         )
 
     fig, ax = plt.subplots(figsize=(7, 6))
@@ -70,10 +69,7 @@ def plot_raw_scatter(
 
     ax.set_xlabel(x_axis)
     ax.set_ylabel(y_axis)
-    ax.set_title(
-        f"RAW {raw.label}  |  iteration={raw.iteration}  |  t={raw.time:.1f}"
-        f"  |  N={raw.nparts}"
-    )
+    ax.set_title(f"RAW {raw.label}  |  iteration={raw.iteration}  |  t={raw.time:.1f}  |  N={raw.nparts}")
     ax.set_aspect("auto")
 
     save_or_show(fig, output)
@@ -117,8 +113,11 @@ def plot_raw_momentum(
 
     # Top-left: p1-p2 scatter
     ax_scatter.scatter(
-        raw.data["p1"], raw.data["p2"],
-        s=2, alpha=alpha, c=raw.data.get("ene", "steelblue"),
+        raw.data["p1"],
+        raw.data["p2"],
+        s=2,
+        alpha=alpha,
+        c=raw.data.get("ene", "steelblue"),
         cmap=cmap if "ene" in raw.data else None,
         linewidths=0,
     )
@@ -141,8 +140,7 @@ def plot_raw_momentum(
             ax_h.set_yscale("log")
 
     fig.suptitle(
-        f"Momentum distribution — {raw.label}  |  "
-        f"iteration={raw.iteration}  |  t={raw.time:.1f}",
+        f"Momentum distribution — {raw.label}  |  iteration={raw.iteration}  |  t={raw.time:.1f}",
         fontsize=13,
     )
     fig.tight_layout()
@@ -185,10 +183,7 @@ def plot_raw_phasespace(
     x = raw.data.get(x_axis)
     p = raw.data.get(p_axis)
     if x is None or p is None:
-        raise ValueError(
-            f"Quantity '{x_axis}' or '{p_axis}' not in raw data. "
-            f"Available: {list(raw.data.keys())}"
-        )
+        raise ValueError(f"Quantity '{x_axis}' or '{p_axis}' not in raw data. Available: {list(raw.data.keys())}")
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -202,10 +197,7 @@ def plot_raw_phasespace(
 
     ax.set_xlabel(x_axis)
     ax.set_ylabel(p_axis)
-    ax.set_title(
-        f"Phase-space {x_axis}-{p_axis} ({raw.label})  |  "
-        f"iteration={raw.iteration}  |  N={raw.nparts}"
-    )
+    ax.set_title(f"Phase-space {x_axis}-{p_axis} ({raw.label})  |  iteration={raw.iteration}  |  N={raw.nparts}")
 
     save_or_show(fig, output)
     return Path(output) if output else None
@@ -253,10 +245,7 @@ def plot_raw_energy_spectrum(
 
     ax.set_xlabel("Energy (norm)")
     ax.set_ylabel("counts")
-    ax.set_title(
-        f"Energy spectrum — {raw.label}  |  "
-        f"iteration={raw.iteration}  |  N={raw.nparts}"
-    )
+    ax.set_title(f"Energy spectrum — {raw.label}  |  iteration={raw.iteration}  |  N={raw.nparts}")
 
     save_or_show(fig, output)
     return Path(output) if output else None
@@ -265,6 +254,4 @@ def plot_raw_energy_spectrum(
 def _require_quant(raw: ParticleData, name: str) -> None:
     """Raise ValueError if *name* is not in raw.data."""
     if name not in raw.data:
-        raise DataNotFoundError(
-            f"Quantity '{name}' not in raw data. Available: {list(raw.data.keys())}"
-        )
+        raise DataNotFoundError(f"Quantity '{name}' not in raw data. Available: {list(raw.data.keys())}")

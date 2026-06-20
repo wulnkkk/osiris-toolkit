@@ -51,10 +51,7 @@ class DensityAnalyzer(DiagnosticAnalyzer):
         """
         grid = self._sim.get_density(species, quantity, iteration)
         if grid is None:
-            raise DataNotFoundError(
-                f"No {quantity} density for species '{species}' "
-                f"at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No {quantity} density for species '{species}' at iteration {iteration}")
 
         profile = line_integrate(grid.data, axis=axis)
 
@@ -97,10 +94,7 @@ class DensityAnalyzer(DiagnosticAnalyzer):
         """
         grid = self._sim.get_density(species, quantity, iteration)
         if grid is None:
-            raise DataNotFoundError(
-                f"No {quantity} density for species '{species}' "
-                f"at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No {quantity} density for species '{species}' at iteration {iteration}")
         return DensityIntegralResult(
             species=species,
             quantity=quantity,

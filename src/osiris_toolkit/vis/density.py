@@ -72,20 +72,21 @@ def plot_density(
 
     grid = sim_obj.get_density(species, quantity, iteration)
     if grid is None:
-        raise DataNotFoundError(
-            f"Density for {species!r}/{quantity!r} not found"
-            f" at iteration {iteration}."
-        )
+        raise DataNotFoundError(f"Density for {species!r}/{quantity!r} not found at iteration {iteration}.")
 
     data = grid.data
 
     if system is not None:
-        extent = [
-            system["length"].to(grid.axes[0].min, x_unit),
-            system["length"].to(grid.axes[0].max, x_unit),
-            system["length"].to(grid.axes[1].min, y_unit),
-            system["length"].to(grid.axes[1].max, y_unit),
-        ] if len(grid.axes) >= 2 else None
+        extent = (
+            [
+                system["length"].to(grid.axes[0].min, x_unit),
+                system["length"].to(grid.axes[0].max, x_unit),
+                system["length"].to(grid.axes[1].min, y_unit),
+                system["length"].to(grid.axes[1].max, y_unit),
+            ]
+            if len(grid.axes) >= 2
+            else None
+        )
     else:
         extent = (
             [
@@ -129,38 +130,22 @@ def plot_density(
     if system is not None:
         cbar.set_label(system["density"].label(value_unit))
     else:
-        cbar.set_label(
-            f"{grid.label} [{grid.units}]" if grid.units else grid.label
-        )
+        cbar.set_label(f"{grid.label} [{grid.units}]" if grid.units else grid.label)
 
     if system is not None:
         ax.set_xlabel(system.length.label(x_unit))
         if data.ndim >= 2:
             ax.set_ylabel(system.length.label(y_unit))
     else:
-        ax.set_xlabel(
-            f"x1 [{grid.axes[0].units}]"
-            if grid.axes and grid.axes[0].units
-            else "x1"
-        )
+        ax.set_xlabel(f"x1 [{grid.axes[0].units}]" if grid.axes and grid.axes[0].units else "x1")
         if data.ndim >= 2:
-            ax.set_ylabel(
-                f"x2 [{grid.axes[1].units}]"
-                if len(grid.axes) > 1 and grid.axes[1].units
-                else "x2"
-            )
+            ax.set_ylabel(f"x2 [{grid.axes[1].units}]" if len(grid.axes) > 1 and grid.axes[1].units else "x2")
 
     if system is not None:
         t_disp = system.time.to(grid.time, time_unit)
-        ax.set_title(
-            f"Density ({species}, {quantity})  |  iteration={iteration}"
-            f"  |  t={t_disp:.1f}"
-        )
+        ax.set_title(f"Density ({species}, {quantity})  |  iteration={iteration}  |  t={t_disp:.1f}")
     else:
-        ax.set_title(
-            f"Density ({species}, {quantity})  |  iteration={iteration}"
-            f"  |  t={grid.time:.1f}"
-        )
+        ax.set_title(f"Density ({species}, {quantity})  |  iteration={iteration}  |  t={grid.time:.1f}")
 
     save_or_show(fig, output)
     return Path(output) if output else None
@@ -170,9 +155,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        logger.info(
-            "Usage: python -m osiris_toolkit.vis.density SIM_PATH [ITERATION]"
-        )
+        logger.info("Usage: python -m osiris_toolkit.vis.density SIM_PATH [ITERATION]")
         sys.exit(1)
 
     sim_path = sys.argv[1]
@@ -184,13 +167,16 @@ if __name__ == "__main__":
     if species_list:
         sp = species_list[0]
         sp_entries = sim._density.get(sp, {})
-        iters = sorted(
-            {e.iteration for entries in sp_entries.values() for e in entries}
-        )
+        iters = sorted({e.iteration for entries in sp_entries.values() for e in entries})
         it = iters[iteration] if iters else 0
         plot_density(
-            sp, it, sim_path=sim_path, system=system,
-            x_unit="um", y_unit="um", time_unit="ps",
+            sp,
+            it,
+            sim_path=sim_path,
+            system=system,
+            x_unit="um",
+            y_unit="um",
+            time_unit="ps",
             output=f"density_{sp}.png",
         )
         logger.info("Done -- see density_%s.png", sp)

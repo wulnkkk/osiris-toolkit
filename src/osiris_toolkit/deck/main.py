@@ -23,10 +23,7 @@ def parse_deck_text(text: str, filename: str = "<input>") -> dict:
     deck = parse_tokens(tokenize(text, filename), filename)
     return {
         "filename": deck.filename,
-        "sections": [
-            {"name": s.name, "params": s.params, "line": s.line}
-            for s in deck.sections
-        ],
+        "sections": [{"name": s.name, "params": s.params, "line": s.line} for s in deck.sections],
     }
 
 

@@ -131,9 +131,7 @@ def generate(
             default = _clean_default(var.default)
             default_str = repr(default) if default is not None else "None"
             desc = sec_descs.get(pname.lower(), "")
-            lines.append(
-                f"_sec_{sec_name}[{pname!r}] = _GenParam("
-            )
+            lines.append(f"_sec_{sec_name}[{pname!r}] = _GenParam(")
             lines.append(f"    name={pname!r},")
             lines.append(f"    fortran_type={var.fortran_type!r},")
             lines.append(f"    python_type={py_type!r},")

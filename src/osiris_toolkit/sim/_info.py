@@ -56,12 +56,17 @@ class _InfoAccessors:
                 axes = []
                 if gi.has_axis:
                     for i, ax in enumerate(gi.axes):
-                        axes.append(GridAxis(
-                            name=ax.name, type=ax.axis_type,
-                            min=ax.min, max=ax.max,
-                            label=ax.label, units=ax.units,
-                            npoints=gi.nx[i] if i < len(gi.nx) else 0,
-                        ))
+                        axes.append(
+                            GridAxis(
+                                name=ax.name,
+                                type=ax.axis_type,
+                                min=ax.min,
+                                max=ax.max,
+                                label=ax.label,
+                                units=ax.units,
+                                npoints=gi.nx[i] if i < len(gi.nx) else 0,
+                            )
+                        )
                 return FieldInfo(
                     quantity=quantity,
                     iteration=it.n if it else 0,

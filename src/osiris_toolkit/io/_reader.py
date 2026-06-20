@@ -256,7 +256,7 @@ def _read_dataset(fh: BinaryIO, rec: ZdfRecord) -> np.ndarray | None:
     if ver >= 1:
         _id = _read_uint32(fh)  # dataset ID (not needed)
 
-    data_type_id, ndims, nx = _read_data_header(fh)
+    data_type_id, _ndims, nx = _read_data_header(fh)
 
     return _read_array(fh, data_type_id, tuple(nx))
 
@@ -498,9 +498,9 @@ def read_tracks(path: str | Path) -> tuple[list[np.ndarray], ZdfTrackInfo]:
         for i in range(itermap.shape[0]):
             track_id = int(itermap[i, 0]) - 1
             npoints = int(itermap[i, 1])
-            tracks[track_id][track_sizes[track_id]:track_sizes[track_id] + npoints, :] = (
-                track_data[idx:idx + npoints, :]
-            )
+            tracks[track_id][track_sizes[track_id] : track_sizes[track_id] + npoints, :] = track_data[
+                idx : idx + npoints, :
+            ]
             track_sizes[track_id] += npoints
             idx += npoints
 
@@ -535,6 +535,4 @@ def _check_magic(fh: BinaryIO) -> None:
     """Verify the ZDF magic number at the current file position."""
     magic = fh.read(4)
     if magic != MAGIC:
-        raise FormatError(
-            f"Not a valid ZDF file: expected magic {MAGIC!r}, got {magic!r}"
-        )
+        raise FormatError(f"Not a valid ZDF file: expected magic {MAGIC!r}, got {magic!r}")

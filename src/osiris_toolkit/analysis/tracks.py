@@ -44,9 +44,7 @@ class TracksAnalyzer(DiagnosticAnalyzer):
         ene_idx = _find_quant(td.quants, "ene")
         return [track[:, ene_idx] for track in td.tracks]
 
-    def field_along(
-        self, name: str, component: str
-    ) -> list[np.ndarray]:
+    def field_along(self, name: str, component: str) -> list[np.ndarray]:
         """Extract field component along each track.
 
         Parameters
@@ -78,6 +76,4 @@ def _find_quant(quants: list[str], target: str) -> int:
     for i, q in enumerate(quants):
         if q.lower() == target_lower:
             return i
-    raise DataNotFoundError(
-        f"Quantity '{target}' not found in track quants: {quants}"
-    )
+    raise DataNotFoundError(f"Quantity '{target}' not found in track quants: {quants}")

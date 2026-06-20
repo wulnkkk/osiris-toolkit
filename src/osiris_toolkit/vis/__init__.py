@@ -69,14 +69,19 @@ class PostVisHub:
 
     def plot_field(self, quantity: str, iteration: int, **kwargs) -> Path | None:
         return plot_field(
-            sim=self._sim, system=self._system,
-            quantity=quantity, iteration=iteration, **kwargs,
+            sim=self._sim,
+            system=self._system,
+            quantity=quantity,
+            iteration=iteration,
+            **kwargs,
         )
 
     def plot_all_fields(self, iteration: int, **kwargs) -> None:
         return plot_all_fields(
-            sim=self._sim, system=self._system,
-            iteration=iteration, **kwargs,
+            sim=self._sim,
+            system=self._system,
+            iteration=iteration,
+            **kwargs,
         )
 
     @cached_property
@@ -113,20 +118,31 @@ class PostVisHub:
 
     def plot_density(self, species: str, iteration: int, quantity: str = "charge", **kwargs) -> Path | None:
         return plot_density(
-            sim=self._sim, system=self._system,
-            species=species, iteration=iteration, quantity=quantity, **kwargs,
+            sim=self._sim,
+            system=self._system,
+            species=species,
+            iteration=iteration,
+            quantity=quantity,
+            **kwargs,
         )
 
     def plot_phasespace(self, ps_name: str, species: str, iteration: int, **kwargs) -> Path | None:
         return plot_phasespace(
-            sim=self._sim, system=self._system,
-            ps_name=ps_name, species=species, iteration=iteration, **kwargs,
+            sim=self._sim,
+            system=self._system,
+            ps_name=ps_name,
+            species=species,
+            iteration=iteration,
+            **kwargs,
         )
 
     def plot_k_space(self, quantity: str, iteration: int, **kwargs) -> Path | None:
         return plot_k_space(
-            sim=self._sim, system=self._system,
-            quantity=quantity, iteration=iteration, **kwargs,
+            sim=self._sim,
+            system=self._system,
+            quantity=quantity,
+            iteration=iteration,
+            **kwargs,
         )
 
     def plot(self, kind: str, **kwargs) -> Path | None:
@@ -145,8 +161,10 @@ class PostVisHub:
             iteration = kwargs.get("iteration")
             if quantity and iteration is not None:
                 return plot_field(
-                    sim=self._sim, system=self._system,
-                    quantity=quantity, iteration=iteration,
+                    sim=self._sim,
+                    system=self._system,
+                    quantity=quantity,
+                    iteration=iteration,
                     **{k: v for k, v in kwargs.items() if k not in ("quantity", "iteration")},
                 )
             raise DataNotFoundError(f"Unknown diagnostic kind {kind!r}")
@@ -186,33 +204,25 @@ class _RawVis:
     def scatter(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise DataNotFoundError(
-                f"No raw particle data for species '{species}' at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No raw particle data for species '{species}' at iteration {iteration}")
         return plot_raw_scatter(raw, **kwargs)
 
     def momentum(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise DataNotFoundError(
-                f"No raw particle data for species '{species}' at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No raw particle data for species '{species}' at iteration {iteration}")
         return plot_raw_momentum(raw, **kwargs)
 
     def phasespace(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise DataNotFoundError(
-                f"No raw particle data for species '{species}' at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No raw particle data for species '{species}' at iteration {iteration}")
         return plot_raw_phasespace(raw, **kwargs)
 
     def energy_spectrum(self, species: str, iteration: int, **kwargs) -> Path | None:
         raw = self._hub._sim.get_raw(species, iteration)
         if raw is None:
-            raise DataNotFoundError(
-                f"No raw particle data for species '{species}' at iteration {iteration}"
-            )
+            raise DataNotFoundError(f"No raw particle data for species '{species}' at iteration {iteration}")
         return plot_raw_energy_spectrum(raw, **kwargs)
 
 

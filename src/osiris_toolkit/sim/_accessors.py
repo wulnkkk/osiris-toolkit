@@ -59,9 +59,7 @@ class _DataAccessors:
         """Return available TIMINGS file names."""
         return sorted([p.name for p in self._timings])
 
-    def list_iterations(
-        self, quantity: str, report_type: str | None = None, *, step: int = 1
-    ) -> list[int]:
+    def list_iterations(self, quantity: str, report_type: str | None = None, *, step: int = 1) -> list[int]:
         """Return available iteration numbers for a given field quantity.
 
         Parameters
@@ -89,9 +87,7 @@ class _DataAccessors:
 
     # -- Field accessors ----------------------------------------------------
 
-    def get_field(
-        self, quantity: str, iteration: int, report_type: str | None = None
-    ) -> GridData | None:
+    def get_field(self, quantity: str, iteration: int, report_type: str | None = None) -> GridData | None:
         """Read field diagnostic for given quantity and iteration.
 
         Parameters
@@ -224,9 +220,7 @@ class _DataAccessors:
                     return self._read_grid(e.path)
         return None
 
-    def get_phasespace(
-        self, ps_name: str, species: str, iteration: int
-    ) -> PhasespaceData | None:
+    def get_phasespace(self, ps_name: str, species: str, iteration: int) -> PhasespaceData | None:
         """Read phasespace diagnostic."""
         ps = self._phasespace.get(ps_name, {})
         entries = ps.get(species, [])
@@ -264,9 +258,7 @@ class _DataAccessors:
                 return _parse_timings_file(p)
         return None
 
-    def get_chargecons(
-        self, iteration: int, report_type: str | None = None
-    ) -> GridData | None:
+    def get_chargecons(self, iteration: int, report_type: str | None = None) -> GridData | None:
         """Read charge conservation diagnostic.
 
         Parameters
@@ -289,9 +281,7 @@ class _DataAccessors:
                     return self._read_grid(e.path)
         return None
 
-    def get_wall(
-        self, name: str, iteration: int, report_type: str | None = None
-    ) -> GridData | None:
+    def get_wall(self, name: str, iteration: int, report_type: str | None = None) -> GridData | None:
         """Read wall diagnostic by name and iteration.
 
         Parameters

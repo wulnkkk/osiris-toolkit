@@ -161,7 +161,7 @@ def _parse_timings_file(filepath: Path) -> TimingsData:
         if len(values) != len(columns):
             continue
         event_names.append(event_name)
-        for col, val in zip(columns, values):
+        for col, val in zip(columns, values, strict=True):
             data[col].append(val)
 
     return TimingsData(

@@ -30,8 +30,7 @@ def _ensure_h5py():
         import h5py
     except ImportError:
         raise MissingDependencyError(
-            "h5py is required to read HDF5 files. "
-            "Install with: pip install osiris-toolkit[hdf5]"
+            "h5py is required to read HDF5 files. Install with: pip install osiris-toolkit[hdf5]"
         )
     return h5py
 
@@ -73,7 +72,7 @@ def _read_grid_info_h5(grp) -> ZdfGridInfo:
     gi.has_axis = "AXIS1" in grp
     if gi.has_axis:
         for i in range(gi.ndims):
-            ax_name = f"AXIS{i+1}"
+            ax_name = f"AXIS{i + 1}"
             if ax_name not in grp:
                 continue
             ag = grp[ax_name]
@@ -273,9 +272,9 @@ def read_tracks(path: str | Path) -> tuple[list[np.ndarray], ZdfTrackInfo]:
         for i in range(itermap.shape[0]):
             track_id = int(itermap[i, 0]) - 1
             npoints = int(itermap[i, 1])
-            tracks[track_id][track_sizes[track_id]:track_sizes[track_id] + npoints, :] = (
-                track_data[idx:idx + npoints, :]
-            )
+            tracks[track_id][track_sizes[track_id] : track_sizes[track_id] + npoints, :] = track_data[
+                idx : idx + npoints, :
+            ]
             track_sizes[track_id] += npoints
             idx += npoints
 

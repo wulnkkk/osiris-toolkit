@@ -108,9 +108,7 @@ def generate(output_path: str | Path, osiris_source_dir: str | Path) -> None:
     lines: list[str] = [_HEADER]
 
     for sec_name, nl_name in sorted(sections):
-        lines.append(
-            f"GEN_SECTIONS.append(_GenSection(name={sec_name!r}, nl_name={nl_name!r}))"
-        )
+        lines.append(f"GEN_SECTIONS.append(_GenSection(name={sec_name!r}, nl_name={nl_name!r}))")
     lines.append("")
 
     # Also output the canonical section order if we can determine it

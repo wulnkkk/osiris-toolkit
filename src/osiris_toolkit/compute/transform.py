@@ -122,12 +122,22 @@ def to_cylindrical(
         nr = max(field.axes[0].npoints, field.axes[1].npoints)
 
     r_axis = GridAxis(
-        name="r", type=0, min=0.0, max=r_max,
-        label="r", units=field.axes[0].units, npoints=nr,
+        name="r",
+        type=0,
+        min=0.0,
+        max=r_max,
+        label="r",
+        units=field.axes[0].units,
+        npoints=nr,
     )
     theta_axis = GridAxis(
-        name="theta", type=0, min=0.0, max=2 * np.pi,
-        label="θ", units="rad", npoints=ntheta,
+        name="theta",
+        type=0,
+        min=0.0,
+        max=2 * np.pi,
+        label="θ",
+        units="rad",
+        npoints=ntheta,
     )
 
     return remap_field(field, (r_axis, theta_axis), interpolation="bilinear")

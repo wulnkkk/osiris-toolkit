@@ -18,8 +18,11 @@ from osiris_toolkit.sim import Simulation
 
 # ── Worker functions (module-level, pickle-safe) ──────────────────────
 
+
 def _worker_field_energy(
-    sim: Simulation, iteration: int, quantity: str,
+    sim: Simulation,
+    iteration: int,
+    quantity: str,
 ) -> dict:
     """Worker: compute total field energy for one iteration."""
     limit_blas_threads(1)
@@ -29,16 +32,19 @@ def _worker_field_energy(
     return {
         "iteration": iteration,
         "time": grid.time,
-        "energy": float((grid.data ** 2).sum()),
+        "energy": float((grid.data**2).sum()),
     }
 
 
 def _worker_describe(
-    sim: Simulation, iteration: int, quantity: str,
+    sim: Simulation,
+    iteration: int,
+    quantity: str,
 ) -> dict:
     """Worker: compute describe() statistics for one iteration."""
     limit_blas_threads(1)
     import numpy as np
+
     grid = sim.get_field(quantity, iteration)
     if grid is None:
         return {"iteration": iteration, "error": "no data"}
@@ -49,11 +55,12 @@ def _worker_describe(
         "std": float(np.std(grid.data)),
         "min": float(np.min(grid.data)),
         "max": float(np.max(grid.data)),
-        "rms": float(np.sqrt(np.mean(grid.data ** 2))),
+        "rms": float(np.sqrt(np.mean(grid.data**2))),
     }
 
 
 # ── Internal fan-out ──────────────────────────────────────────────────
+
 
 def _run_analysis_parallel(
     sim: Simulation,
@@ -75,10 +82,7 @@ def _run_analysis_parallel(
     ctx = multiprocessing.get_context("spawn")
 
     with ProcessPoolExecutor(max_workers=max_workers, mp_context=ctx) as ex:
-        futures = [
-            ex.submit(worker_fn, sim, it, **worker_kwargs)
-            for it in my_iters
-        ]
+        futures = [ex.submit(worker_fn, sim, it, **worker_kwargs) for it in my_iters]
         results = [f.result() for f in futures]
 
     results.sort(key=lambda r: r.get("iteration", 0))
@@ -86,6 +90,7 @@ def _run_analysis_parallel(
 
 
 # ── Public API ─────────────────────────────────────────────────────────
+
 
 def field_energy_all(
     sim: Simulation,
@@ -112,8 +117,11 @@ def field_energy_all(
     """
     iterations = sim.list_iterations(quantity)
     return _run_analysis_parallel(
-        sim, iterations, _worker_field_energy,
-        {"quantity": quantity}, max_workers,
+        sim,
+        iterations,
+        _worker_field_energy,
+        {"quantity": quantity},
+        max_workers,
     )
 
 
@@ -145,6 +153,9 @@ def describe_all(
     if iterations is None:
         iterations = sim.list_iterations(quantity)
     return _run_analysis_parallel(
-        sim, iterations, _worker_describe,
-        {"quantity": quantity}, max_workers,
+        sim,
+        iterations,
+        _worker_describe,
+        {"quantity": quantity},
+        max_workers,
     )

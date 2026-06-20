@@ -101,8 +101,7 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
 
         if self._system is None:
             raise UnitConversionError(
-                "Scattering analysis requires a UnitSystem. "
-                "Provide an input deck to construct one."
+                "Scattering analysis requires a UnitSystem. Provide an input deck to construct one."
             )
 
         result = ScatteringResult(quantity=quantity, mask_info=dict(masks))
@@ -118,37 +117,49 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
             kx, ky, spectrum = compute_k_space(grid.data, dx, dy)
 
             inc = mask_energy(
-                spectrum, kx, ky,
+                spectrum,
+                kx,
+                ky,
                 masks["incident"]["kx_range"],
                 masks["incident"]["ky_range"],
                 self._system,
             )
             sct = mask_energy(
-                spectrum, kx, ky,
+                spectrum,
+                kx,
+                ky,
                 masks["scattered"]["kx_range"],
                 masks["scattered"]["ky_range"],
                 self._system,
             )
             side1 = mask_energy(
-                spectrum, kx, ky,
+                spectrum,
+                kx,
+                ky,
                 masks["side_scatter_1"]["kx_range"],
                 masks["side_scatter_1"]["ky_range"],
                 self._system,
             )
             side2 = mask_energy(
-                spectrum, kx, ky,
+                spectrum,
+                kx,
+                ky,
                 masks["side_scatter_2"]["kx_range"],
                 masks["side_scatter_2"]["ky_range"],
                 self._system,
             )
             back1 = mask_energy(
-                spectrum, kx, ky,
+                spectrum,
+                kx,
+                ky,
                 masks["back_scatter_1"]["kx_range"],
                 masks["back_scatter_1"]["ky_range"],
                 self._system,
             )
             back2 = mask_energy(
-                spectrum, kx, ky,
+                spectrum,
+                kx,
+                ky,
                 masks["back_scatter_2"]["kx_range"],
                 masks["back_scatter_2"]["ky_range"],
                 self._system,
@@ -157,17 +168,15 @@ class ScatteringAnalyzer(DiagnosticAnalyzer):
             result.iterations.append(it)
             result.times.append(grid.time)
             result.scattered_fraction.append(sct / inc if inc > 0 else 0.0)
-            result.side_scatter_fraction.append(
-                (side1 + side2) / inc if inc > 0 else 0.0
-            )
-            result.back_scatter_fraction.append(
-                (back1 + back2) / inc if inc > 0 else 0.0
-            )
+            result.side_scatter_fraction.append((side1 + side2) / inc if inc > 0 else 0.0)
+            result.back_scatter_fraction.append((back1 + back2) / inc if inc > 0 else 0.0)
 
             if verbose:
                 logger.info(
                     "  iteration=%06d  t=%.1f  scat=%.4f",
-                    it, grid.time, result.scattered_fraction[-1],
+                    it,
+                    grid.time,
+                    result.scattered_fraction[-1],
                 )
 
         return result

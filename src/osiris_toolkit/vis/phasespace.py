@@ -75,9 +75,7 @@ def plot_phasespace(
 
     data = ps.data
     if data.ndim < 2:
-        raise ShapeError(
-            f"Expected 2-D phase-space data, got shape {data.shape}"
-        )
+        raise ShapeError(f"Expected 2-D phase-space data, got shape {data.shape}")
 
     fig, ax = plt.subplots(figsize=(8, 8))
 
@@ -119,27 +117,15 @@ def plot_phasespace(
         if len(ps.axes) >= 2:
             ax.set_ylabel(system["momentum"].label(p_unit))
     else:
-        ax.set_xlabel(
-            f"{ps.axes[0].get('name', 'axis0')}"
-            f" [{ps.axes[0].get('units', '')}]"
-        )
+        ax.set_xlabel(f"{ps.axes[0].get('name', 'axis0')} [{ps.axes[0].get('units', '')}]")
         if len(ps.axes) >= 2:
-            ax.set_ylabel(
-                f"{ps.axes[1].get('name', 'axis1')}"
-                f" [{ps.axes[1].get('units', '')}]"
-            )
+            ax.set_ylabel(f"{ps.axes[1].get('name', 'axis1')} [{ps.axes[1].get('units', '')}]")
 
     if system is not None:
         t_disp = system.time.to(ps.time, time_unit)
-        ax.set_title(
-            f"Phasespace {ps_name} ({species})  |  iteration={iteration}"
-            f"  |  t={t_disp:.1f}"
-        )
+        ax.set_title(f"Phasespace {ps_name} ({species})  |  iteration={iteration}  |  t={t_disp:.1f}")
     else:
-        ax.set_title(
-            f"Phasespace {ps_name} ({species})  |  iteration={iteration}"
-            f"  |  t={ps.time:.1f}"
-        )
+        ax.set_title(f"Phasespace {ps_name} ({species})  |  iteration={iteration}  |  t={ps.time:.1f}")
 
     save_or_show(fig, output)
     return Path(output) if output else None
@@ -149,9 +135,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        logger.info(
-            "Usage: python -m osiris_toolkit.vis.phasespace SIM_PATH [ITERATION]"
-        )
+        logger.info("Usage: python -m osiris_toolkit.vis.phasespace SIM_PATH [ITERATION]")
         sys.exit(1)
 
     sim_path = sys.argv[1]
@@ -165,8 +149,13 @@ if __name__ == "__main__":
         iters = sorted({e.iteration for e in entries})
         it = iters[iteration] if iters else 0
         plot_phasespace(
-            ps_name, sp, it, sim_path=sim_path, system=system,
-            p_unit="MeV/c", time_unit="ps",
+            ps_name,
+            sp,
+            it,
+            sim_path=sim_path,
+            system=system,
+            p_unit="MeV/c",
+            time_unit="ps",
             output=f"phasespace_{ps_name}_{sp}.png",
         )
         logger.info("Done -- see phasespace_%s_%s.png", ps_name, sp)

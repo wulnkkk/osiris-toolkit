@@ -200,7 +200,7 @@ class ResourceParams:
         species_sections = _find_all_sections(sections, "species")
         species_ppc: list[list[int]] = []
         species_names: list[str] = []
-        for sp_sec in species_sections[:max(num_species, 1)]:
+        for sp_sec in species_sections[: max(num_species, 1)]:
             sp_params = sp_sec.get("params", {})
             raw_ppc = _extract_list(sp_params.get("num_par_x"))
             if raw_ppc:
@@ -308,14 +308,28 @@ class ResourceParams:
         particle_precision_bytes = 8  # OSIRIS particles are always double by default
 
         return cls(
-            ndim=ndim, nx_p=nx_p, ngrid_total=ngrid_total,
-            tmax=tmax, dt=dt, n_steps=n_steps,
-            node_number=node_number, total_nodes=total_nodes, n_threads=n_threads,
-            num_species=num_species, species_ppc=species_ppc, species_names=species_names,
-            vpml_bnd_size=vpml_bnd_size, n_pml_boundaries=n_pml_boundaries,
-            solver=solver, solver_ord=solver_ord, interpolation=interp,
-            smooth_type=smooth_type, smooth_order=smooth_order,
-            if_move=if_move, if_collide=if_collide, n_collide=n_collide,
+            ndim=ndim,
+            nx_p=nx_p,
+            ngrid_total=ngrid_total,
+            tmax=tmax,
+            dt=dt,
+            n_steps=n_steps,
+            node_number=node_number,
+            total_nodes=total_nodes,
+            n_threads=n_threads,
+            num_species=num_species,
+            species_ppc=species_ppc,
+            species_names=species_names,
+            vpml_bnd_size=vpml_bnd_size,
+            n_pml_boundaries=n_pml_boundaries,
+            solver=solver,
+            solver_ord=solver_ord,
+            interpolation=interp,
+            smooth_type=smooth_type,
+            smooth_order=smooth_order,
+            if_move=if_move,
+            if_collide=if_collide,
+            n_collide=n_collide,
             emf_ndump_fac=emf_ndump_fac,
             species_ndump_fac=species_ndump_fac,
             species_ndump_fac_raw=species_ndump_fac_raw,

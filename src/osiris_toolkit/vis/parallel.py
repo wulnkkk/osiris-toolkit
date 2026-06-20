@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 # ── Worker functions (module-level, pickle-safe) ──────────────────────
 
+
 def _worker_plot_field(
     sim: Simulation,
     iteration: int,
@@ -40,18 +41,25 @@ def _worker_plot_field(
     """Worker: plot one field frame.  Returns output path."""
     limit_blas_threads(1)
     import matplotlib as _mpl
+
     _mpl.use("Agg")
     from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.field import plot_field
 
     system = get_system(sim)
     plot_field(
-        quantity=quantity, iteration=iteration, sim=sim,
-        system=system, x_unit=x_unit, y_unit=y_unit,
-        time_unit=time_unit, output=output,
+        quantity=quantity,
+        iteration=iteration,
+        sim=sim,
+        system=system,
+        x_unit=x_unit,
+        y_unit=y_unit,
+        time_unit=time_unit,
+        output=output,
     )
     import matplotlib.pyplot as _plt
-    _plt.close('all')
+
+    _plt.close("all")
     return output
 
 
@@ -65,17 +73,23 @@ def _worker_plot_k_space(
     """Worker: plot one k-space frame.  Returns output path."""
     limit_blas_threads(1)
     import matplotlib as _mpl
+
     _mpl.use("Agg")
     from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.kspace import plot_k_space
 
     system = get_system(sim)
     plot_k_space(
-        quantity=quantity, iteration=iteration, sim=sim,
-        system=system, time_unit=time_unit, output=output,
+        quantity=quantity,
+        iteration=iteration,
+        sim=sim,
+        system=system,
+        time_unit=time_unit,
+        output=output,
     )
     import matplotlib.pyplot as _plt
-    _plt.close('all')
+
+    _plt.close("all")
     return output
 
 
@@ -92,22 +106,30 @@ def _worker_plot_density(
     """Worker: plot one density frame.  Returns output path."""
     limit_blas_threads(1)
     import matplotlib as _mpl
+
     _mpl.use("Agg")
     from osiris_toolkit.vis.common import get_system
     from osiris_toolkit.vis.density import plot_density
 
     system = get_system(sim)
     plot_density(
-        species=species, iteration=iteration, sim=sim,
-        system=system, x_unit=x_unit, y_unit=y_unit,
-        time_unit=time_unit, output=output,
+        species=species,
+        iteration=iteration,
+        sim=sim,
+        system=system,
+        x_unit=x_unit,
+        y_unit=y_unit,
+        time_unit=time_unit,
+        output=output,
     )
     import matplotlib.pyplot as _plt
-    _plt.close('all')
+
+    _plt.close("all")
     return output
 
 
 # ── Public API ─────────────────────────────────────────────────────────
+
 
 def batch_process_parallel(
     sim_path: str | Path,
@@ -151,7 +173,10 @@ def batch_process_parallel(
     n_total = len(iterations)
     logger.info(
         "[%s] %d iterations, %d fields, %d species (parallel)",
-        sim_name, n_total, len(available_fields), len(species_list),
+        sim_name,
+        n_total,
+        len(available_fields),
+        len(species_list),
     )
 
     # Cluster sharding
@@ -181,7 +206,11 @@ def batch_process_parallel(
                 out = str(field_dir / f"{qty}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_field, sim, it, qty, out,
+                        _worker_plot_field,
+                        sim,
+                        it,
+                        qty,
+                        out,
                         **base_kwargs,
                     )
                 ] = f"field {qty} it={it}"
@@ -191,7 +220,11 @@ def batch_process_parallel(
                 out = str(kspace_dir / f"kspace_{qty}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_k_space, sim, it, qty, out,
+                        _worker_plot_k_space,
+                        sim,
+                        it,
+                        qty,
+                        out,
                         time_unit=time_unit,
                     )
                 ] = f"kspace {qty} it={it}"
@@ -201,7 +234,11 @@ def batch_process_parallel(
                 out = str(density_dir / f"density_{sp}_{it:06d}.png")
                 futures[
                     ex.submit(
-                        _worker_plot_density, sim_path, it, sp, out,
+                        _worker_plot_density,
+                        sim_path,
+                        it,
+                        sp,
+                        out,
                         **base_kwargs,
                     )
                 ] = f"density {sp} it={it}"
@@ -233,7 +270,8 @@ def batch_process_parallel(
             continue
         try:
             result = scattering_analyzer.analyze(
-                quantity=qty, verbose=False,
+                quantity=qty,
+                verbose=False,
             )
             plot_scattering_fraction(
                 result,
