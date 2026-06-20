@@ -29,6 +29,7 @@ Closes #(issue-number)
 - [ ] CHANGELOG.md updated
 - [ ] **No internal paths, usernames, or hostnames leaked**
 - [ ] **All text is in English** (code, docs, comments, commit messages)
+- [ ] **CI checks all pass** — no pending or failed checks on this PR
 - [ ] Branch rebased onto latest main
 
 ## Additional Information

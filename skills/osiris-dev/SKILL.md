@@ -199,4 +199,6 @@ Before committing or opening a PR, verify each item:
 - [ ] `make check-all` passes (runs lint + typecheck + test + docs-build + arch check)
 ```
 
-> Tip: Pre-commit hooks catch most formatting/type issues automatically. Run `make precommit` to check before submitting.
+> Tip: Pre-commit hooks catch most formatting/type issues automatically on commit.
+> Pre-push hooks run `make check-all` before every push. Install them with:
+> `uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push`

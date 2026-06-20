@@ -28,9 +28,12 @@ uv venv
 # Windows: .venv\Scripts\activate
 uv sync --dev
 
-# Install pre-commit hooks (run automatically on every commit)
-uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
+# Install pre-commit hooks (run automatically on commit and push)
+uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 ```
+
+> Pre-push hooks run `make check-all` before every `git push`. If they fail,
+> the push is blocked. Use `git push --no-verify` to bypass (not recommended).
 
 ---
 
@@ -238,6 +241,17 @@ When ready to release 1.0.0, that section must be removed so that
 > Versions follow [Semantic Versioning 2.0](https://semver.org/).
 
 ---
+
+## CI Policy
+
+All CI checks must pass before merging or releasing. If CI reports a failure:
+
+1. **Fix the root cause** — do not bypass CI by force-pushing or skipping tests
+2. **Re-run CI** — push the fix and wait for CI to pass all checks
+3. **No `git push --no-verify` on main** — bypassing pre-push hooks is allowed on
+   feature branches for exploratory work, but the final commit to `main` must
+   pass all pre-push checks
+4. **CI is gating, not advisory** — a red CI is treated as a blocker, not a warning
 
 ## Architecture Rules
 
