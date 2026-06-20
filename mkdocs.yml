@@ -59,6 +59,7 @@ nav:
       - Unit System: design/unit-system-architecture.md
       - Architecture Refactor v0.14: design/architecture-refactor.md
       - PostProcessor Design: design/postproc-architecture.md
+      - Doc System: design/doc-system-architecture.md
   - Modules:
       - Deck: modules/deck.md
       - Simulation: modules/sim.md

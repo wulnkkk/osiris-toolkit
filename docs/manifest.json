@@ -10,6 +10,7 @@
     "task_map": "skills/osiris-user/references/task-map.md",
     "dev_skill": "skills/osiris-dev/SKILL.md",
     "dev_task_map": "skills/osiris-dev/references/task-map.md",
+    "design_doc_system": "docs/design/doc-system-architecture.md",
     "faq": "docs/faq.md"
   },
   "task_map": {
