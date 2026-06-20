@@ -221,6 +221,49 @@ See [Architecture Overview](docs/architecture/overview.md) for details.
 
 ---
 
+## Project Maintenance Checklist
+
+Items to verify when making changes, grouped by frequency.
+
+### Every Commit (pre-commit enforces most)
+
+- [ ] `ruff check src/` — no new errors
+- [ ] `mypy src/` — type annotations on new functions
+- [ ] `pytest tests/ -v` — all tests pass
+- [ ] Commit message follows Conventional Commits
+- [ ] No internal paths/usernames/hostnames
+
+### When Adding/Changing Public API
+
+- [ ] Update `__init__.py` `__all__` — every new public symbol must be exported
+- [ ] Write NumPy-style docstring — feeds mkdocstrings API docs
+- [ ] Update `docs/modules/*.md` if module behavior changed
+- [ ] Update `docs/agent-user/task-map.md` if CLI or Python API changed
+- [ ] Update `docs/agent-dev/dev-task-map.md` if development entry points changed
+- [ ] Update `docs/manifest.json` if entry point paths changed
+
+### When Adding/Removing Files
+
+- [ ] `mkdocs.yml` nav — add or remove the corresponding entry
+- [ ] Frontmatter `role` and `audience` — matches the file's actual purpose
+- [ ] `docs/` file exists on disk → nav entry exists → mkdocs build passes
+
+### Before Release
+
+- [ ] `uv run cz bump` — version + git tag
+- [ ] `CHANGELOG.md` — `[Unreleased]` → `[vX.Y.Z]` + date
+- [ ] `docs/devlog/X.Y.Z.md` — new version devlog with technical decisions
+- [ ] `pyproject.toml` version = git tag = CHANGELOG version
+- [ ] `make docs-build` — strict mode passes with no broken links
+- [ ] `git push --follow-tags` + GitHub Release
+
+### Quarterly / As-Needed
+
+- [ ] Review `examples/` and `dev-tools/` — paths and references still valid
+- [ ] Review `docs/architecture/` — still reflects current design
+- [ ] Review `.pre-commit-config.yaml` hook versions
+- [ ] Review `docs/agent-user/` and `docs/agent-dev/` — still match actual capabilities
+
 ## Feedback
 
 - 🐛 Report a bug: use the [Bug Report template](https://github.com/wulnkkk/osiris-toolkit/issues/new?labels=bug&template=bug_report.md)
