@@ -10,9 +10,7 @@ on:
       - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
-permissions:
-  contents: read
-
+# Allow one deployment at a time
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -33,3 +31,22 @@ jobs:
 
       - name: Build docs
         run: uv run mkdocs build --strict
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
