@@ -1,8 +1,9 @@
 ---
 audience: [agent]
+role: user
 topic: agent
 kind: recipe
-updated: 2026-06-04
+updated: 2026-06-20
 ---
 
 # Recipe: Compare Two Simulations

@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: density
 kind: guide
 tasks: ["plot density", "configure colorbar", "log scale density"]

@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: simulation
 kind: guide
 tasks: ["load simulation", "list diagnostics", "read data", "inspect metadata"]

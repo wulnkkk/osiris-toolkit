@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: [user, developer]
 topic: overview
 kind: index
 updated: 2026-06-04

@@ -1,5 +1,6 @@
 ---
 audience: [human]
+role: developer
 topic: design
 kind: design
 updated: 2026-06-04

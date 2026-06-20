@@ -1,8 +1,9 @@
 ---
 audience: [agent]
+role: user
 topic: agent
 kind: reference
-updated: 2026-06-04
+updated: 2026-06-20
 ---
 
 # Agent Task Map — User Intent to Tool Invocation

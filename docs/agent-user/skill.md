@@ -1,8 +1,9 @@
 ---
 audience: [agent]
+role: user
 topic: agent
 kind: skill
-updated: 2026-06-04
+updated: 2026-06-20
 ---
 
 # Agent Skill — osiris-toolkit Operation Manual

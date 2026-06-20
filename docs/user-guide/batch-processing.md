@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: batch
 kind: guide
 tasks: ["batch process simulation", "dry-run preview", "parallel batch"]

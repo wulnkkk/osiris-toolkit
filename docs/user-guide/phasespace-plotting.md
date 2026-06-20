@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: phasespace
 kind: guide
 tasks: ["plot phasespace", "list available", "configure momentum units"]

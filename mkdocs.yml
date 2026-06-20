@@ -74,12 +74,16 @@ nav:
       - Generated: modules/_generated.md
       - Exceptions: modules/exceptions.md
   - Agent:
-      - Skill Manual: agent/skill.md
-      - Task Map: agent/task-map.md
-      - Recipes:
-          - Discover Sims: agent/recipes/discover-sims.md
-          - Batch K-Space: agent/recipes/batch-k-space.md
-          - Compare Sims: agent/recipes/compare-two-sims.md
+      - User Guide:
+          - Skill Manual: agent-user/skill.md
+          - Task Map: agent-user/task-map.md
+          - Recipes:
+              - Discover Sims: agent-user/recipes/discover-sims.md
+              - Batch K-Space: agent-user/recipes/batch-k-space.md
+              - Compare Sims: agent-user/recipes/compare-two-sims.md
+      - Developer Guide:
+          - Dev Skill: agent-dev/dev-skill.md
+          - Dev Task Map: agent-dev/dev-task-map.md
   - Changelog:
       - Summary: CHANGELOG.md
       - v0.15.0: devlog/0.15.0.md

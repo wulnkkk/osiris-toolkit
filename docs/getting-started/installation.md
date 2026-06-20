@@ -1,5 +1,6 @@
 ---
 audience: [human]
+role: user
 topic: installation
 kind: tutorial
 updated: 2026-06-04

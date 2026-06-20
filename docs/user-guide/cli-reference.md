@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: cli
 kind: reference
 tasks: ["parse deck", "lint deck", "estimate resources", "browse sim", "plot data", "batch process", "run workflow", "sync definitions"]

@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: developer
 topic: modules
 kind: reference
 module: sim

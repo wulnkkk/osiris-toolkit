@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: quick-start
 kind: tutorial
 tasks: ["parse deck", "load sim", "convert units", "plot field", "plot k-space"]

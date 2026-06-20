@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: deck
 kind: guide
 tasks: ["parse deck", "lint deck", "extract parameters"]

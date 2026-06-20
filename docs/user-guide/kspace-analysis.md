@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: kspace
 kind: guide
 tasks: ["compute FFT", "plot k-space", "configure k0 unit", "set axis limits"]

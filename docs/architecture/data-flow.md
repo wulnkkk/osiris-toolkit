@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: [user, developer]
 topic: architecture
 kind: architecture
 updated: 2026-06-04

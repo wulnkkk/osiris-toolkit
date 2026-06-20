@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: parallel
 kind: guide
 tasks: ["parallel batch", "SLURM detection", "MPI sharding", "memory tuning"]

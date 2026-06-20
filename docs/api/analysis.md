@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: [user, developer]
 topic: api
 kind: reference
 module: analysis

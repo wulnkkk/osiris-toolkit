@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: field
 kind: guide
 tasks: ["plot field", "plot all fields", "configure units", "customize appearance"]

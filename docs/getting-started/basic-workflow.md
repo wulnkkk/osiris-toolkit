@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: workflow
 kind: tutorial
 tasks: ["discover simulations", "validate data", "batch process", "verify output"]

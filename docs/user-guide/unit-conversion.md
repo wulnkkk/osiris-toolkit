@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: user
 topic: units
 kind: guide
 tasks: ["create unit system", "convert quantities", "format labels", "wavenumber setup"]

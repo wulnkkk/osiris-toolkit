@@ -1,5 +1,6 @@
 ---
 audience: [human]
+role: developer
 topic: contributing
 kind: guide
 updated: 2026-06-20

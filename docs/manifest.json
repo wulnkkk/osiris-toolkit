@@ -1,19 +1,21 @@
 {
   "version": "0.15.0",
-  "generated": "2026-06-04",
+  "generated": "2026-06-20",
   "description": "Agent entry point for osiris-toolkit documentation discovery.",
   "entry_points": {
     "architecture": "docs/architecture/overview.md",
     "api_reference": "docs/api/",
     "cli_reference": "docs/user-guide/cli-reference.md",
-    "skill": "docs/agent/skill.md",
-    "task_map": "docs/agent/task-map.md",
+    "skill": "docs/agent-user/skill.md",
+    "task_map": "docs/agent-user/task-map.md",
+    "dev_skill": "docs/agent-dev/dev-skill.md",
+    "dev_task_map": "docs/agent-dev/dev-task-map.md",
     "faq": "docs/faq.md"
   },
   "task_map": {
     "discover simulations": {
       "guide": "docs/user-guide/simulation-browsing.md",
-      "recipe": "docs/agent/recipes/discover-sims.md",
+      "recipe": "docs/agent-user/recipes/discover-sims.md",
       "cli": "osiris-toolkit sim info <path> --output json",
       "api": "Simulation(path).list_fields()"
     },
@@ -42,7 +44,7 @@
       "api": "UnitSystem.from_params(params).length.to(value, 'um')"
     },
     "compare two simulations": {
-      "guide": "docs/agent/recipes/compare-two-sims.md",
+      "guide": "docs/agent-user/recipes/compare-two-sims.md",
       "api": "plot_difference / plot_overlay"
     }
   },

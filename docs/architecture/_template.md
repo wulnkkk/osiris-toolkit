@@ -1,5 +1,6 @@
 ---
 audience: [human]
+role: [user, developer]
 topic: architecture
 kind: architecture
 updated: YYYY-MM-DD
