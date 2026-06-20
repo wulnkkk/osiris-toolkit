@@ -9,7 +9,7 @@ Welcome! This document covers development setup, code style, commit conventions,
 > - **Canonical skill file**: `skills/osiris-dev/SKILL.md` (Agent Skills open standard format)
 > - **What it covers**: project structure, architecture rules (no reverse deps, layer hierarchy), dev workflow, code style, testing, release process, key entry point maps
 > - **How to use**: In Claude Code, run `/osiris-dev`; in Cursor, reference the `.claude/` rules; in Reasonix, run `/osiris-dev`. The skill loads on demand — the cross-platform entry point [`AGENTS.md`](AGENTS.md) is auto-loaded every session.
-> - **Keep in sync**: If you update dev practices here (e.g., new lint rules, modified test commands), also update `docs/agent-dev/dev-skill.md`.
+> - **Keep in sync**: If you update dev practices here (e.g., new lint rules, modified test commands), also update `skills/osiris-dev/SKILL.md`.
 
 > This is the canonical contribution guide. A quick-reference version for the docs site is at [`docs/contributing.md`](docs/contributing.md).
 
@@ -241,12 +241,17 @@ When ready to release 1.0.0, that section must be removed so that
 
 ## Architecture Rules
 
-- **Data flow**: base layer → low-level → mid-level → high-level. No reverse dependencies.
-- **No circular imports**: `sim/` module cannot import `vis/` or other high-level modules.
-- **`_generated/`**: Auto-generated — never edit by hand. Run `dev-tools/extract_definitions.py` to regenerate.
-- All modules export their public API through `__init__.py`.
+These rules are enforced by design and must never be broken:
 
-See [Architecture Overview](docs/architecture/overview.md) for details.
+1. **No reverse dependencies** — `compute/` cannot import `sim/` or `vis/`; `sim/` cannot import `vis/`.
+2. **Compute does pure math only** — no unit conversion, no OSIRIS-specific knowledge.
+3. **`_generated/` is read-only** — never edit by hand. Run `dev-tools/extract_definitions.py` to regenerate.
+4. **Use `UnitSystem`, not `UnitConverter`** — `UnitConverter` is deprecated since v0.15.0.
+5. **Public API through `__init__.py`** — each module exports its public symbols there.
+
+See [Architecture Overview](docs/architecture/overview.md) for design principles
+and [Architecture Rules (agent skill)](https://github.com/wulnkkk/osiris-toolkit/blob/main/skills/osiris-dev/SKILL.md)
+for the canonical agent-facing version.
 
 ---
 
@@ -291,7 +296,7 @@ Items to verify when making changes, grouped by frequency.
 - [ ] Review `examples/` and `dev-tools/` — paths and references still valid
 - [ ] Review `docs/architecture/` — still reflects current design
 - [ ] Review `.pre-commit-config.yaml` hook versions
-- [ ] Review `docs/agent-user/` and `docs/agent-dev/` — still match actual capabilities
+- [ ] Review `skills/osiris-user/` and `skills/osiris-dev/` — still match actual capabilities
 
 ## Feedback
 

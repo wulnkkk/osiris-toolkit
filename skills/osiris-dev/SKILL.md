@@ -56,6 +56,7 @@ make format      # ruff format
 make typecheck   # mypy
 make test        # pytest
 make docs-serve  # mkdocs preview
+make bump        # version bump + git tag
 ```
 
 ### Branch Naming
