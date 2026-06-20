@@ -6,16 +6,16 @@
     "architecture": "docs/architecture/overview.md",
     "api_reference": "docs/api/",
     "cli_reference": "docs/user-guide/cli-reference.md",
-    "skill": "docs/agent-user/skill.md",
-    "task_map": "docs/agent-user/task-map.md",
-    "dev_skill": "docs/agent-dev/dev-skill.md",
-    "dev_task_map": "docs/agent-dev/dev-task-map.md",
+    "skill": "skills/osiris-user/SKILL.md",
+    "task_map": "skills/osiris-user/references/task-map.md",
+    "dev_skill": "skills/osiris-dev/SKILL.md",
+    "dev_task_map": "skills/osiris-dev/references/task-map.md",
     "faq": "docs/faq.md"
   },
   "task_map": {
     "discover simulations": {
       "guide": "docs/user-guide/simulation-browsing.md",
-      "recipe": "docs/agent-user/recipes/discover-sims.md",
+      "recipe": "skills/osiris-user/references/recipes/discover-sims.md",
       "cli": "osiris-toolkit sim info <path> --output json",
       "api": "Simulation(path).list_fields()"
     },
@@ -44,7 +44,7 @@
       "api": "UnitSystem.from_params(params).length.to(value, 'um')"
     },
     "compare two simulations": {
-      "guide": "docs/agent-user/recipes/compare-two-sims.md",
+      "guide": "skills/osiris-user/references/recipes/compare-two-sims.md",
       "api": "plot_difference / plot_overlay"
     }
   },

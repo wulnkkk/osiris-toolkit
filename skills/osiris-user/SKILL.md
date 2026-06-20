@@ -134,3 +134,8 @@ User says: "parse deck" / "check input"
 5. **Single-time-step analysis per call.** Cross-iteration analysis (e.g., time evolution of total energy) requires looping in Python.
 6. **Animation support is limited.** `animate_field` exists but requires all frames to fit in memory.
 7. **No built-in remote data access.** Simulation directories must be locally accessible.
+
+### Reference files
+
+- [User Task Map](references/task-map.md) — intent-to-command mapping for common data processing tasks
+- [Recipes](references/recipes/) — step-by-step walkthroughs for multi-step workflows (discover simulations, batch k-space, compare two simulations)

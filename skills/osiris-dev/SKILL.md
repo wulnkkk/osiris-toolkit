@@ -155,3 +155,7 @@ pytest --cov=osiris_toolkit --cov-report=html  # coverage
 | Add a new unit quantity | `src/osiris_toolkit/units/_quantity.py` — add `QuantityKind` instance |
 | Update parameter definitions | `dev-tools/extract_definitions.py` + regenerate `_generated/` |
 | Add documentation page | Create `.md` in `docs/`, add nav entry in `mkdocs.yml` |
+
+### Reference files
+
+- [Development Task Map](references/task-map.md) — intent-to-code-location mapping for common development tasks

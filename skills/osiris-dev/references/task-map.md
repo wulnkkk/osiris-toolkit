@@ -10,7 +10,7 @@ updated: 2026-06-20
 
 Each entry maps a development intent to the relevant code locations, patterns, and commands.
 
-> For the **User** task map (how to process simulation data), see [`docs/agent-user/task-map.md`](../agent-user/task-map.md).
+> For the **User** task map (how to process simulation data), see [`skills/osiris-user/references/task-map.md`](../../osiris-user/references/task-map.md).
 
 ---
 
