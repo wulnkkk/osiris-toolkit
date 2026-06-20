@@ -8,6 +8,7 @@ theme:
     - search.highlight
     - content.code.copy
 plugins:
+  - include-markdown
   - search
   - mkdocstrings:
       handlers:
