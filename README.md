@@ -56,7 +56,8 @@ No setup needed — open the project in any AI tool and it will automatically fi
 
 ## Documentation
 
-Full documentation: `pip install "osiris-toolkit[docs]" && mkdocs serve`
+- **Online**: [https://wulnkkk.github.io/osiris-toolkit/](https://wulnkkk.github.io/osiris-toolkit/) — automatically updated on every push
+- **Local**: `pip install "osiris-toolkit[docs]" && mkdocs serve`
 
 ## License
 
