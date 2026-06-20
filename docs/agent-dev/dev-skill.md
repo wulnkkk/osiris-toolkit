@@ -10,6 +10,8 @@ updated: 2026-06-20
 
 This document is the **Development** skill for AI agents working on the osiris-toolkit codebase. It describes the project structure, development workflow, and key architecture rules.
 
+> 📖 This is a **specialized skill** loaded on demand. For the cross-platform entry point (always loaded per session), see [`AGENTS.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) at the project root.
+
 > **Relationship to `CONTRIBUTING.md`:** This is the agent-facing counterpart to the human-oriented [`CONTRIBUTING.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/CONTRIBUTING.md). Both cover the same development workflow and **must be kept in sync** when the project's dev practices change (e.g., new lint rules, modified test commands, updated release process).
 
 > For the **User** skill (how to use the toolkit to process simulation data), see [`docs/agent-user/skill.md`](../agent-user/skill.md).

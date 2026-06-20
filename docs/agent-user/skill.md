@@ -12,6 +12,8 @@ updated: 2026-06-20
 
 osiris-toolkit is a Python CLI and library for post-processing OSIRIS PIC simulation data. It handles input deck parsing, ZDF binary file I/O, unit conversion, numerical analysis, and visualization.
 
+> 📖 This is a **specialized skill** loaded on demand. For the cross-platform entry point (always loaded per session), see [`AGENTS.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) at the project root.
+
 ## CLI Quick Reference
 
 | Command group | Quick examples | Full reference |

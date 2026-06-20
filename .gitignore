@@ -91,6 +91,9 @@ data/
 .claude/
 CLAUDE.md
 
+# Reasonix
+.reasonix/
+
 # HPC test artifacts
 **/tests/hpc/**/slurm-*
 **/tests/hpc/_fails.txt
