@@ -200,7 +200,7 @@ class QuantifiedSpectrum:
         return _QuantityView(self.ky_norm, self.system.wavenumber)
 
     @classmethod
-    def from_field(cls, grid: GridData, system: UnitSystem) -> "QuantifiedSpectrum":
+    def from_field(cls, grid: GridData, system: UnitSystem) -> QuantifiedSpectrum:
         """Compute FFT spectrum from a field GridData.
 
         Parameters

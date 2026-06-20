@@ -11,7 +11,7 @@ from osiris_toolkit.vis.common import get_system
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
 
-BASE = Path("/path/to/Zmaterial")
+BASE = Path("/path/to/Zmaterial")  # TODO: replace with your simulation data directory
 CASES = ["Au", "Au0", "Ti", "Ti0"]
 QUANTITIES = ["e1", "e2", "e3"]
 NUM_SAMPLES = 10

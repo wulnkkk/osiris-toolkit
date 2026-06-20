@@ -152,4 +152,4 @@ def plot_poynting_vector(
     return Path(output) if output else None
 
 
-__all__ = ["plot_energy_timeseries", "plot_spectrum_colormap", "plot_poynting_vector"]
+__all__ = ["plot_energy_timeseries", "plot_poynting_vector", "plot_spectrum_colormap"]

@@ -77,4 +77,4 @@ def register_cmaps() -> None:
     )
 
 
-__all__ = ["symmetrical_colormap", "register_cmaps"]
+__all__ = ["register_cmaps", "symmetrical_colormap"]

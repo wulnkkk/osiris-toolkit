@@ -1,6 +1,5 @@
-"""Targeted post-processing for Zmaterial cases: Au/Au0/Ti/Ti0, e1/e2/e3 only, field + k-space.
-
-Usage: python plot_material.py
+"""K-space-only post-processing for Zmaterial cases.
+Usage: python plot_kspace.py
 """
 
 import logging
@@ -14,15 +13,15 @@ matplotlib.use("Agg")
 
 from osiris_toolkit.parallel._cluster import detect_available_workers, limit_blas_threads
 from osiris_toolkit.sim import Simulation
-from osiris_toolkit.vis.parallel import _worker_plot_field, _worker_plot_k_space
+from osiris_toolkit.vis.parallel import _worker_plot_k_space
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
 
-BASE = Path("/path/to/Zmaterial")
+BASE = Path("/path/to/Zmaterial")  # TODO: replace with your simulation data directory
 CASES = ["Au", "Au0", "Ti", "Ti0"]
 QUANTITIES = ["e1", "e2", "e3"]
-NUM_SAMPLES = 10  # evenly-spaced iterations per quantity
+NUM_SAMPLES = 10
 
 
 def main() -> None:
@@ -36,7 +35,6 @@ def main() -> None:
         available = sim.list_fields()
         logger.info("[%s] Fields available: %s", case, available)
 
-        # Gather all (qty, iteration) pairs
         tasks: list[tuple[str, int]] = []
         selected: list[int] = []
         for qty in QUANTITIES:
@@ -51,16 +49,14 @@ def main() -> None:
             for it in selected:
                 tasks.append((qty, it))
 
-        logger.info("[%s] %d tasks (%d qty x %d iters)", case, len(tasks), len(QUANTITIES), len(selected))
+        logger.info("[%s] %d k-space tasks (%d qty x %d iters)",
+                    case, len(tasks), len(QUANTITIES), len(selected))
 
         if not tasks:
             logger.warning("[%s] No tasks, skipping.", case)
             continue
 
-        # Output dirs
-        field_dir = sim_path / "figures" / "field"
         kspace_dir = sim_path / "figures" / "k_space"
-        field_dir.mkdir(parents=True, exist_ok=True)
         kspace_dir.mkdir(parents=True, exist_ok=True)
 
         max_workers = min(detect_available_workers(), 16)
@@ -69,14 +65,6 @@ def main() -> None:
 
         with ProcessPoolExecutor(max_workers=max_workers, mp_context=ctx) as ex:
             futmap: dict = {}
-
-            # Submit field plots
-            for qty, it in tasks:
-                out = str(field_dir / f"{qty}_{it:06d}.png")
-                fut = ex.submit(_worker_plot_field, sim, it, qty, out)
-                futmap[fut] = f"field {qty} it={it}"
-
-            # Submit k-space plots
             for qty, it in tasks:
                 out = str(kspace_dir / f"{qty}_{it:06d}.png")
                 fut = ex.submit(_worker_plot_k_space, sim, it, qty, out)
@@ -89,7 +77,7 @@ def main() -> None:
                 try:
                     fut.result()
                     completed += 1
-                    if completed % 20 == 0:
+                    if completed % 10 == 0:
                         logger.info("  progress: %d/%d", completed, total_jobs)
                 except Exception as exc:
                     errors += 1

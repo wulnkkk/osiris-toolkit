@@ -150,16 +150,16 @@ User says: "plot field"
     No  -> sim.list_iterations("e1"), suggest range
     Yes -> vis plot -k EMF -q <quantity> -i <iteration>
 
-User says: "k-space" / "FFT" / "频谱"
+User says: "k-space" / "FFT"
   -> Need 2-D field data? Check sim.list_fields()
   -> vis plot -k KSPACE -q e1 -i <iter> --k-unit k0
   -> Advanced: omega0_norm override, clim, white_low -> Python API
 
-User says: "batch process" / "出图" / "处理数据"
+User says: "batch process" / "process data"
   -> vis batch <PATH> <NAME> --dry-run first to preview
   -> Then: vis batch <PATH> <NAME> -j N --progress
 
-User says: "compare" / "对比"
+User says: "compare" / "compare two simulations"
   -> Load two Simulations -> Python API with plot_difference or plot_overlay
   -> No direct CLI command
 

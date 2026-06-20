@@ -16,4 +16,4 @@ export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 
 cd <PROJECT_ROOT>
-python scripts/plot_material.py
+python examples/plot_material.py

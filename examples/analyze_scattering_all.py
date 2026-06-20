@@ -11,7 +11,7 @@ from osiris_toolkit.deck import parse_deck_file
 from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
 from osiris_toolkit.vis.scattering import plot_scattering_fraction
 
-BASE = Path("/path/to/Zmaterial")
+BASE = Path("/path/to/Zmaterial")  # TODO: replace with your simulation data directory
 CASES = ["Au", "Au0", "Ti", "Ti0", "CH_fixed", "CH0_fixed"]
 QUANTITIES = ["e1", "e2", "e3"]
 

@@ -79,7 +79,7 @@ class OsirisConfig:
                     v = Path(v)
                 setattr(self, k, v)
 
-    def copy_with(self, **overrides) -> "OsirisConfig":
+    def copy_with(self, **overrides) -> OsirisConfig:
         """Return a new OsirisConfig inheriting current values, with overrides.
 
         Parameters
@@ -103,7 +103,7 @@ class OsirisConfig:
         return new
 
     @classmethod
-    def get(cls) -> "OsirisConfig":
+    def get(cls) -> OsirisConfig:
         """Return the global singleton instance.
 
         Returns

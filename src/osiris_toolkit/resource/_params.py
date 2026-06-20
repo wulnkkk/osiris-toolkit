@@ -138,7 +138,7 @@ class ResourceParams:
     particle_precision_bytes: int = 8
 
     @classmethod
-    def from_deck(cls, deck: dict) -> "ResourceParams":
+    def from_deck(cls, deck: dict) -> ResourceParams:
         """Extract resource-relevant parameters from a parsed deck.
 
         Raises ValueError if nx_p, tmax, or dt is missing or zero.

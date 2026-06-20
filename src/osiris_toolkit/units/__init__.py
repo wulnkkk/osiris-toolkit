@@ -3,4 +3,4 @@
 from osiris_toolkit.units.converter import UnitConverter, UnitSystem
 from osiris_toolkit.units.params import SimulationParams
 
-__all__ = ["UnitConverter", "UnitSystem", "SimulationParams"]
+__all__ = ["SimulationParams", "UnitConverter", "UnitSystem"]

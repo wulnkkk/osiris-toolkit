@@ -3,38 +3,39 @@ audience: [human]
 topic: design
 kind: design
 updated: 2026-06-04
+language: en
 ---
 
-# UnitSystem 架构设计 — 单位处理的全面重构
+# UnitSystem Architecture Design — Comprehensive Unit Handling Refactoring
 
-> 日期：2026-06-04
-> 类型：设计文档
-> 版本目标：v0.15.0（或 v1.0.0）
-> 上游分析：
+> Date: 2026-06-04
+> Type: Design Document
+> Target Version: v0.15.0 (or v1.0.0)
+> Upstream Analysis:
 >   - `docs/note/analysis/2026-06-04-agent-data-processing-review.md`
 >   - `docs/note/analysis/2026-06-04-kspace-2pi-unit-architecture.md`
 
 ---
 
-## 1. 动机
+## 1. Motivation
 
-当前 `UnitConverter` 存在以下结构性缺陷：
+The current `UnitConverter` has the following structural deficiencies:
 
-1. **k 空间完全绕过** — `compute_k_space`、`plot_k_space`、`mask_energy` 手写单位转换（×2π, /ω₀, ÷2π），不经 UnitConverter，导致轴标签偏离 2π、xlim 硬编码不匹配数据
-2. **单体耦合** — 所有单位尺度硬编码在 `_build_scales()` 一个 100 行函数中，加新量纲需改函数体
-3. **代码重复** — 每个 vis 函数重复 `if converter is not None` 分支 × 3-5 处（值转换、坐标转换、标签生成）
-4. **无类型安全** — `convert(data, "length", "um")` 三个裸字符串，拼写错误运行时才暴露
-5. **不可扩展** — 第三方无法注册自定义量纲
+1. **K-space completely bypasses it** — `compute_k_space`, `plot_k_space`, `mask_energy` perform ad-hoc unit conversions (×2π, /ω₀, ÷2π) without going through UnitConverter, causing axis labels to deviate from 2π and xlim to be hardcoded and mismatched with the data
+2. **Monolithic coupling** — All unit scales are hardcoded in a single 100-line `_build_scales()` function; adding a new dimension requires modifying the function body
+3. **Code duplication** — Every vis function repeats `if converter is not None` branches × 3-5 times (value conversion, coordinate conversion, label generation)
+4. **No type safety** — `convert(data, "length", "um")` uses three raw strings; typos are only exposed at runtime
+5. **Not extensible** — Third parties cannot register custom dimensions
 
-## 2. 设计原则
+## 2. Design Principles
 
-- **compute 层只做数学，units 层管单位** — FFT 不碰归一化参数
-- **数据与单位系统通过外观（Facade）组合** — `GridData` 保持纯粹，`QuantifiedGrid` 叠加单位能力
-- **自动推导为主，显式消歧义为辅** — `grid.to("um")` 自动识别 length，歧义时用 `grid.as_quantity("e_field").to("um")`
-- **硬切换，不兼容旧 API** — 一次大版本更新中完成，`UnitConverter` → `UnitSystem`，`converter` 参数 → `system` 参数
-- **严格报错** — 无 system 时只能使用 `"norm"` 单位，任何非 norm 查询抛异常，不使用虚设 omega_p
+- **The compute layer only does math; the units layer handles units** — FFT does not touch normalization parameters
+- **Data and the unit system are composed through a Facade** — `GridData` stays pure; `QuantifiedGrid` layers unit capabilities on top
+- **Auto-inference first, explicit disambiguation second** — `grid.to("um")` auto-detects length; when ambiguous, use `grid.as_quantity("e_field").to("um")`
+- **Hard switch, incompatible with old API** — Completed in a single major version update; `UnitConverter` → `UnitSystem`, `converter` parameter → `system` parameter
+- **Strict error reporting** — Without a system, only `"norm"` units can be used; any non-norm query raises an exception, no fictitious omega_p is assumed
 
-## 3. 架构总览
+## 3. Architecture Overview
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -43,7 +44,7 @@ updated: 2026-06-04
 │  ├── time: QuantityKind                                  │
 │  ├── e_field: QuantityKind                               │
 │  ├── b_field: QuantityKind                               │
-│  ├── wavenumber: QuantityKind      ← 新增                │
+│  ├── wavenumber: QuantityKind      ← NEW                 │
 │  ├── momentum: QuantityKind                              │
 │  ├── energy: QuantityKind                                │
 │  ├── density: QuantityKind                               │
@@ -74,20 +75,20 @@ updated: 2026-06-04
                │
                ▼
 ┌──────────────────────────────────────────────────────────┐
-│  vis / analysis 层                                       │
-│  - 接收 system 参数（替代 converter）                      │
-│  - 内部用 QuantifiedGrid / QuantifiedSpectrum            │
-│  - 标签从 QuantityKind.latex() 获取                      │
-│  - 单位转换经过单一入口 UnitSystem                        │
-│  - CLI 暴露 --k-unit, --omega0-norm, --xlim, --ylim...   │
+│  vis / analysis layer                                    │
+│  - Accept system parameter (replaces converter)           │
+│  - Internally use QuantifiedGrid / QuantifiedSpectrum    │
+│  - Labels obtained from QuantityKind.latex()              │
+│  - Unit conversions go through the single UnitSystem      │
+│  - CLI exposes --k-unit, --omega0-norm, --xlim, --ylim...│
 └──────────────────────────────────────────────────────────┘
 ```
 
-## 4. 核心组件
+## 4. Core Components
 
 ### 4.1 QuantityKind
 
-每个物理量是一个独立的 frozen dataclass 实例，不可变。
+Each physical quantity is an independent frozen dataclass instance, immutable.
 
 ```python
 @dataclass(frozen=True)
@@ -107,19 +108,19 @@ class QuantityKind:
     def latex(self, unit="auto") -> str: ...
 ```
 
-预定义实例：`LENGTH`, `TIME`, `E_FIELD`, `B_FIELD`, `WAVENUMBER`, `MOMENTUM`, `ENERGY`, `DENSITY`, `FREQUENCY`, `VELOCITY`, `CHARGE`, `CURRENT`, `MASS`。
+Predefined instances: `LENGTH`, `TIME`, `E_FIELD`, `B_FIELD`, `WAVENUMBER`, `MOMENTUM`, `ENERGY`, `DENSITY`, `FREQUENCY`, `VELOCITY`, `CHARGE`, `CURRENT`, `MASS`.
 
-`scales` 中的具体数值在 `UnitSystem.__init__` 中计算并填充（通过 `dataclasses.replace`）。
+The concrete values in `scales` are computed and populated in `UnitSystem.__init__` (via `dataclasses.replace`).
 
 ### 4.2 UnitSystem
 
 ```python
 class UnitSystem:
     def __init__(self, omega_p: float, params: SimulationParams | None = None):
-        # omega_p 必须 > 0
-        # params 可选；Wavenumber 等量纲通过 params 访问额外仿真参数
+        # omega_p must be > 0
+        # params is optional; dimensions like Wavenumber access additional simulation parameters via params
         
-    # 属性访问：system.length, system.wavenumber, ...
+    # Attribute access: system.length, system.wavenumber, ...
     def __getitem__(self, name: str) -> QuantityKind: ...
     
     @classmethod
@@ -148,11 +149,11 @@ class QuantifiedGrid:
     def time(self) -> _AxisView: ...
 ```
 
-当 `system=None` 时：
-- `.to(unit)` 只在 `unit in ("auto", "norm")` 时工作，其他抛 `UnitConversionError`
-- `.as_quantity()` 总是抛异常
-- `.norm()` 总是可用
-- `_AxisView.to(unit)` 同上；`_AxisView.label()` 回退到 `GridAxis.units`
+When `system=None`:
+- `.to(unit)` works only when `unit in ("auto", "norm")`, raises `UnitConversionError` otherwise
+- `.as_quantity()` always raises an exception
+- `.norm()` is always available
+- `_AxisView.to(unit)` behaves the same; `_AxisView.label()` falls back to `GridAxis.units`
 
 ### 4.4 QuantifiedSpectrum
 
@@ -176,7 +177,7 @@ class QuantifiedSpectrum:
     def from_field(cls, grid: GridData, system: UnitSystem) -> "QuantifiedSpectrum": ...
 ```
 
-### 4.5 辅助类
+### 4.5 Auxiliary Classes
 
 ```python
 @dataclass
@@ -198,7 +199,7 @@ class _AxisView:
     def latex(self, unit="auto") -> str: ...
 ```
 
-## 5. Wavenumber 量纲
+## 5. Wavenumber Dimension
 
 ### 5.1 `_build_wavenumber_scales`
 
@@ -219,25 +220,25 @@ def _build_wavenumber_scales(
     return scales
 ```
 
-### 5.2 K-space 管道
+### 5.2 K-space Pipeline
 
 ```
-ZDF grid → compute_k_space(data, dx, dy) → kx, ky (归一化角波数)
+ZDF grid → compute_k_space(data, dx, dy) → kx, ky (normalized angular wavenumber)
          → QuantifiedSpectrum.from_field(grid, system)
-         → qspec.kx.to("k0")  →  k/k₀  (经过 system.wavenumber)
-         → 不再有手写的 /(2π)
+         → qspec.kx.to("k0")  →  k/k₀  (via system.wavenumber)
+         → no more handwritten /(2π)
 ```
 
-### 5.3 xlim 自适应
+### 5.3 Adaptive xlim
 
 ```python
 def _auto_k_range(k_norm, spectrum, unit, quantity, threshold_frac=0.01, margin=0.1):
-    """根据 spectrum 幅值 > 1% 峰值的区域自动确定显示范围。"""
+    """Automatically determine the display range based on the region where spectrum amplitude exceeds 1% of the peak."""
 ```
 
-默认 `xlim=None` 时自动计算，用户可通过参数手动覆盖。
+When `xlim=None`, the range is computed automatically; users can override it manually via parameters.
 
-## 6. SimulationParams 扩展
+## 6. SimulationParams Extension
 
 ```python
 @dataclass
@@ -245,54 +246,54 @@ class SimulationParams:
     omega_p0: float
     n0: float | None = None
     gamma: float | None = None
-    omega0_norm: float | None = None   # ← 新增
+    omega0_norm: float | None = None   # ← NEW
 
     @classmethod
     def from_deck(cls, deck: dict) -> "SimulationParams":
-        # 从 antenna / zpulse / laser section 提取 omega0
+        # Extract omega0 from antenna / zpulse / laser section
 ```
 
-## 7. vis/analysis 模块变更
+## 7. vis/analysis Module Changes
 
-### 7.1 签名的统一变化
+### 7.1 Uniform Signature Change
 
-所有 vis 函数的 `converter: UnitConverter | None = None` → `system: UnitSystem | None = None`。
+All vis functions change `converter: UnitConverter | None = None` → `system: UnitSystem | None = None`.
 
-内部通过 `QuantifiedGrid` / `QuantifiedSpectrum` 访问数据，标签从 `QuantityKind` 获取。
+Internally, data is accessed via `QuantifiedGrid` / `QuantifiedSpectrum`, and labels are obtained from `QuantityKind`.
 
-### 7.2 受影响的文件
+### 7.2 Affected Files
 
-| 文件 | 变更 |
-|------|------|
-| `compute/fft.py` | `compute_k_space` 移除 `omega0_norm` 参数 |
-| `compute/integrate.py` | `mask_energy` 加 `system` 参数，去 `/2π` |
+| File | Change |
+|------|--------|
+| `compute/fft.py` | `compute_k_space` removes `omega0_norm` parameter |
+| `compute/integrate.py` | `mask_energy` adds `system` parameter, removes `/2π` |
 | `vis/common.py` | `get_converter()` → `get_system()` |
 | `vis/field.py` | converter → system |
 | `vis/density.py` | converter → system |
 | `vis/phasespace.py` | converter → system |
-| `vis/kspace.py` | converter → system，去 `/2π`，加 `_auto_k_range` |
-| `vis/energy.py` | `plot_spectrum` 去 `/2π`，converter → system |
+| `vis/kspace.py` | converter → system, removes `/2π`, adds `_auto_k_range` |
+| `vis/energy.py` | `plot_spectrum` removes `/2π`, converter → system |
 | `vis/scattering.py` | converter → system |
 | `vis/composite.py` | converter → system |
 | `vis/comparison.py` | converter → system |
-| `vis/batch.py` | converter → system，加 wavenumber 诊断支持 + 进度 |
+| `vis/batch.py` | converter → system, adds wavenumber diagnostic support + progress |
 | `vis/__init__.py` | PostVisHub converter → system |
-| `analysis/kspace.py` | KSpaceAnalyzer 返回 `QuantifiedSpectrum` |
+| `analysis/kspace.py` | KSpaceAnalyzer returns `QuantifiedSpectrum` |
 | `analysis/_protocol.py` | `_converter` → `_system` |
 | `analysis/__init__.py` | PostAnalysisHub converter → system |
-| `units/converter.py` | 保留旧 `UnitConverter` 加 DeprecationWarning；新增 `UnitSystem` + `QuantityKind` |
-| `units/params.py` | `SimulationParams` 加 `omega0_norm` |
+| `units/converter.py` | Retain old `UnitConverter` with DeprecationWarning; add `UnitSystem` + `QuantityKind` |
+| `units/params.py` | `SimulationParams` adds `omega0_norm` |
 | `postproc.py` | PostProcessor converter → system |
-| `cli.py` | 加 `--k-unit`, `--omega0-norm`, `--xlim`, `--ylim`, `--clim`, `--white-low`, `--dry-run`, `--progress` |
+| `cli.py` | Add `--k-unit`, `--omega0-norm`, `--xlim`, `--ylim`, `--clim`, `--white-low`, `--dry-run`, `--progress` |
 
-## 8. CLI 变更
+## 8. CLI Changes
 
 ### 8.1 `vis plot`
 
 ```bash
 osiris-toolkit vis plot --kind KSPACE --quantity e1 --iteration 50 <path> \
     --k-unit k0 \           # k0 | rad/um | rad/nm | um^-1 | norm
-    --omega0-norm 10.0 \    # 可选，deck 中有则自动提取
+    --omega0-norm 10.0 \    # optional, auto-extracted from deck if present
     --xlim -3.0,3.0 \
     --ylim -3.0,3.0 \
     --clim -5.0,2.0 \
@@ -300,56 +301,56 @@ osiris-toolkit vis plot --kind KSPACE --quantity e1 --iteration 50 <path> \
     --log-scale / --no-log-scale
 ```
 
-`--k-unit` 等 k-space 参数只在 `--kind KSPACE` 时生效，其他 kind 下忽略。
+`--k-unit` and other k-space parameters only apply when `--kind KSPACE`; they are ignored for other kinds.
 
 ### 8.2 `vis batch`
 
 ```bash
-osiris-toolkit vis batch --dry-run <path> Au     # 预览
-osiris-toolkit vis batch <path> Au --progress    # tqdm 进度
-osiris-toolkit vis batch <path> Au --kinds k_space  # 单独出 k-space
+osiris-toolkit vis batch --dry-run <path> Au     # preview
+osiris-toolkit vis batch <path> Au --progress    # tqdm progress
+osiris-toolkit vis batch <path> Au --kinds k_space  # k-space only
 ```
 
 ### 8.3 `sim info`
 
 ```bash
 osiris-toolkit sim info <path> --output json
-# 补充结构化输出，含 omega0_norm
+# Adds structured output, including omega0_norm
 ```
 
-## 9. 迁移步骤
+## 9. Migration Steps
 
-| 步 | 内容 | 破坏性 |
-|----|------|--------|
-| 1 | 新增 `QuantityKind` + `UnitSystem`（保留旧 `UnitConverter`） | 否 |
-| 2 | 新增 `QuantifiedGrid`、`QuantifiedSpectrum`、`_AxisView`、`_QuantityView` | 否 |
-| 3 | 新增 `SimulationParams.omega0_norm` + `_extract_omega0` | 否 |
-| 4 | 重写 `compute_k_space`（去掉 `omega0_norm` 参数） | **是** |
-| 5 | 迁移所有 vis 函数：`converter` → `system` | **是** |
-| 6 | 迁移分析模块：`_converter` → `_system` | **是** |
-| 7 | 废弃 `UnitConverter`（DeprecationWarning） | 否（过渡期） |
-| 8 | 补充 CLI k-space 参数 | 否 |
-| 9 | 补充 wavenumber + UnitSystem 测试，更新现有测试 | 否 |
-| 10 | 移除 `UnitConverter` + 旧 API | **是** |
+| Step | Content | Breaking |
+|-----|---------|----------|
+| 1 | Add `QuantityKind` + `UnitSystem` (retain old `UnitConverter`) | No |
+| 2 | Add `QuantifiedGrid`, `QuantifiedSpectrum`, `_AxisView`, `_QuantityView` | No |
+| 3 | Add `SimulationParams.omega0_norm` + `_extract_omega0` | No |
+| 4 | Rewrite `compute_k_space` (remove `omega0_norm` parameter) | **Yes** |
+| 5 | Migrate all vis functions: `converter` → `system` | **Yes** |
+| 6 | Migrate analysis modules: `_converter` → `_system` | **Yes** |
+| 7 | Deprecate `UnitConverter` (DeprecationWarning) | No (transition period) |
+| 8 | Add CLI k-space parameters | No |
+| 9 | Add wavenumber + UnitSystem tests, update existing tests | No |
+| 10 | Remove `UnitConverter` + old API | **Yes** |
 
-### 用户 API 变化
+### User API Changes
 
 ```python
-# 旧
+# Old
 converter = UnitConverter(omega_p=3.55e15)
 plot_field("e1", 100, sim=sim, converter=converter, x_unit="um")
 plot_k_space("e1", 100, sim=sim, converter=converter, omega0_norm=10.0)
 
-# 新
+# New
 system = UnitSystem(omega_p=3.55e15, params=params)
 plot_field("e1", 100, sim=sim, system=system, x_unit="um")
 plot_k_space("e1", 100, sim=sim, system=system, k_unit="k0")
 ```
 
-## 关联
+## References
 
-- 上游分析：
+- Upstream Analysis:
   - `docs/note/analysis/2026-06-04-agent-data-processing-review.md`
   - `docs/note/analysis/2026-06-04-kspace-2pi-unit-architecture.md`
-- 下游计划：`docs/note/execution/2026-06-04-plan-unit-system-architecture.md`（待 writing-plans 产出）
-- TODO： #65, #66, #67, #68, #69, #70, #71, #77, #78, #79, #80
+- Downstream Plan: `docs/note/execution/2026-06-04-plan-unit-system-architecture.md` (pending writing-plans output)
+- TODO: #65, #66, #67, #68, #69, #70, #71, #77, #78, #79, #80

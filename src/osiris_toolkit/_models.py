@@ -159,7 +159,7 @@ class Field:
 
     # --- Physical slicing ---
 
-    def __getitem__(self, key: Any) -> "Field | float":
+    def __getitem__(self, key: Any) -> Field | float:
         """Slice by array indices, with optional bilinear interpolation.
 
         Integer indices use nearest-grid-point. Float indices trigger
@@ -226,7 +226,7 @@ class Field:
             units=self.units,
         )
 
-    def _interpolate(self, key: tuple) -> "Field | float":
+    def _interpolate(self, key: tuple) -> Field | float:
         """Bilinear interpolation at float coordinates along requested axes.
 
         Parameters
@@ -410,7 +410,7 @@ class ParticleData:
     time: float = 0.0
     label: str = ""
 
-    def filter(self, expr: str) -> "ParticleData":
+    def filter(self, expr: str) -> ParticleData:
         """Return a new ParticleData with particles matching *expr*.
 
         Parameters
@@ -438,7 +438,7 @@ class ParticleData:
             label=self.label,
         )
 
-    def compress(self) -> "ParticleData":
+    def compress(self) -> ParticleData:
         """Return a copy with contiguous arrays (independent of source).
 
         Returns

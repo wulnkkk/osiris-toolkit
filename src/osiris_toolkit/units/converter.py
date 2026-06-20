@@ -109,7 +109,7 @@ def _build_scales(omega_p: float) -> dict[str, dict[str, float]]:
 
 def _build_wavenumber_scales(
     k_p_si: float,
-    params: "SimulationParams | None",
+    params: SimulationParams | None,
 ) -> dict[str, float]:
     """Build wavenumber unit scales.
 
@@ -332,7 +332,7 @@ class UnitConverter:
     # -- factory methods ----------------------------------------------------
 
     @classmethod
-    def from_params(cls, params: SimulationParams) -> "UnitConverter":
+    def from_params(cls, params: SimulationParams) -> UnitConverter:
         """Create a UnitConverter from SimulationParams.
 
         This is the recommended constructor when working with a parsed
@@ -371,7 +371,7 @@ class UnitSystem:
         self.params = params
 
         # Compute physical scale factors from omega_p
-        from osiris_toolkit.units._quantity import (  # noqa: PLC0415
+        from osiris_toolkit.units._quantity import (
             B_FIELD,
             CHARGE,
             CURRENT,
@@ -457,7 +457,7 @@ class UnitSystem:
         """Dict-style access: system['length']."""
         if hasattr(self, name):
             q = getattr(self, name)
-            from osiris_toolkit.units._quantity import QuantityKind  # noqa: PLC0415
+            from osiris_toolkit.units._quantity import QuantityKind
             if isinstance(q, QuantityKind):
                 return q
         raise UnitConversionError(
@@ -471,6 +471,6 @@ class UnitSystem:
         )
 
     @classmethod
-    def from_params(cls, params: SimulationParams) -> "UnitSystem":
+    def from_params(cls, params: SimulationParams) -> UnitSystem:
         """Create from SimulationParams (the recommended constructor)."""
         return cls(omega_p=params.omega_p0, params=params)

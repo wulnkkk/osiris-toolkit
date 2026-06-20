@@ -1,115 +1,79 @@
+---
+audience: [human]
+topic: contributing
+kind: guide
+updated: 2026-06-20
+---
+
 # Contributing to osiris-toolkit
 
-Thank you for your interest in contributing! This guide covers how to set up your environment, follow project conventions, and submit changes.
+Thank you for your interest in contributing!
 
-## Development Setup
+> **📖 For a detailed guide (including release process, full checklist) see [`CONTRIBUTING.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/CONTRIBUTING.md).**
+> This page is the mkdocs site version, focused on quick reference.
+
+## Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/wulnkkk/osiris-toolkit.git
 cd osiris-toolkit
-
-# Create and activate a virtual environment
-uv venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
-
-# Install with dev dependencies
-uv sync --dev
+uv venv && uv sync --dev
 ```
 
-## Branch Naming
+## Development workflow
 
-- **Feature branches**: `feat/<description>` (e.g. `feat/add-scattering-analyzer`)
-- **Bug fixes**: `fix/<description>` (e.g. `fix/zdf-chunk-read-bounds`)
-- **Release branches**: `release/vX.Y.Z`
-- Use lowercase with hyphens between words, no underscores.
+1. Create branch: `feat/<name>` or `fix/<name>`
+2. Implement changes following TDD: `uv run pytest` before and after
+3. Lint: `uv run ruff check src/`
+4. Type check: `uv run mypy src/`
+5. Commit using Conventional Commits: `<type>: <description>` (feat/fix/refactor/docs/test/chore)
+6. Push, open PR
 
-## Commit Messages
+### Pre-commit hooks
 
-Format: `<type>: <short description>`
+After `uv sync --dev`, install the hooks:
 
-| Type       | Usage                           |
-|------------|---------------------------------|
-| `feat`     | New feature or enhancement      |
-| `fix`      | Bug fix                         |
-| `refactor` | Code restructuring (no behavior change) |
-| `docs`     | Documentation only              |
-| `test`     | Test additions or fixes         |
-| `chore`    | Build, CI, config, generators   |
+```bash
+uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
+```
 
-Examples:
-- `feat: add k-space spectrum analyzer`
-- `fix: boundary check in chunked ZDF read`
-- `docs: update module docs for v0.6.0`
-- `chore: regenerate _generated files`
+This automatically runs ruff, mypy, and commitizen on every commit.
 
-## Pull Request Workflow
+### Makefile shortcuts
 
-1. Create a feature/fix branch from `main`.
-2. Make your changes, adhering to the conventions below.
-3. Run tests and linting: `uv run pytest` and `uv run ruff check src/ tests/`.
-4. Push your branch and open a PR against `main`.
-5. Ensure CI passes before requesting review.
+```bash
+make lint        # ruff check
+make format      # ruff format
+make typecheck   # mypy
+make test        # pytest
+make docs-serve  # mkdocs serve
+make bump        # version bump + changelog
+```
 
-## Architecture Rules
+## Architecture rules
 
-See [Architecture Overview](architecture/overview.md) for the full module hierarchy. Key rules:
-
-- **Data flow**: base layer -> low-level -> mid-level -> high-level. No reverse dependencies.
-- **No circular imports**: modules in `sim/` cannot import from `vis/`, etc.
-- **`_generated/`** is auto-generated — never edit by hand. Run `scripts/extract_definitions.py` to regenerate.
-- All modules export their public API through `__init__.py`.
-
-## Code Style
-
-- **Python >= 3.10** with type annotations on new functions.
-- **Line length**: 120 characters (configured in ruff).
-- **Naming**: `snake_case` for functions, variables, and modules.
-- **Docstrings**: NumPy/SciPy style, matching existing conventions.
-- **Imports**: organized by ruff (isort rules enabled).
+See [Architecture Overview](architecture/overview.md). Key rules:
+- No reverse dependencies (compute → sim is forbidden)
+- Compute layer does pure math, never unit conversion
+- Use `UnitSystem`, not `UnitConverter` (deprecated since v0.15.0)
 
 ## Testing
 
 ```bash
-# Run all tests
-uv run pytest
-
-# Run with coverage
-uv run pytest --cov=osiris_toolkit
-
-# Run a specific test file
-uv run pytest tests/test_units.py
-
-# Run linting
-uv run ruff check src/ tests/
-
-# Auto-fix linting issues
-uv run ruff check --fix src/ tests/
+uv run pytest                    # full suite
+uv run pytest tests/test_units/  # specific module
+uv run pytest -m "not slow"      # CI-friendly subset
 ```
-
-Tests requiring real ZDF simulation data are marked with `@pytest.mark.data` and are skipped in CI.
 
 ## Documentation
 
-We use MkDocs with Material theme:
-
 ```bash
-# Install docs dependencies
-uv pip install mkdocs mkdocs-material "mkdocstrings[python]"
-
-# Serve live preview
+# Build and preview
 uv run mkdocs serve
 
-# Build static site
+# Strict build (catch all warnings)
 uv run mkdocs build --strict
 ```
-
-Module documentation lives in `docs/modules/` and should be updated whenever a module's API changes.
-
-## Release Process
-
-See [Architecture Overview](architecture/overview.md) for the full module hierarchy, and `docs/devlog/` for historical changelogs. Releases follow a checklist in CLAUDE.md (see "Version Release Checklist").
 
 ## Questions?
 

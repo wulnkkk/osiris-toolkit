@@ -17,18 +17,18 @@ from osiris_toolkit.sim.catalog import OSIRIS_DIAGNOSTICS, DiagKind
 from osiris_toolkit.sim.simulation import Simulation
 
 __all__ = [
-    "Simulation",
+    "OSIRIS_DIAGNOSTICS",
+    "DiagKind",
     "Field",
     "FieldInfo",
-    "GridData",
     "GridAxis",
+    "GridData",
+    "HistoryData",
     "ParticleData",
     "ParticleInfo",
     "PhasespaceData",
+    "Simulation",
     "TimingsData",
     "TrackData",
     "TrackInfo",
-    "HistoryData",
-    "OSIRIS_DIAGNOSTICS",
-    "DiagKind",
 ]

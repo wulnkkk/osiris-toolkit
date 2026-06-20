@@ -13,13 +13,13 @@ from osiris_toolkit.workflow.pipeline import (
 )
 
 __all__ = [
+    "AnalyzeStep",
+    "DeckParseStep",
+    "DeckValidateStep",
     "Pipeline",
     "PipelineContext",
     "PipelineStep",
-    "DeckParseStep",
-    "DeckValidateStep",
     "SimLoadStep",
-    "AnalyzeStep",
     "VisualizeStep",
     "quick_pipeline",
 ]

@@ -60,7 +60,7 @@ class SimulationParams:
     omega0_norm: float | None = None
 
     @classmethod
-    def from_deck(cls, deck: dict) -> "SimulationParams":
+    def from_deck(cls, deck: dict) -> SimulationParams:
         """Extract physical parameters from a parsed deck dictionary.
 
         Parameters
@@ -129,12 +129,12 @@ class SimulationParams:
         return cls(omega_p0=omega_p0, n0=n0, gamma=gamma, omega0_norm=omega0_norm)
 
     @classmethod
-    def from_omega_p0(cls, omega_p0: float) -> "SimulationParams":
+    def from_omega_p0(cls, omega_p0: float) -> SimulationParams:
         """Create params directly from a known omega_p0 value."""
         return cls(omega_p0=omega_p0)
 
     @classmethod
-    def from_sim_path(cls, sim_path: str | Path) -> "SimulationParams":
+    def from_sim_path(cls, sim_path: str | Path) -> SimulationParams:
         """Extract parameters from the input deck in a simulation directory.
 
         Searches for ``.in`` files in *sim_path* and parses the first one.

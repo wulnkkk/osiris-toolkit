@@ -6,9 +6,9 @@ Output is organised by simulation name under an output root directory.
 
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 from osiris_toolkit.sim import Simulation
 

@@ -3,93 +3,94 @@ audience: [human]
 topic: design
 kind: design
 updated: 2026-06-04
+language: en
 ---
 
-# 后处理模块架构重设计
+# Post-Processing Module Architecture Redesign
 
-> 2026-05-28 | 设计
+> 2026-05-28 | Design
 
-## 背景
+## Background
 
-评估发现 `analysis/` 和 `vis/` 两个后处理模块存在以下问题：
+Evaluation identified the following issues in the `analysis/` and `vis/` post-processing modules:
 
-1. **边界违规** — `vis/kspace.py::compute_k_space()` 是纯数值 FFT 计算，`vis/scattering.py::analyze_scattering()` 是完整分析流程，均错放在 vis/ 下
-2. **重复实现** — `analysis/emf.py::EMFAnalyzer.spectrum()` 和 `vis/kspace.py::compute_k_space()` 都在做 2D FFT
-3. **链路断裂** — analysis 层算出的场能量、频谱、Poynting 通量在 vis 层没有对应绑图函数
-4. **双入口互不感知** — `Analyzer` 和 `VisEngine` 各自独立，用户需了解两个入口的心智模型
-5. **扩展无规范** — 代办中 8 种零覆盖诊断类型无统一扩展模式
+1. **Boundary violations** — `vis/kspace.py::compute_k_space()` is a pure numerical FFT computation, and `vis/scattering.py::analyze_scattering()` is a complete analysis workflow; both are misplaced under vis/
+2. **Duplicate implementations** — `analysis/emf.py::EMFAnalyzer.spectrum()` and `vis/kspace.py::compute_k_space()` both perform 2D FFT
+3. **Broken chain** — Field energy, spectrum, and Poynting flux computed in the analysis layer have no corresponding plot functions in the vis layer
+4. **Dual entry points unaware of each other** — `Analyzer` and `VisEngine` are independent, requiring users to understand two separate mental models
+5. **Unstandardized extensibility** — 8 diagnostic types with zero coverage on the backlog have no unified extension pattern
 
-## 设计目标
+## Design Goals
 
-- 建立清晰的三层架构：`compute/` → `analysis/` → `vis/`
-- 单一顶层入口 `PostProcessor`
-- 分析结果以强类型 dataclass 传递，vis 可直接消费
-- 定义 `DiagnosticAnalyzer` 协议，统一新诊断类型扩展模式
-- 保持向后兼容，旧 API 通过 deprecation warning 引导迁移
+- Establish a clear three-layer architecture: `compute/` → `analysis/` → `vis/`
+- Single top-level entry point `PostProcessor`
+- Analysis results passed via strongly-typed dataclasses, directly consumable by vis
+- Define a `DiagnosticAnalyzer` protocol to unify the extension pattern for new diagnostic types
+- Maintain backward compatibility; old APIs guide migration via deprecation warnings
 
-## 新目录结构
+## New Directory Structure
 
 ```
 src/osiris_toolkit/
-├── compute/                    # 新增：纯数值计算层
+├── compute/                    # NEW: pure numerical computation layer
 │   ├── __init__.py
 │   ├── fft.py                  # compute_k_space, spectral_power
 │   └── integrate.py            # mask_energy, trapz_2d, line_integrate
 │
-├── analysis/                   # 重构：物理语义分析层
+├── analysis/                   # REFACTORED: physical-semantic analysis layer
 │   ├── __init__.py             # PostAnalysisHub
-│   ├── _protocol.py            # 新增：DiagnosticAnalyzer 抽象基类
-│   ├── _result_types.py        # 新增：所有分析结果 dataclass
-│   ├── emf.py                  # EMFAnalyzer (精简，FFT→compute/)
-│   ├── scattering.py           # 新增：从 vis/ 迁入 analyze_scattering
-│   ├── density.py              # 新增：DensityAnalyzer
-│   ├── species.py              # SpeciesAnalyzer (粒子分析保留)
-│   ├── phasespace.py           # 新增：PhasespaceAnalyzer
-│   ├── kspace.py               # 新增：KSpaceAnalyzer
-│   ├── stats.py                # 保留
-│   └── parallel.py             # 保留
+│   ├── _protocol.py            # NEW: DiagnosticAnalyzer abstract base class
+│   ├── _result_types.py        # NEW: all analysis result dataclasses
+│   ├── emf.py                  # EMFAnalyzer (simplified, FFT→compute/)
+│   ├── scattering.py           # NEW: analyze_scattering moved from vis/
+│   ├── density.py              # NEW: DensityAnalyzer
+│   ├── species.py              # SpeciesAnalyzer (particle analysis retained)
+│   ├── phasespace.py           # NEW: PhasespaceAnalyzer
+│   ├── kspace.py               # NEW: KSpaceAnalyzer
+│   ├── stats.py                # Retained
+│   └── parallel.py             # Retained
 │
-├── vis/                        # 精简：纯绑图层
+├── vis/                        # STREAMLINED: pure plotting layer
 │   ├── __init__.py             # PostVisHub
 │   ├── common.py               # load_sim, get_converter, save_or_show
 │   ├── field.py                # plot_field, plot_all_fields
 │   ├── density.py              # plot_density
 │   ├── phasespace.py           # plot_phasespace
-│   ├── kspace.py               # plot_k_space (移除 compute_k_space)
-│   ├── scattering.py           # plot_scattering_fraction (移除 analyze_*)
+│   ├── kspace.py               # plot_k_space (removed compute_k_space)
+│   ├── scattering.py           # plot_scattering_fraction (removed analyze_*)
 │   ├── composite.py            # plot_composite
-│   ├── energy.py               # 新增：场能量/频谱/Poynting 绑图
+│   ├── energy.py               # NEW: field energy/spectrum/Poynting plotting
 │   ├── batch.py                # process_simulation
 │   └── parallel.py             # batch_process_parallel
 │
-└── postproc.py                 # 新增：顶层 PostProcessor
+└── postproc.py                 # NEW: top-level PostProcessor
 ```
 
-## 三层架构
+## Three-Layer Architecture
 
-### compute/ — 纯数值计算层
+### compute/ — Pure Numerical Computation Layer
 
-- 输入/输出均为 `np.ndarray` 或 `float`
-- **不 import sim/，不 import units/，不 import matplotlib**
-- 纯函数，无状态，可被 analysis 和 vis 调用
-- 公开 API：`compute_k_space()`, `spectral_power()`, `mask_energy()`, `trapz_2d()`, `line_integrate()`
+- Input/output are `np.ndarray` or `float`
+- **Does NOT import sim/, does NOT import units/, does NOT import matplotlib**
+- Pure functions, stateless, callable by both analysis and vis
+- Public API: `compute_k_space()`, `spectral_power()`, `mask_energy()`, `trapz_2d()`, `line_integrate()`
 
-### analysis/ — 物理语义分析层
+### analysis/ — Physical-Semantic Analysis Layer
 
-- 依赖 `compute/` + `sim/` + `units/`
-- 每个诊断类型一个 Analyzer 类，实现 `DiagnosticAnalyzer` 协议
-- 分析方法返回强类型 dataclass（定义在 `_result_types.py`）
-- **不 import matplotlib**
-- 子模块：emf, scattering, density, species, phasespace, kspace, stats
+- Depends on `compute/` + `sim/` + `units/`
+- One Analyzer class per diagnostic type, implementing the `DiagnosticAnalyzer` protocol
+- Analysis methods return strongly-typed dataclasses (defined in `_result_types.py`)
+- **Does NOT import matplotlib**
+- Submodules: emf, scattering, density, species, phasespace, kspace, stats
 
-### vis/ — 绑图渲染层
+### vis/ — Plotting/Rendering Layer
 
-- 依赖 `analysis/` 结果类型 + `sim/` 原始数据 + `compute/`（仅 colormap 范围等辅助用途）
-- 每个诊断类型一个绑图函数或简单的 Vis 门面类
-- **不直接做 FFT、积分等数值计算**
-- 结果保存到文件或显示
+- Depends on `analysis/` result types + `sim/` raw data + `compute/` (only for auxiliary purposes such as colormap ranges)
+- One plot function or simple Vis facade per diagnostic type
+- **Does NOT directly perform FFT, integration, or other numerical computations**
+- Results saved to file or displayed
 
-## 数据流
+## Data Flow
 
 ```
 sim/                         compute/               analysis/              vis/
@@ -103,27 +104,27 @@ Simulation.get_field() ──►  compute_k_space() ──►  EMFAnalyzer ─�
                                                                   plot_poynting()
 ```
 
-## 诊断分析协议
+## Diagnostic Analysis Protocol
 
 ```python
 class DiagnosticAnalyzer(ABC):
-    """所有诊断类型分析器的抽象基类。"""
+    """Abstract base class for all diagnostic type analyzers."""
 
     @property
     @abstractmethod
     def diagnostic_kind(self) -> str:
-        """OSIRIS 诊断种类名。"""
+        """The OSIRIS diagnostic type name."""
 
     @abstractmethod
     def list_available(self) -> list[str]:
-        """返回该诊断下可分析的量/物种列表。"""
+        """Return the list of analyzable quantities/species under this diagnostic."""
 ```
 
-不强制统一的 `analyze()` 签名——不同诊断类型的参数差异大（field_energy 需要 quantity+iteration，density_profile 需要 species+axis），因此协议只约束元信息和发现接口。
+A unified `analyze()` signature is not enforced — parameters vary significantly across diagnostic types (field_energy needs quantity+iteration, density_profile needs species+axis). Therefore the protocol only constrains metadata and discovery interfaces.
 
-## 结果类型
+## Result Types
 
-所有分析方法返回明确命名的 dataclass，定义在 `analysis/_result_types.py`：
+All analysis methods return explicitly named dataclasses, defined in `analysis/_result_types.py`:
 
 ```python
 @dataclass
@@ -162,7 +163,7 @@ class ScatteringResult:
     mask_info: dict
 ```
 
-## 顶层 API
+## Top-Level API
 
 ```python
 from osiris_toolkit import Simulation
@@ -171,7 +172,7 @@ from osiris_toolkit.postproc import PostProcessor
 sim = Simulation("/path/to/output")
 pp = PostProcessor(sim)
 
-# ── 分析 ──
+# ── Analysis ──
 pp.analyze.emf.field_energy("e1", iteration=50)      # → FieldEnergyResult
 pp.analyze.emf.em_dynamics(iteration=50)              # → EMDynamicsResult
 pp.analyze.emf.spectrum("e1", iteration=50)           # → EMSpectrumResult
@@ -179,17 +180,17 @@ pp.analyze.scattering.analyze("e3")                   # → ScatteringResult
 pp.analyze.density.profile("electrons", iteration=50) # → DensityProfileResult
 pp.analyze.species.energy_spectrum("electrons", 50)   # → ParticleSpectrumResult
 
-# ── 可视化 ──
-pp.vis.field.plot("e1", iteration=50, x_unit="um")   # 直接读 sim 数据
-pp.vis.energy.timeline(emd_result)                     # 消费分析结果
-pp.vis.energy.spectrum(spec_result)                    # 消费分析结果
-pp.vis.scattering.plot(result)                         # 消费分析结果
+# ── Visualization ──
+pp.vis.field.plot("e1", iteration=50, x_unit="um")   # reads sim data directly
+pp.vis.energy.timeline(emd_result)                     # consumes analysis result
+pp.vis.energy.spectrum(spec_result)                    # consumes analysis result
+pp.vis.scattering.plot(result)                         # consumes analysis result
 
-# ── 批处理 ──
+# ── Batch Processing ──
 pp.batch(sim_name="run_01", x_unit="um")
 ```
 
-### 内部结构
+### Internal Structure
 
 ```python
 class PostProcessor:
@@ -208,7 +209,7 @@ class PostAnalysisHub:
     def emf(self) -> EMFAnalyzer: ...
     @cached_property
     def scattering(self) -> ScatteringAnalyzer: ...
-    # ... 每个诊断类型一个 cached_property
+    # ... one cached_property per diagnostic type
 
 class PostVisHub:
     @cached_property
@@ -218,22 +219,22 @@ class PostVisHub:
     # ...
 ```
 
-所有 analyzer 和 vis 门面均为懒加载，只在首次访问时初始化。
+All analyzers and vis facades are lazily loaded, initialized only on first access.
 
-## 新诊断类型扩展模式
+## New Diagnostic Type Extension Pattern
 
-每新增一种诊断类型（RAW、TRACKS、HISTORY、UDIST、CELL_AVG、CURRENT、CHARGE_CONS、TIMINGS），遵循三步：
+For each new diagnostic type added (RAW, TRACKS, HISTORY, UDIST, CELL_AVG, CURRENT, CHARGE_CONS, TIMINGS), follow three steps:
 
-1. **`analysis/<name>.py`** — 实现 `XxxAnalyzer(DiagnosticAnalyzer)` + 结果 dataclass（添加到 `_result_types.py`）
-2. **`vis/<name>.py`** — 绑图函数，接收 analysis 结果类型和/或原始 sim 数据
-3. **`postproc.py`** — `PostAnalysisHub` 和 `PostVisHub` 各加一个 `@cached_property`
+1. **`analysis/<name>.py`** — Implement `XxxAnalyzer(DiagnosticAnalyzer)` + result dataclass (add to `_result_types.py`)
+2. **`vis/<name>.py`** — Plot function(s) accepting analysis result types and/or raw sim data
+3. **`postproc.py`** — Add one `@cached_property` each to `PostAnalysisHub` and `PostVisHub`
 
-无需手动注册表。
+No manual registry required.
 
-### 优先级映射
+### Priority Mapping
 
-| 诊断类型 | analysis/ | vis/ | 代办 # |
-|----------|-----------|------|--------|
+| Diagnostic Type | analysis/ | vis/ | Backlog # |
+|---------------|-----------|------|-----------|
 | RAW | `raw.py` → RawAnalyzer | `raw.py` | 23 |
 | TRACKS | `tracks.py` → TracksAnalyzer | `tracks.py` | 24 |
 | HISTORY | `history.py` → HistoryAnalyzer | `history.py` | 27 |
@@ -243,36 +244,36 @@ class PostVisHub:
 | CHARGE_CONS | `charge_cons.py` → ChargeConsAnalyzer | `charge_cons.py` | 31 |
 | TIMINGS | `timings.py` → TimingsAnalyzer | `timings.py` | 32 |
 
-## 搬迁清单
+## Migration Checklist
 
-| 当前位置 | 迁往 | 处理 |
-|----------|------|------|
-| `vis/kspace.py::compute_k_space()` | `compute/fft.py` | 移动，旧位置 re-export + deprecation |
-| `vis/scattering.py::analyze_scattering()` | `analysis/scattering.py` | 移动，旧位置 re-export + deprecation |
-| `vis/scattering.py::ScatteringResult` | `analysis/_result_types.py` | 移动，旧位置兼容导入 |
-| `vis/scattering.py::_mask_energy()` | `compute/integrate.py` 改名为 `mask_energy()` | 移动，去掉前导下划线 |
-| `analysis/emf.py::EMFAnalyzer.spectrum()` | 内部改为调 `compute/fft.py` | 消除重复 |
-| `vis/__init__.py::VisEngine` | 保留，加 deprecation warning | 引导到 PostProcessor |
-| `analysis/__init__.py::Analyzer` | 保留，加 deprecation warning | 引导到 PostProcessor |
+| Current Location | Destination | Handling |
+|-----------------|-------------|----------|
+| `vis/kspace.py::compute_k_space()` | `compute/fft.py` | Move, re-export at old location + deprecation |
+| `vis/scattering.py::analyze_scattering()` | `analysis/scattering.py` | Move, re-export at old location + deprecation |
+| `vis/scattering.py::ScatteringResult` | `analysis/_result_types.py` | Move, compatible import at old location |
+| `vis/scattering.py::_mask_energy()` | `compute/integrate.py` renamed to `mask_energy()` | Move, remove leading underscore |
+| `analysis/emf.py::EMFAnalyzer.spectrum()` | Internally call `compute/fft.py` | Eliminate duplication |
+| `vis/__init__.py::VisEngine` | Retain, add deprecation warning | Guide to PostProcessor |
+| `analysis/__init__.py::Analyzer` | Retain, add deprecation warning | Guide to PostProcessor |
 
-## 向后兼容
+## Backward Compatibility
 
-- 所有搬移的符号在旧位置保留 re-export，并发出 `DeprecationWarning`
-- 以下公开 API 签名和行为不变：`plot_field()`, `plot_all_fields()`, `plot_density()`, `plot_phasespace()`, `plot_k_space()`, `process_simulation()`, `batch_process_parallel()`
-- CLI 入口不在本次重构范围
-- `Simulation` 和 `GridData` 等 sim/ 层接口不变
+- All moved symbols retain re-exports at their old locations, issuing `DeprecationWarning`
+- The following public API signatures and behavior are unchanged: `plot_field()`, `plot_all_fields()`, `plot_density()`, `plot_phasespace()`, `plot_k_space()`, `process_simulation()`, `batch_process_parallel()`
+- CLI entry points are outside the scope of this refactoring
+- `Simulation` and `GridData` etc. in the sim/ layer are unchanged
 
-## 实施顺序
+## Implementation Order
 
-1. **Phase 1** — 新建 `compute/` 模块（`fft.py`, `integrate.py`），消除 `EMFAnalyzer.spectrum()` 重复
-2. **Phase 2** — 新建 `analysis/_result_types.py`、`_protocol.py`，搬迁 `analyze_scattering` 到 `analysis/scattering.py`
-3. **Phase 3** — 新建 `postproc.py`（`PostProcessor` + `PostAnalysisHub` + `PostVisHub`），整合现有 analyzer
-4. **Phase 4** — 在 vis/ 层新增 `energy.py`，补全 analysis→vis 链路
-5. **Phase 5** — 旧入口添加 deprecation warning
-6. **Phase 6** — 按代办优先级逐个扩展新诊断类型（RAW P0 → TRACKS P0 → ...）
+1. **Phase 1** — Create `compute/` module (`fft.py`, `integrate.py`), eliminate `EMFAnalyzer.spectrum()` duplication
+2. **Phase 2** — Create `analysis/_result_types.py`, `_protocol.py`, migrate `analyze_scattering` to `analysis/scattering.py`
+3. **Phase 3** — Create `postproc.py` (`PostProcessor` + `PostAnalysisHub` + `PostVisHub`), integrate existing analyzers
+4. **Phase 4** — Add `energy.py` in vis/ layer, complete the analysis→vis chain
+5. **Phase 5** — Add deprecation warnings to old entry points
+6. **Phase 6** — Extend new diagnostic types one by one according to backlog priority (RAW P0 → TRACKS P0 → ...)
 
-## 关联
+## References
 
-- 上游: 2026-05-26-eval-diagnostic-coverage.md, 2026-05-28-eval-osiris-toolkit-architecture.md
-- 下游: 2026-05-28-plan-postproc-architecture.md
+- Upstream: 2026-05-26-eval-diagnostic-coverage.md, 2026-05-28-eval-osiris-toolkit-architecture.md
+- Downstream: 2026-05-28-plan-postproc-architecture.md
 - TODO: 23, 24, 25, 26, 27, 28, 29, 30, 31, 32

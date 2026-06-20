@@ -4,9 +4,9 @@ Converts curly-brace style Fortran namelist input into a token stream
 with line/column tracking for error reporting.
 """
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Iterator
 
 
 class TokenType(Enum):

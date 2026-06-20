@@ -14,12 +14,12 @@ log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 wait_for_job() {
     local job_id=$1
     local label=$2
-    log "等待 $label (Job $job_id)..."
+    log "Waiting for $label (Job $job_id)..."
     while true; do
         local state
         state=$(squeue -j "$job_id" --noheader -o "%T" 2>/dev/null)
         if [ -z "$state" ]; then
-            log "$label 作业已结束"
+            log "$label job completed"
             break
         fi
         sleep 30
@@ -46,7 +46,7 @@ check_result() {
     local outfile
     outfile=$(find_output "$job_id")
     if [ -z "$outfile" ]; then
-        log "[FAIL] $label: 找不到输出文件"
+        log "[FAIL] $label: output file not found"
         echo "  - $label: FAIL (no output file)" >> "$FAILS_FILE"
         return 1
     fi
@@ -81,33 +81,33 @@ check_result() {
 submit_job() {
     local area=$1
     local script=$2
-    log "提交 $area ..." >&2
+    log "Submitting $area ..." >&2
     (cd "$HPC_DIR/$area" && sbatch --parsable "$script")
 }
 
 # ——— Phase 1: 01 + 02 ———
 log "=========================================="
-log "Phase 1: 基础设施验证"
+log "Phase 1: Infrastructure validation"
 log "=========================================="
 
 OLD_JOB=$(squeue -u <slurm_user> --noheader -o "%i" -n hpc-mpi 2>/dev/null)
-[ -n "$OLD_JOB" ] && scancel "$OLD_JOB" && log "取消旧作业 $OLD_JOB"
+[ -n "$OLD_JOB" ] && scancel "$OLD_JOB" && log "Cancelling old job $OLD_JOB"
 
 JOB01=$(submit_job "01-mpi-multinode" "submit_intelmpi.sh")
 log "Job 01 = $JOB01"
 
 wait_for_job "$JOB01" "01-mpi-multinode"
-check_result "$JOB01" "01-mpi-multinode" || { log "[ABORT] 01 失败，终止测试"; exit 1; }
+check_result "$JOB01" "01-mpi-multinode" || { log "[ABORT] 01 failed, terminating"; exit 1; }
 
 JOB02=$(submit_job "02-slurm-env" "submit_array.sh")
 log "Job 02 = $JOB02"
 
 wait_for_job "$JOB02" "02-slurm-env"
-check_result "$JOB02" "02-slurm-env" || { log "[ABORT] 02 失败，终止测试"; exit 1; }
+check_result "$JOB02" "02-slurm-env" || { log "[ABORT] 02 failed, terminating"; exit 1; }
 
-# ——— Phase 2: 03/04/05 并行 ———
+# ——— Phase 2: 03/04/05 parallel ———
 log "=========================================="
-log "Phase 2: 并行运行 03/04/05"
+log "Phase 2: Running 03/04/05 in parallel"
 log "=========================================="
 
 JOB03=$(submit_job "03-resource-calibration" "submit.sh")
@@ -126,9 +126,9 @@ for j in "$JOB03" "$JOB04a" "$JOB04b" "$JOB05"; do
     wait_for_job "$j" "Phase2-$j"
 done
 
-# ——— Phase 3: 检查结果 ———
+# ——— Phase 3: check results ———
 log "=========================================="
-log "Phase 3: 检查结果"
+log "Phase 3: Checking results"
 log "=========================================="
 
 check_result "$JOB03" "03-resource-calibration"
@@ -136,9 +136,9 @@ check_result "$JOB04a" "04a-large-data-scale-analysis"
 check_result "$JOB04b" "04b-large-data-scale-vis"
 check_result "$JOB05" "05-pipeline-e2e"
 
-# ——— Phase 4: 生成报告 ———
+# ——— Phase 4: generate report ———
 log "=========================================="
-log "Phase 4: 生成报告"
+log "Phase 4: Generating report"
 log "=========================================="
 
 mkdir -p "$(dirname "$FINAL_REPORT")"
@@ -146,27 +146,27 @@ mkdir -p "$(dirname "$FINAL_REPORT")"
 {
     echo "# HPC Cluster Test Report"
     echo ""
-    echo "> $(date +%Y-%m-%d) | 测试"
+    echo "> $(date +%Y-%m-%d) | HPC Test"
     echo ""
-    echo "## 测试环境"
+    echo "## Test Environment"
     echo ""
-    echo "- 集群: <cluster_host>"
-    echo "- 分区: <partition>"
+    echo "- Cluster: <cluster_host>"
+    echo "- Partition: <partition>"
     echo "- MPI: <mpi_module>"
     echo "- Conda: <conda_env>"
-    echo "- 模拟数据: Au (19 GB)"
+    echo "- Simulation data: Au (19 GB)"
     echo ""
-    echo "## 测试结果"
+    echo "## Test Results"
     echo ""
     if [ -s "$FAILS_FILE" ]; then
-        echo "### 失败项"
+        echo "### Failed Items"
         cat "$FAILS_FILE"
         echo ""
     else
-        echo "全部测试通过。"
+        echo "All tests passed."
         echo ""
     fi
-    echo "### 作业详情"
+    echo "### Job Details"
     echo ""
     for area in "01-mpi-multinode" "02-slurm-env" "03-resource-calibration" "04-large-data-scale" "05-pipeline-e2e"; do
         echo "#### $area"
@@ -176,13 +176,13 @@ mkdir -p "$(dirname "$FINAL_REPORT")"
             tail -30 "$local_out" 2>/dev/null
             echo '```'
         else
-            echo "(无输出文件)"
+            echo "(no output file)"
         fi
         echo ""
     done
 } > "$FINAL_REPORT"
 
-log "报告: $FINAL_REPORT"
+log "Report: $FINAL_REPORT"
 log "=========================================="
-log "全部测试完成！"
+log "All tests complete!"
 log "=========================================="

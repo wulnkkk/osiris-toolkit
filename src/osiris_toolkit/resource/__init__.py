@@ -11,14 +11,14 @@ from osiris_toolkit.resource._params import ResourceParams
 from osiris_toolkit.resource._report import format_report
 
 __all__ = [
-    "ResourceParams",
-    "MemoryEstimate",
-    "RuntimeEstimate",
     "DiskEstimate",
     "EstimationReport",
+    "MemoryEstimate",
     "ResourceEstimator",
-    "format_report",
+    "ResourceParams",
+    "RuntimeEstimate",
     "estimate_resources",
+    "format_report",
 ]
 
 

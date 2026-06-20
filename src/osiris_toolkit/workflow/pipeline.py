@@ -95,7 +95,7 @@ class PipelineContext:
         return path
 
     @classmethod
-    def load_snapshot(cls, path: str | Path) -> "PipelineContext":
+    def load_snapshot(cls, path: str | Path) -> PipelineContext:
         """Restore context from a snapshot file.
 
         Rebuilds deck and sim from saved paths. Returns a fully
@@ -322,7 +322,7 @@ class Pipeline:
         return ctx
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "Pipeline":
+    def from_yaml(cls, path: str | Path) -> Pipeline:
         """Build a pipeline from a YAML configuration file.
 
         Parameters

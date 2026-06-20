@@ -1,98 +1,98 @@
 # HPC Cluster Test Report
 
-> YYYY-MM-DD | 测试
+> YYYY-MM-DD | HPC Test
 
-## 环境信息
+## Environment
 
-- 集群名称：
-- SLURM 版本：
-- MPI 实现及版本：
-- Conda 环境名：
-- 项目路径：
-- 数据路径：
-
----
-
-## 测试一：MPI 多节点并行
-
-- 执行时间：
-- 提交脚本：`submit_intelmpi.sh` / `submit_openmpi.sh`
-- 节点数：
-- 每节点进程数：
-
-| # | 测试项 | 结果 | 关键指标 | 备注 |
-|---|--------|------|----------|------|
-| 1.1 | 单节点 MPI 分发 | | | |
-| 1.2 | 多节点迭代划分 | | | |
-| 1.3 | 多节点分析并行 | | | |
-| 1.4 | 多节点可视化并行 | | | |
-
-### 问题记录
-
+- Cluster name:
+- SLURM version:
+- MPI implementation & version:
+- Conda environment:
+- Project path:
+- Data path:
 
 ---
 
-## 测试二：SLURM 环境变量集成
+## Test 1: MPI Multi-Node Parallel
 
-- 执行时间：
-- 提交脚本：
-- 作业数组 ID 范围：
+- Execution time:
+- Submit script: `submit_intelmpi.sh` / `submit_openmpi.sh`
+- Number of nodes:
+- Processes per node:
 
-| # | 测试项 | 结果 | 关键指标 | 备注 |
-|---|--------|------|----------|------|
-| 2.1 | CPU 自动检测 | | | |
-| 2.2 | 作业数组检测 | | | |
-| 2.3 | 作业数组迭代划分 | | | |
-| 2.4 | BLAS 线程限制 | | | |
+| # | Test Item | Result | Key Metric | Notes |
+|---|-----------|--------|------------|-------|
+| 1.1 | Single-node MPI distribution | | | |
+| 1.2 | Multi-node iteration split | | | |
+| 1.3 | Multi-node analysis parallel | | | |
+| 1.4 | Multi-node visualization parallel | | | |
 
-### 问题记录
+### Issues
 
 
 ---
 
-## 测试三：资源预测校准
+## Test 2: SLURM Environment Integration
 
-- 执行时间：
-- 使用的模拟数量：
-- 模拟目录列表：
+- Execution time:
+- Submit script:
+- Job array ID range:
 
-| # | 测试项 | 结果 | 关键指标 | 备注 |
-|---|--------|------|----------|------|
-| 3.1 | 参数提取准确性 | | | |
-| 3.2 | 内存预测偏差 | | | |
-| 3.3 | 时间预测偏差 | | | |
-| 3.4 | 磁盘预测偏差 | | | |
-| 3.5 | 系数校准建议 | | | |
+| # | Test Item | Result | Key Metric | Notes |
+|---|-----------|--------|------------|-------|
+| 2.1 | CPU auto-detection | | | |
+| 2.2 | Job array detection | | | |
+| 2.3 | Job array iteration split | | | |
+| 2.4 | BLAS thread limiting | | | |
 
-### 校准建议
+### Issues
 
-| 参数 | 当前默认值 | 建议值 |
-|------|-----------|--------|
+
+---
+
+## Test 3: Resource Prediction Calibration
+
+- Execution time:
+- Number of simulations used:
+- Simulation directory list:
+
+| # | Test Item | Result | Key Metric | Notes |
+|---|-----------|--------|------------|-------|
+| 3.1 | Parameter extraction accuracy | | | |
+| 3.2 | Memory prediction error | | | |
+| 3.3 | Time prediction error | | | |
+| 3.4 | Disk prediction error | | | |
+| 3.5 | Coefficient calibration suggestion | | | |
+
+### Calibration Suggestions
+
+| Parameter | Current Default | Suggested Value |
+|-----------|----------------|-----------------|
 | efficiency | 0.15 | |
 | io_bandwidth_gbs | 1.0 | |
 
-### 问题记录
+### Issues
 
 
 ---
 
-## 测试四：大规模数据并行处理
+## Test 4: Large-Scale Data Parallel Processing
 
-- 执行时间：
-- 数据规模：
-- 最大迭代数：
+- Execution time:
+- Data size:
+- Maximum iterations:
 
-| # | 测试项 | 结果 | 关键指标 | 备注 |
-|---|--------|------|----------|------|
-| 4.1 | 全迭代 field_energy | | | |
-| 4.2 | 批量可视化 | | | |
-| 4.3 | 扩展性测试 | | | |
-| 4.4 | 大数据集读取 | | | |
+| # | Test Item | Result | Key Metric | Notes |
+|---|-----------|--------|------------|-------|
+| 4.1 | Full-iteration field_energy | | | |
+| 4.2 | Batch visualization | | | |
+| 4.3 | Scalability test | | | |
+| 4.4 | Large dataset read | | | |
 
-### 性能数据
+### Performance Data
 
-| 模式 | Workers | 耗时(s) | 加速比 | 内存峰值(MB) |
-|------|---------|---------|--------|--------------|
+| Mode | Workers | Time(s) | Speedup | Peak Memory(MB) |
+|------|---------|---------|---------|-----------------|
 | analysis | 1 | | 1.0x | |
 | analysis | 2 | | | |
 | analysis | 4 | | | |
@@ -101,37 +101,35 @@
 | vis | 4 | | | |
 | vis | 8 | | | |
 
-### 问题记录
+### Issues
 
 
 ---
 
-## 测试五：Pipeline 端到端
+## Test 5: Pipeline End-to-End
 
-- 执行时间：
-- YAML 配置：
+- Execution time:
+- YAML config:
 
-| # | 测试项 | 结果 | 关键指标 | 备注 |
-|---|--------|------|----------|------|
-| 5.1 | YAML → 完整流程 | | | |
-| 5.2 | 集群路径兼容 | | | |
-| 5.3 | 环境模块缺失 | | | |
+| # | Test Item | Result | Key Metric | Notes |
+|---|-----------|--------|------------|-------|
+| 5.1 | YAML → full pipeline | | | |
+| 5.2 | Cluster path compatibility | | | |
+| 5.3 | Missing environment modules | | | |
 
-### 问题记录
+### Issues
 
 
 ---
 
-## 汇总
+## Summary
 
-| 测试区域 | 通过/失败 | 用例通过数 |
-|----------|----------|-----------|
-| 01 MPI 多节点 | | |
-| 02 SLURM 环境 | | |
-| 03 资源校准 | | |
-| 04 大规模数据 | | |
+| Test Area | Pass/Fail | Test Cases Passed |
+|-----------|-----------|-------------------|
+| 01 MPI multi-node | | |
+| 02 SLURM environment | | |
+| 03 Resource calibration | | |
+| 04 Large-scale data | | |
 | 05 Pipeline E2E | | |
 
-## 总结
-
-
+## Conclusion

@@ -5,8 +5,9 @@ OSIRIS v1.0.0 Fortran source code.
 """
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Any, Iterator
+from typing import Any
 
 from .ast import Deck, Section
 from .reporter import IssueReport, Severity, ValidationIssue

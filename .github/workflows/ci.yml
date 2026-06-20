@@ -24,8 +24,14 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Run lint
+      - name: Ruff lint
         run: uv run ruff check src/
 
+      - name: Ruff format check
+        run: uv run ruff format --check src/
+
+      - name: mypy type check
+        run: uv run mypy src/
+
       - name: Run tests
-        run: uv run pytest tests/ -v --ignore=tests/hpc
+        run: uv run pytest tests/ -v --ignore=tests/hpc -m "not slow"

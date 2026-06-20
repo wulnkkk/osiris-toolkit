@@ -2,7 +2,7 @@
 """Extract parameter, quantity, and section definitions from OSIRIS Fortran source.
 
 Usage:
-    python scripts/extract_definitions.py /path/to/osiris-1.0.0/source
+    python dev-tools/extract_definitions.py /path/to/osiris-1.0.0/source
 
 Generates files in src/osiris_toolkit/_generated/:
     - parameters.py  — namelist parameter names, types, defaults

@@ -1,6 +1,6 @@
 """Recursive-descent parser: token stream -> AST (Deck containing Sections)."""
 
-from typing import Iterator
+from collections.abc import Iterator
 
 from .ast import Deck, KeySpec, ParamAssignment, Section, SliceSpec
 from .lexer import Token, TokenType

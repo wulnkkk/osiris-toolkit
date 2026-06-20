@@ -66,7 +66,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
         self,
         path: str | Path,
         output_root: str | Path | None = None,
-        config: "OsirisConfig | None" = None,
+        config: OsirisConfig | None = None,
     ) -> None:
         self._path = Path(path).absolute()
         if not self._path.is_dir():
@@ -110,7 +110,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
         return {"path": str(self._path)}
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Simulation":
+    def from_dict(cls, d: dict) -> Simulation:
         """Rebuild a Simulation from the output of ``to_dict()``.
 
         Re-discovers the output directory, rebuilding the catalog

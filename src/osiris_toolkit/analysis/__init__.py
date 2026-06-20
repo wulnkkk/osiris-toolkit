@@ -66,14 +66,14 @@ class PostAnalysisHub:
 
 
 __all__ = [
-    "EMFAnalyzer",
-    "SpeciesAnalyzer",
     "DensityAnalyzer",
-    "ScatteringAnalyzer",
+    "EMFAnalyzer",
     "KSpaceAnalyzer",
     "PhasespaceAnalyzer",
-    "TracksAnalyzer",
     "PostAnalysisHub",
+    "ScatteringAnalyzer",
+    "SpeciesAnalyzer",
+    "TracksAnalyzer",
     "describe",
     "mean",
     "minmax",

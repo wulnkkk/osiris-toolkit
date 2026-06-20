@@ -58,8 +58,44 @@ nav:
       - Unit System: design/unit-system-architecture.md
       - Architecture Refactor v0.14: design/architecture-refactor.md
       - PostProcessor Design: design/postproc-architecture.md
+  - Modules:
+      - Deck: modules/deck.md
+      - Simulation: modules/sim.md
+      - Units: modules/units.md
+      - IO: modules/io.md
+      - Compute: modules/compute.md
+      - Analysis: modules/analysis.md
+      - Visualization: modules/vis.md
+      - Workflow: modules/workflow.md
+      - Parallel: modules/parallel.md
+      - Resource: modules/resource.md
+      - Sync: modules/sync.md
+      - Data Models: modules/_models.md
+      - Generated: modules/_generated.md
+      - Exceptions: modules/exceptions.md
+  - Agent:
+      - Skill Manual: agent/skill.md
+      - Task Map: agent/task-map.md
+      - Recipes:
+          - Discover Sims: agent/recipes/discover-sims.md
+          - Batch K-Space: agent/recipes/batch-k-space.md
+          - Compare Sims: agent/recipes/compare-two-sims.md
   - Changelog:
+      - Summary: CHANGELOG.md
       - v0.15.0: devlog/0.15.0.md
       - v0.14.0: devlog/0.14.0.md
+      - v0.13.0: devlog/0.13.0.md
+      - v0.12.0: devlog/0.12.0.md
+      - v0.11.0: devlog/0.11.0.md
+      - v0.10.0: devlog/0.10.0.md
+      - v0.9.0: devlog/0.9.0.md
+      - v0.8.0: devlog/0.8.0.md
+      - v0.7.0: devlog/0.7.0.md
+      - v0.6.0: devlog/0.6.0.md
+      - v0.5.0: devlog/0.5.0.md
+      - v0.4.0: devlog/0.4.0.md
+      - v0.3.0: devlog/0.3.0.md
+      - v0.2.0: devlog/0.2.0.md
+      - v0.1.0: devlog/0.1.0.md
   - Contributing: contributing.md
   - FAQ: faq.md

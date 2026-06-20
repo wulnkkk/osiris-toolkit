@@ -54,7 +54,7 @@ from osiris_toolkit.units import UnitConverter, UnitSystem
 from osiris_toolkit.vis.batch import BatchResult, ProgressEvent
 
 __all__ = [
-    "__version__",
+    "OSIRIS_DIAGNOSTICS",
     "BatchResult",
     "ConfigurationError",
     "DataNotFoundError",
@@ -69,7 +69,6 @@ __all__ = [
     "LazySimulation",
     "MissingDependencyError",
     "MissingParameterError",
-    "OSIRIS_DIAGNOSTICS",
     "OsirisConfig",
     "OsirisToolkitError",
     "ParticleData",
@@ -84,11 +83,12 @@ __all__ = [
     "TrackData",
     "TrackInfo",
     "TracksAnalyzer",
-    "UnitConverter",
     "UnitConversionError",
+    "UnitConverter",
     "UnitSystem",
     "UnsupportedVersionError",
     "ValidationError",
+    "__version__",
     "compute_k_space",
     "line_integrate",
     "list_records",

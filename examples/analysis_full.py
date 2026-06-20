@@ -17,7 +17,7 @@ from osiris_toolkit.deck import parse_deck_file
 from osiris_toolkit.compute.fft import compute_k_space
 from osiris_toolkit.compute.integrate import mask_energy
 
-BASE = Path("/path/to/Zmaterial")
+BASE = Path("/path/to/Zmaterial")  # TODO: replace with your simulation data directory
 CASES = ["Au", "Au0", "Ti", "Ti0", "CH_fixed", "CH0_fixed"]
 CASE_LABELS = {"Au":"Au SSD", "Au0":"Au CPP", "Ti":"Ti SSD", "Ti0":"Ti CPP",
                "CH_fixed":"CH SSD", "CH0_fixed":"CH CPP"}

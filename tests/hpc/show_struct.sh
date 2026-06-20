@@ -1,5 +1,5 @@
 #!/bin/bash
-BASE=/path/to/Zmaterial
+BASE=/path/to/Zmaterial  # TODO: replace with your simulation data directory
 for d in Au Au0 Ti Ti0 CH_fixed CH0_fixed; do
     echo "===== $d ====="
     echo "INPUT:"; ls $BASE/$d/*.in
