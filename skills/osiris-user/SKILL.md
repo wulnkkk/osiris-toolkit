@@ -76,6 +76,10 @@ pp = PostProcessor(sim, system=system)
 pp.vis.field.plot("e1", iteration=50, x_unit="um")
 pp.vis.plot_k_space("e1", iteration=50, k_unit="k0")
 
+# 4a2. History
+result = pp.analyze.history.get_timeseries("ene", "total")
+pp.vis.history.timeseries(result)
+
 # 4b. Analysis
 result = pp.analyze.emf.field_energy("e1", iteration=50)
 print(result.total_energy)
@@ -91,6 +95,8 @@ pp.batch(sim_name="my_run", x_unit="um", time_unit="ps")
 sim.list_fields()          # -> ["e1", "e2", "e3", "b1", "b2", "b3"]
 sim.list_iterations("e1")  # -> [0, 10, 20, ...]
 sim.list_species()         # -> ["electrons", "ions"]
+sim.list_history()         # -> ["ene", "pwr"]
+sim.list_tracks()          # -> ["track1"]
 
 # Read data
 grid = sim.get_field("e1", iteration=50)   # -> GridData

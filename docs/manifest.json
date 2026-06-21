@@ -1,6 +1,6 @@
 {
-  "version": "0.16.0",
-  "generated": "2026-06-20",
+  "version": "0.17.0",
+  "generated": "2026-06-21",
   "description": "Agent entry point for osiris-toolkit documentation discovery.",
   "entry_points": {
     "architecture": "docs/explanation/architecture/overview.md",
@@ -40,6 +40,9 @@
       "cli": "osiris-toolkit vis batch [--dry-run] [--progress] [-j N] <path> <name>",
       "api": "process_simulation(sim_path, sim_name, system=system)"
     },
+    "plot history timeseries": {
+      "api": "HistoryAnalyzer(sim).get_timeseries(name, column)"
+    },
     "convert units": {
       "guide": "docs/how-to/unit-conversion.md",
       "api": "UnitSystem.from_params(params).length.to(value, 'um')"
@@ -52,7 +55,6 @@
   "known_limitations": {
     "k_space_cli_params": "Advanced k-space params (omega0_norm, clim, white_low) available via CLI since v0.15.0. For full control use plot_k_space() Python API.",
     "no_incremental_processing": "vis batch always reprocesses all iterations. Use --dry-run to plan ahead.",
-    "filename_regex_density": "Per-species density files (charge-electrons-NNNNNN.zdf) may not be detected by all list_*() regex patterns. This is a known issue.",
     "parallel_memory": "8 workers x 4000x3600 float32 per field ~ 456 MB baseline. Reduce -j on memory-constrained machines."
   }
 }

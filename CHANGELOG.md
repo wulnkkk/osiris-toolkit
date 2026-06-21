@@ -5,6 +5,25 @@ All notable changes to **osiris-toolkit** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- HISTORY diagnostic analysis (`HistoryAnalyzer`) and visualization (`plot_history_timeseries`)
+- HISTORY batch processing in `process_simulation` (auto-discovers and plots all columns)
+- `PostAnalysisHub.history` and `PostVisHub.history` namespace accessors
+- `HistoryResult` dataclass in `analysis._result_types`
+- 20 unit tests for `resource._estimator.py` covering internal formulas
+
+### Fixed
+- `field_energy_all` dict key renamed `"energy"` → `"total_energy"` to match `FieldEnergyResult`
+- Parallel batch path now returns populated `BatchResult` instead of empty stub
+- Flat `{quant}-{species}-{iter:06d}.zdf` filenames now correctly discovered for DENSITY/RAW/PHA
+- `_parse_iter_file` regex changed from greedy `(.+)` to non-greedy `([^-]+?)` to split species
+
+### Changed
+- `Makefile` and `.pre-commit-config.yaml` decoupled from `uv` — commands work with any venv
+- Development installation docs now show dual-track setup (uv + pip/venv)
+
 ## [0.16.0] - 2026-06-20
 
 ### Added
