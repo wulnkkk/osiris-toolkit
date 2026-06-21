@@ -6,6 +6,7 @@ from functools import cached_property
 
 from osiris_toolkit.analysis.density import DensityAnalyzer
 from osiris_toolkit.analysis.emf import EMFAnalyzer
+from osiris_toolkit.analysis.history import HistoryAnalyzer
 from osiris_toolkit.analysis.kspace import KSpaceAnalyzer
 from osiris_toolkit.analysis.phasespace import PhasespaceAnalyzer
 from osiris_toolkit.analysis.scattering import ScatteringAnalyzer
@@ -61,6 +62,10 @@ class PostAnalysisHub:
         return KSpaceAnalyzer(self._sim, self._system)
 
     @cached_property
+    def history(self) -> HistoryAnalyzer:
+        return HistoryAnalyzer(self._sim, self._system)
+
+    @cached_property
     def tracks(self) -> TracksAnalyzer:
         return TracksAnalyzer(self._sim, self._system)
 
@@ -68,6 +73,7 @@ class PostAnalysisHub:
 __all__ = [
     "DensityAnalyzer",
     "EMFAnalyzer",
+    "HistoryAnalyzer",
     "KSpaceAnalyzer",
     "PhasespaceAnalyzer",
     "PostAnalysisHub",

@@ -294,3 +294,24 @@ def unit_system():
     from osiris_toolkit.units.converter import UnitSystem
 
     return UnitSystem(3.55e15)
+
+
+@pytest.fixture
+def tmp_sim_dir_hist(tmp_path):
+    """Simulation directory with a synthetic HIST/ subdirectory."""
+    hist_dir = tmp_path / "HIST"
+    hist_dir.mkdir(parents=True)
+
+    # Create a simple history file: ene with time/total/field columns
+    ene_path = hist_dir / "ene"
+    lines = [
+        "# time  total  field",
+        "0.0  0.0  10.0",
+        "1.0  0.5  9.5",
+        "2.0  1.0  9.0",
+        "3.0  2.0  8.0",
+        "4.0  3.5  7.0",
+    ]
+    ene_path.write_text("\n".join(lines), encoding="utf-8")
+
+    return tmp_path

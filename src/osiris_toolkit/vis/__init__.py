@@ -21,6 +21,7 @@ from osiris_toolkit.vis.energy_summary import (
     plot_spectrum_colormap,
 )
 from osiris_toolkit.vis.field import plot_all_fields, plot_field
+from osiris_toolkit.vis.history import plot_history_timeseries
 from osiris_toolkit.vis.kspace import plot_k_space
 from osiris_toolkit.vis.phasespace import plot_phasespace
 from osiris_toolkit.vis.raw import (
@@ -57,7 +58,7 @@ class PostVisHub:
         the next access to ``.field``, ``.energy``, ``.raw``, or
         ``.tracks`` builds fresh objects.
         """
-        for attr in ("field", "energy", "raw", "tracks"):
+        for attr in ("field", "energy", "raw", "tracks", "history"):
             self.__dict__.pop(attr, None)
 
     def set_system(self, system: UnitSystem) -> None:
@@ -99,6 +100,15 @@ class PostVisHub:
     def energy(self):
         """Convenience namespace for energy/spectrum plotting."""
         return _EnergyVis(self)
+
+    # -- history ---------------------------------------------------------
+
+    plot_history_timeseries = staticmethod(plot_history_timeseries)
+
+    @cached_property
+    def history(self):
+        """Convenience namespace for HISTORY timeseries plotting."""
+        return _HistoryVis(self)
 
     # -- raw particles ----------------------------------------------------
 
@@ -156,6 +166,8 @@ class PostVisHub:
             return plot_phasespace(sim=self._sim, system=self._system, **kwargs)
         elif kind == "KSPACE":
             return plot_k_space(sim=self._sim, system=self._system, **kwargs)
+        elif kind == "HISTORY":
+            return plot_history_timeseries(**kwargs)
         else:
             quantity = kwargs.get("quantity")
             iteration = kwargs.get("iteration")
@@ -251,6 +263,16 @@ class _TracksVis:
         return plot_tracks_field(td, field_component, **kwargs)
 
 
+class _HistoryVis:
+    """HISTORY timeseries visualization namespace."""
+
+    def __init__(self, hub: PostVisHub) -> None:
+        self._hub = hub
+
+    def timeseries(self, result, **kwargs) -> Path | None:
+        return plot_history_timeseries(result, **kwargs)
+
+
 __all__ = [
     "PostVisHub",
     "animate_field",
@@ -261,6 +283,7 @@ __all__ = [
     "plot_energy_timeline",
     "plot_energy_timeseries",
     "plot_field",
+    "plot_history_timeseries",
     "plot_k_space",
     "plot_overlay",
     "plot_phasespace",

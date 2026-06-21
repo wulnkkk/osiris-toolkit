@@ -127,3 +127,13 @@ class MomentumStatsResult:
     p3_std: float
     anisotropy: float  # p1_std / p2_std for transverse directions
     nparts: int
+
+
+@dataclass
+class HistoryResult:
+    """Single-column timeseries extracted from a HISTORY file."""
+
+    name: str
+    column: str
+    time: "np.ndarray"
+    values: "np.ndarray"

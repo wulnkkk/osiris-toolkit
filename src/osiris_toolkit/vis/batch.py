@@ -1,4 +1,4 @@
-"""Batch-process OSIRIS simulations: fields, k-space, density, scattering.
+"""Batch-process OSIRIS simulations: fields, k-space, density, scattering, history.
 
 Generates visualisation images with physical units for all time steps.
 Output is organised by simulation name under an output root directory.
@@ -138,7 +138,8 @@ def process_simulation(
     kspace_dir = base / "k_space"
     density_dir = base / "density"
     scattering_dir = base / "scattering"
-    for d in [field_dir, kspace_dir, density_dir, scattering_dir]:
+    history_dir = base / "history"
+    for d in [field_dir, kspace_dir, density_dir, scattering_dir, history_dir]:
         d.mkdir(parents=True, exist_ok=True)
 
     available_fields = sim.list_fields()
@@ -265,6 +266,30 @@ def process_simulation(
         except Exception as exc:
             logger.info("  [%s] scattering %s: %s", sim_name, qty, exc)
             all_errors.append(f"scattering {qty}: {exc}")
+
+    # --- HISTORY timeseries ---
+    history_names = sim.list_history()
+    if history_names:
+        from osiris_toolkit.analysis.history import HistoryAnalyzer
+        from osiris_toolkit.vis.history import plot_history_timeseries
+
+        logger.info("[%s] %d history files found.", sim_name, len(history_names))
+        history_analyzer = HistoryAnalyzer(sim)
+        for name in history_names:
+            hd = sim.get_history(name)
+            if hd is None or not hd.columns:
+                continue
+            for column in hd.columns[1:]:  # skip time column
+                try:
+                    result = history_analyzer.get_timeseries(name, column)
+                    fpath = plot_history_timeseries(
+                        result,
+                        output=str(history_dir / f"{name}_{column}.png"),
+                    )
+                    if fpath:
+                        all_files.append(fpath)
+                except Exception as exc:
+                    all_errors.append(f"history {name}/{column}: {exc}")
 
     total = time.time() - t_start
     logger.info("[%s] All done, elapsed %.0fs.", sim_name, total)
