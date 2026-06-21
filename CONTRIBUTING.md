@@ -177,6 +177,20 @@ uv run mkdocs build --strict
 
 Documentation source is in `docs/`, uses mkdocs-material theme + mkdocstrings for auto-generated API docs.
 
+### Sync Suggestions
+
+When you modify code, run this to see which documentation files may need updating:
+
+```bash
+# Changes since last commit
+uv run python dev-tools/suggest_updates.py --since HEAD~1
+
+# Branch diff against main
+uv run python dev-tools/suggest_updates.py --since origin/main
+```
+
+It outputs a checklist based on the [sync matrix](#when-addingchanging-public-api).
+
 ---
 
 ## CHANGELOG
