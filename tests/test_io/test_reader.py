@@ -16,6 +16,7 @@ from osiris_toolkit.io._reader import (
 # read_grid (synthetic ZDF files)
 # ---------------------------------------------------------------------------
 
+
 class TestReadGrid:
     def test_read_grid_2d(self, tmp_zdf_grid):
         data, gi, it = read_grid(tmp_zdf_grid)
@@ -66,6 +67,7 @@ class TestReadGrid:
 # read_particles
 # ---------------------------------------------------------------------------
 
+
 class TestReadParticles:
     def test_read_particles_basic(self, tmp_zdf_particles):
         data, pi, it = read_particles(tmp_zdf_particles)
@@ -90,6 +92,7 @@ class TestReadParticles:
 # read_tracks
 # ---------------------------------------------------------------------------
 
+
 class TestReadTracks:
     def test_read_tracks_single(self, tmp_zdf_tracks):
         tracks, ti = read_tracks(tmp_zdf_tracks)
@@ -113,6 +116,7 @@ class TestReadTracks:
 # ---------------------------------------------------------------------------
 # read_info
 # ---------------------------------------------------------------------------
+
 
 class TestReadInfo:
     def test_read_info_grid(self, tmp_zdf_grid):
@@ -140,6 +144,7 @@ class TestReadInfo:
 # list_records
 # ---------------------------------------------------------------------------
 
+
 class TestListRecords:
     def test_list_records_grid(self, tmp_zdf_grid):
         recs = list_records(tmp_zdf_grid)
@@ -158,12 +163,14 @@ class TestListRecords:
 # Real-data tests (optional, skipped when data path not configured)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.data
 class TestReadGridRealData:
     def test_read_real_grid_info(self, case1_path):
         if case1_path is None:
             pytest.skip("OSIRIS_TOOLKIT_DATA_PATH not set")
         from pathlib import Path
+
         zdf_files = sorted(Path(case1_path).rglob("*.zdf"))
         if not zdf_files:
             pytest.skip("No ZDF files found in case1")
@@ -175,6 +182,7 @@ class TestReadGridRealData:
         if case1_path is None:
             pytest.skip("OSIRIS_TOOLKIT_DATA_PATH not set")
         from pathlib import Path
+
         zdf_files = sorted(Path(case1_path).rglob("*.zdf"))
         if not zdf_files:
             pytest.skip("No ZDF files found in case1")

@@ -43,8 +43,7 @@ def mode_analysis(sim_path: str) -> None:
     quantity = fields[0]
     iterations = sim.list_iterations(quantity)
     total_iters = len(iterations)
-    print(f"[INFO] Mode: analysis, Quantity: {quantity}, "
-          f"Iterations: {total_iters}")
+    print(f"[INFO] Mode: analysis, Quantity: {quantity}, Iterations: {total_iters}")
 
     worker_counts = [1, 2, 4, 8]
     baseline_time = None
@@ -65,19 +64,18 @@ def mode_analysis(sim_path: str) -> None:
             speedup = baseline_time / elapsed
 
         timings[n_workers] = {"time": elapsed, "speedup": speedup}
-        print(f"  Workers={n_workers:2d}: time={elapsed:6.1f}s, "
-              f"results={len(results)}, speedup={speedup:.2f}x")
+        print(f"  Workers={n_workers:2d}: time={elapsed:6.1f}s, results={len(results)}, speedup={speedup:.2f}x")
 
     # Test 4.1: all iterations processed
-    record(len(results) == total_iters,
-           "4.1 field_energy_all",
-           f"{len(results)}/{total_iters} iterations")
+    record(len(results) == total_iters, "4.1 field_energy_all", f"{len(results)}/{total_iters} iterations")
 
     # Test 4.3: meaningful speedup at >= 4 workers
     if 4 in timings:
-        record(timings[4]["speedup"] >= 1.5,
-               "4.3 Scalability: speedup at 4 workers",
-               f"speedup={timings[4]['speedup']:.2f}x")
+        record(
+            timings[4]["speedup"] >= 1.5,
+            "4.3 Scalability: speedup at 4 workers",
+            f"speedup={timings[4]['speedup']:.2f}x",
+        )
 
     # Test 4.4: large dataset read — check max single read
     # Load the field with most data to measure I/O
@@ -85,11 +83,9 @@ def mode_analysis(sim_path: str) -> None:
     grid = sim.get_field(quantity, iterations[0])
     if grid is not None:
         read_time = time.perf_counter() - t0
-        data_mb = grid.data.nbytes / (1024 ** 2)
-        print(f"  Largest read: {data_mb:.1f} MB in {read_time:.2f}s "
-              f"({data_mb / read_time:.1f} MB/s)")
-        record(True, "4.4 Large dataset read",
-               f"{data_mb:.1f} MB at {data_mb / read_time:.1f} MB/s")
+        data_mb = grid.data.nbytes / (1024**2)
+        print(f"  Largest read: {data_mb:.1f} MB in {read_time:.2f}s ({data_mb / read_time:.1f} MB/s)")
+        record(True, "4.4 Large dataset read", f"{data_mb:.1f} MB at {data_mb / read_time:.1f} MB/s")
     else:
         record(False, "4.4 Large dataset read", "get_field returned None")
 
@@ -129,8 +125,7 @@ def mode_vis(sim_path: str) -> None:
 
     print(f"  Total time: {elapsed:.1f}s")
     print(f"  Files generated: {file_count}")
-    record(file_count > 0, "4.2 Batch visualisation",
-           f"{file_count} files in {elapsed:.1f}s")
+    record(file_count > 0, "4.2 Batch visualisation", f"{file_count} files in {elapsed:.1f}s")
 
 
 def main() -> None:
@@ -152,19 +147,19 @@ def main() -> None:
         print(f"[FATAL] SIM_DATA_PATH does not exist: {sim_path}")
         sys.exit(1)
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Test 04: Large-Scale Data Parallel Processing  [mode={args.mode}]")
     print(f"Data path: {sim_path}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if args.mode == "analysis":
         mode_analysis(sim_path)
     else:
         mode_vis(sim_path)
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"[TOTAL] {pass_count}/{pass_count + fail_count} passed")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if fail_count > 0:
         sys.exit(1)

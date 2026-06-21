@@ -1,8 +1,6 @@
 """Unit tests for vis.batch.process_simulation."""
 
 
-
-
 class TestProcessSimulation:
     """Test process_simulation with synthetic simulation directories."""
 

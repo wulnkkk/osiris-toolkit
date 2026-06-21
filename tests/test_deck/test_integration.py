@@ -68,6 +68,7 @@ def test_parse_all_test_decks() -> None:
 # Invalid deck fixtures tests
 # ---------------------------------------------------------------------------
 
+
 def test_lint_invalid_no_omega():
     """Linting a deck without omega_p0 should produce issues."""
     f = FIXTURES_DIR / "invalid_no_omega.in"

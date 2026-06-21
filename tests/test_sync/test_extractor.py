@@ -6,9 +6,7 @@ import pytest
 
 from osiris_toolkit.sync.extractor import FortranScanner
 
-OSIRIS_SOURCE = (
-    Path(__file__).resolve().parents[3] / "osiris-1.0.0" / "source"
-)
+OSIRIS_SOURCE = Path(__file__).resolve().parents[3] / "osiris-1.0.0" / "source"
 
 
 class TestFortranScanner:

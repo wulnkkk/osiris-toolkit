@@ -75,7 +75,9 @@ class TestZdfPartInfo:
 
     def test_full(self):
         pi = ZdfPartInfo(
-            label="electrons", nparts=1000, nquants=3,
+            label="electrons",
+            nparts=1000,
+            nquants=3,
             quants=["x1", "x2", "p1"],
             qlabels={"x1": "x1", "x2": "x2", "p1": "p1"},
             qunits={"x1": "c/\\omega_p", "x2": "c/\\omega_p", "p1": "m_e c"},
@@ -94,7 +96,11 @@ class TestZdfTrackInfo:
 
     def test_full(self):
         ti = ZdfTrackInfo(
-            label="test", ntracks=2, ndump=3, niter=100, nquants=3,
+            label="test",
+            ntracks=2,
+            ndump=3,
+            niter=100,
+            nquants=3,
             quants=["x1", "p1", "ene"],
             qlabels=["x1", "p1", "ene"],
             qunits=["c/\\omega_p", "m_e c", "m_e c^2"],

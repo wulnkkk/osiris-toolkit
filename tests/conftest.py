@@ -23,10 +23,12 @@ DECKS_DIR = ROOT.parent / "osiris-1.0.0" / "decks" / "test"
 # Data path fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="session")
 def data_path():
     """Root of real simulation data, or None if not configured."""
     from data_path import get_data_path
+
     return get_data_path()
 
 
@@ -61,9 +63,11 @@ def laser_path(data_path):
 # Mock GridData fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def grid_2d():
     from osiris_toolkit.sim.diagnostics import GridData
+
     data = np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64)
     return GridData(data=data, iteration=5, time=1.0, label="test")
 
@@ -71,6 +75,7 @@ def grid_2d():
 @pytest.fixture
 def grid_1d():
     from osiris_toolkit.sim.diagnostics import GridData
+
     data = np.array([1.0, 2.0, 3.0, 4.0, 5.0], dtype=np.float64)
     return GridData(data=data, iteration=10, time=2.0, label="1d")
 
@@ -78,6 +83,7 @@ def grid_1d():
 @pytest.fixture
 def grid_32x32():
     from osiris_toolkit.sim.diagnostics import GridData
+
     rng = np.random.default_rng(42)
     data = rng.random((32, 32)).astype(np.float64)
     return GridData(data=data, iteration=0, time=0.0, label="random")
@@ -86,12 +92,14 @@ def grid_32x32():
 @pytest.fixture
 def grid_zeros():
     from osiris_toolkit.sim.diagnostics import GridData
+
     return GridData(data=np.zeros((8, 8)), iteration=0, time=0.0, label="zeros")
 
 
 @pytest.fixture
 def grid_nan():
     from osiris_toolkit.sim.diagnostics import GridData
+
     data = np.full((4, 4), np.nan)
     return GridData(data=data, iteration=0, time=0.0, label="nan")
 
@@ -99,6 +107,7 @@ def grid_nan():
 # ---------------------------------------------------------------------------
 # Deck fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def fixtures_dir():
@@ -119,10 +128,12 @@ def base_2d_path():
 # Synthetic ZDF file fixtures (via zdf_builder)
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def tmp_zdf_grid(tmp_path):
     """Create a minimal valid ZDF grid file (4x4 float32)."""
     from helpers.zdf_builder import write_minimal_grid_zdf
+
     p = tmp_path / "test-000000.zdf"
     data = np.arange(16, dtype=np.float32).reshape(4, 4)
     write_minimal_grid_zdf(p, data, iteration=0, time=0.0, label="test_grid")
@@ -133,6 +144,7 @@ def tmp_zdf_grid(tmp_path):
 def tmp_zdf_grid_with_axes(tmp_path):
     """Create a minimal valid ZDF grid file with axis metadata."""
     from helpers.zdf_builder import write_minimal_grid_zdf
+
     p = tmp_path / "grid_axes-000000.zdf"
     data = np.ones((4, 8), dtype=np.float32)
     axes = [
@@ -147,6 +159,7 @@ def tmp_zdf_grid_with_axes(tmp_path):
 def tmp_zdf_grid_1d(tmp_path):
     """Create a 1D ZDF grid file."""
     from helpers.zdf_builder import write_minimal_grid_zdf
+
     p = tmp_path / "1d-000000.zdf"
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     write_minimal_grid_zdf(p, data, iteration=0, time=0.0, label="1d_test")
@@ -157,6 +170,7 @@ def tmp_zdf_grid_1d(tmp_path):
 def tmp_zdf_particles(tmp_path):
     """Create a minimal valid ZDF particles file."""
     from helpers.zdf_builder import write_minimal_particles_zdf
+
     p = tmp_path / "particles-000000.zdf"
     parts = {
         "name": np.array([1.0, 2.0, 3.0], dtype=np.float32),
@@ -174,11 +188,11 @@ def tmp_zdf_particles(tmp_path):
 def tmp_zdf_tracks(tmp_path):
     """Create a minimal valid ZDF tracks file."""
     from helpers.zdf_builder import write_minimal_tracks_zdf
+
     p = tmp_path / "tracks-000000.zdf"
     t1 = np.random.default_rng(123).normal(size=(50, 3)).astype(np.float32)
     t2 = np.random.default_rng(456).normal(size=(30, 3)).astype(np.float32)
-    write_minimal_tracks_zdf(p, [t1, t2], quants=["itermap", "x1", "p1", "ene"],
-                             niter=100, label="test_tracks")
+    write_minimal_tracks_zdf(p, [t1, t2], quants=["itermap", "x1", "p1", "ene"], niter=100, label="test_tracks")
     return p
 
 
@@ -186,10 +200,12 @@ def tmp_zdf_tracks(tmp_path):
 # Robustness: corrupt ZDF files
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def tmp_zdf_truncated(tmp_path):
     """A ZDF file truncated after the magic bytes."""
     from helpers.zdf_builder import write_invalid_zdf
+
     p = tmp_path / "truncated.zdf"
     write_invalid_zdf(p, truncated=True)
     return p
@@ -199,6 +215,7 @@ def tmp_zdf_truncated(tmp_path):
 def tmp_zdf_corrupt_magic(tmp_path):
     """A file with corrupt magic bytes."""
     from helpers.zdf_builder import write_invalid_zdf
+
     p = tmp_path / "corrupt.zdf"
     write_invalid_zdf(p, magic_corrupt=True)
     return p
@@ -208,6 +225,7 @@ def tmp_zdf_corrupt_magic(tmp_path):
 def tmp_zdf_empty(tmp_path):
     """An empty (zero-byte) file."""
     from helpers.zdf_builder import write_zero_byte_file
+
     p = tmp_path / "empty.zdf"
     write_zero_byte_file(p)
     return p
@@ -217,15 +235,17 @@ def tmp_zdf_empty(tmp_path):
 # Synthetic simulation directories
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def tmp_sim_dir(tmp_path):
     """Create a minimal simulation directory with synthetic FLD files."""
     from helpers.zdf_builder import write_minimal_grid_zdf
+
     ms_fld = tmp_path / "MS" / "FLD"
     ms_fld.mkdir(parents=True)
     for i in range(3):
         data = np.ones((8, 8), dtype=np.float32) * (i + 1)
-        write_minimal_grid_zdf(ms_fld / f"e1-{i*10:06d}.zdf", data, iteration=i * 10, time=i * 0.5)
+        write_minimal_grid_zdf(ms_fld / f"e1-{i * 10:06d}.zdf", data, iteration=i * 10, time=i * 0.5)
     # run-info
     (tmp_path / "run-info").write_text("omega_p0: 3.55e15\ngamma: 5.0\nnx_p: 32 32\n")
     return tmp_path
@@ -235,6 +255,7 @@ def tmp_sim_dir(tmp_path):
 def tmp_sim_dir_density(tmp_path):
     """Create a simulation directory with DENSITY species subdirectories."""
     from helpers.zdf_builder import write_minimal_grid_zdf
+
     for sp in ("electrons", "protons"):
         sp_dir = tmp_path / "MS" / "DENSITY" / sp / "charge"
         sp_dir.mkdir(parents=True)
@@ -254,10 +275,12 @@ def tmp_sim_dir_empty(tmp_path):
 # CLI fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def cli_runner():
     """Click CliRunner for CLI testing."""
     from click.testing import CliRunner
+
     return CliRunner()
 
 
@@ -265,7 +288,9 @@ def cli_runner():
 # Unit system fixture
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def unit_system():
     from osiris_toolkit.units.converter import UnitSystem
+
     return UnitSystem(3.55e15)

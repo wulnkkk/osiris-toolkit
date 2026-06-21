@@ -1,7 +1,6 @@
 """Integration tests for PostProcessor."""
 
 
-
 class TestPostProcessor:
     """Test PostProcessor with synthetic simulation."""
 

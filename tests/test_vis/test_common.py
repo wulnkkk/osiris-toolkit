@@ -6,6 +6,7 @@ import pytest
 # Check if safe_log_norm exists; if not, skip tests
 try:
     from osiris_toolkit.vis.common import safe_log_norm
+
     HAS_SAFE_LOG_NORM = True
 except ImportError:
     HAS_SAFE_LOG_NORM = False
@@ -28,4 +29,3 @@ class TestSafeLogNorm:
     def test_all_zeros(self):
         norm = safe_log_norm(np.array([0.0, 0.0, 0.0]))
         assert norm is not None
-

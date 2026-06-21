@@ -110,6 +110,7 @@ class TestScales:
 class TestPhysicalConstants:
     def test_constants_positive(self):
         from osiris_toolkit.units.converter import C_LIGHT, E_CHARGE, M_ELECTRON
+
         assert C_LIGHT > 0
         assert E_CHARGE > 0
         assert M_ELECTRON > 0

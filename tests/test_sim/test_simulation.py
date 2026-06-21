@@ -127,16 +127,23 @@ class TestReportModifiers:
 
     def test_field_entry_has_report_type(self):
         from pathlib import Path
+
         entry = _FieldEntry(
-            quantity="e1", label="", iteration=0,
-            path=Path("/tmp/test.zdf"), report_type="savg",
+            quantity="e1",
+            label="",
+            iteration=0,
+            path=Path("/tmp/test.zdf"),
+            report_type="savg",
         )
         assert entry.report_type == "savg"
 
     def test_field_entry_report_type_default(self):
         from pathlib import Path
+
         entry = _FieldEntry(
-            quantity="e1", label="", iteration=0,
+            quantity="e1",
+            label="",
+            iteration=0,
             path=Path("/tmp/test.zdf"),
         )
         assert entry.report_type == ""

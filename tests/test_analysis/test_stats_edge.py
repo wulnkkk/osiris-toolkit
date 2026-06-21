@@ -1,6 +1,5 @@
 """Tests for analysis.stats — enhance with edge cases."""
 
-
 from osiris_toolkit.analysis.stats import describe, mean, minmax, rms, std, total_energy
 
 

@@ -1,4 +1,5 @@
 """Tests for compute.deposit — particle-to-grid mapping."""
+
 import numpy as np
 import pytest
 
@@ -41,8 +42,7 @@ class TestParticlesToGrid:
         # Top-hat (CIC) should conserve total within floating-point error
         positions = rng.uniform(1, 9, size=(1000, 2))
         weights = rng.uniform(0, 1, size=1000)
-        result = particles_to_grid(positions, weights, (10, 10),
-                                   shape_function="tophat")
+        result = particles_to_grid(positions, weights, (10, 10), shape_function="tophat")
         assert abs(result.data.sum() - weights.sum()) < 1e-10
 
     def test_triangular_runs(self):
@@ -50,8 +50,7 @@ class TestParticlesToGrid:
         rng = np.random.default_rng(456)
         positions = rng.uniform(0, 10, size=(500, 1))
         weights = rng.uniform(0, 2, size=500)
-        result = particles_to_grid(positions, weights, (10,),
-                                   shape_function="triangular")
+        result = particles_to_grid(positions, weights, (10,), shape_function="triangular")
         assert isinstance(result, Field)
         assert result.shape == (10,)
         assert result.data.sum() >= 0
@@ -61,8 +60,7 @@ class TestParticlesToGrid:
         rng = np.random.default_rng(789)
         positions = rng.uniform(0, 10, size=(500, 1))
         weights = rng.uniform(0, 2, size=500)
-        result = particles_to_grid(positions, weights, (10,),
-                                   shape_function="spline3")
+        result = particles_to_grid(positions, weights, (10,), shape_function="spline3")
         assert isinstance(result, Field)
         assert result.shape == (10,)
         assert result.data.sum() >= 0
@@ -74,10 +72,10 @@ class TestParticlesToGrid:
 
     def test_returns_field_with_axes(self):
         from osiris_toolkit.sim.diagnostics import GridAxis
+
         positions = np.array([[0.0]])
         axes = [GridAxis(name="x1", min=-5.0, max=5.0, npoints=10)]
-        result = particles_to_grid(positions, None, (10,), axes=axes,
-                                   shape_function="ngp")
+        result = particles_to_grid(positions, None, (10,), axes=axes, shape_function="ngp")
         assert len(result.axes) == 1
         assert result.axes[0].name == "x1"
 

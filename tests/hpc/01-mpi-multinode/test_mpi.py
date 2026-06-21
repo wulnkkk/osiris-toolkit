@@ -34,8 +34,7 @@ def test_1_1_mpi_distribution(comm_rank: int, comm_size: int) -> None:
     """Verify all MPI ranks are present and unique."""
     _all_ranks = comm_rank  # gather not available; each rank prints its own info
     print(f"[INFO] MPI rank={comm_rank}, world_size={comm_size}")
-    record(comm_size > 1, "1.1 MPI distribution: all ranks detected",
-           f"world_size={comm_size}, expected > 1")
+    record(comm_size > 1, "1.1 MPI distribution: all ranks detected", f"world_size={comm_size}, expected > 1")
 
 
 def test_1_2_iteration_split(comm_rank: int, comm_size: int) -> None:
@@ -52,8 +51,7 @@ def test_1_2_iteration_split(comm_rank: int, comm_size: int) -> None:
     for it in my_iters:
         idx = iterations.index(it)
         if idx % comm_size != comm_rank:
-            record(False, "1.2 Iteration split",
-                   f"Iteration {it} at index {idx} assigned to wrong rank {comm_rank}")
+            record(False, "1.2 Iteration split", f"Iteration {it} at index {idx} assigned to wrong rank {comm_rank}")
             return
 
     print(f"[INFO] Rank {comm_rank}: {len(my_iters)} iterations assigned")
@@ -76,8 +74,11 @@ def test_1_3_analysis_parallel(comm_rank: int, comm_size: int) -> None:
 
     # Only rank 0 collects and validates
     print(f"[INFO] Rank {comm_rank}: processed {len(results)}/{total_iterations} iterations")
-    record(len(results) > 0, "1.3 Multi-node analysis parallel",
-           f"{len(results)} results returned, total iterations={total_iterations}")
+    record(
+        len(results) > 0,
+        "1.3 Multi-node analysis parallel",
+        f"{len(results)} results returned, total iterations={total_iterations}",
+    )
 
 
 def test_1_4_visualisation_parallel(comm_rank: int, comm_size: int) -> None:
@@ -97,11 +98,9 @@ def test_1_4_visualisation_parallel(comm_rank: int, comm_size: int) -> None:
     expected_keys = {"iteration", "time", "mean", "std", "min", "max", "rms"}
     for r in results:
         if not expected_keys.issubset(r.keys()):
-            record(False, "1.4 Multi-node visualisation",
-                   f"Missing keys in result: {r.keys()}")
+            record(False, "1.4 Multi-node visualisation", f"Missing keys in result: {r.keys()}")
             return
-    record(True, "1.4 Multi-node visualisation parallel",
-           f"{len(results)} describe results with valid keys")
+    record(True, "1.4 Multi-node visualisation parallel", f"{len(results)} describe results with valid keys")
 
 
 def main() -> None:
@@ -126,23 +125,22 @@ def main() -> None:
         print(f"[FATAL] SIM_DATA_PATH does not exist: {sim_path}")
         sys.exit(1)
 
-
     SIM_DATA_PATH = sim_path
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print("Test 01: MPI Multi-Node Parallel")
     print(f"Rank: {comm_rank}, World size: {comm_size}")
     print(f"Data path: {SIM_DATA_PATH}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     test_1_1_mpi_distribution(comm_rank, comm_size)
     test_1_2_iteration_split(comm_rank, comm_size)
     test_1_3_analysis_parallel(comm_rank, comm_size)
     test_1_4_visualisation_parallel(comm_rank, comm_size)
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"[TOTAL] {pass_count}/{pass_count + fail_count} passed")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if fail_count > 0:
         sys.exit(1)

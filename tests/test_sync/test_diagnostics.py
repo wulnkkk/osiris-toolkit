@@ -65,6 +65,4 @@ class TestDiagnosticsGenerate:
 
     def test_no_duplicates_within_kind(self, gen_module) -> None:
         for kind, quants in gen_module.GEN_QUANTITIES.items():
-            assert len(quants) == len(
-                set(quants)
-            ), f"Duplicate quantities in {kind}"
+            assert len(quants) == len(set(quants)), f"Duplicate quantities in {kind}"

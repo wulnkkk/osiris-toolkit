@@ -44,9 +44,7 @@ class TestScatteringAnalyzer:
     def test_analyze_basic(self, unit_system_with_k0):
         """analyze() returns ScatteringResult with correct structure."""
         mock_sim = MagicMock()
-        mock_sim._fields = {
-            "e1": [FieldInfo(iteration=0, time=1.0, label="e1")]
-        }
+        mock_sim._fields = {"e1": [FieldInfo(iteration=0, time=1.0, label="e1")]}
         # Small random field: 16x16
         rng = np.random.default_rng(42)
         grid = _make_grid_data_2d(rng.random((16, 16), dtype=np.float64), iteration=0, time=1.0)
@@ -94,9 +92,7 @@ class TestScatteringAnalyzer:
     def test_analyze_with_custom_masks(self, unit_system_with_k0):
         """analyze() accepts custom mask definitions."""
         mock_sim = MagicMock()
-        mock_sim._fields = {
-            "e1": [FieldInfo(iteration=0, time=1.0, label="e1")]
-        }
+        mock_sim._fields = {"e1": [FieldInfo(iteration=0, time=1.0, label="e1")]}
         rng = np.random.default_rng(7)
         grid = _make_grid_data_2d(rng.random((16, 16), dtype=np.float64), iteration=0, time=1.0)
         mock_sim.get_field.return_value = grid
@@ -121,9 +117,12 @@ class TestDefaultMasks:
     """Tests for DEFAULT_MASKS structure."""
 
     REQUIRED_KEYS = [
-        "incident", "scattered",
-        "side_scatter_1", "side_scatter_2",
-        "back_scatter_1", "back_scatter_2",
+        "incident",
+        "scattered",
+        "side_scatter_1",
+        "side_scatter_2",
+        "back_scatter_1",
+        "back_scatter_2",
     ]
 
     def test_has_required_keys(self):

@@ -17,9 +17,7 @@ class TestPlotEnergyTimeline:
         from osiris_toolkit.vis.energy import plot_energy_timeline
 
         results = [
-            EMDynamicsResult(iteration=i, time=i * 0.1,
-                             e2_total=float(i), b2_total=float(i * 2),
-                             total=float(i * 3))
+            EMDynamicsResult(iteration=i, time=i * 0.1, e2_total=float(i), b2_total=float(i * 2), total=float(i * 3))
             for i in range(5)
         ]
         out = tmp_path / "energy.png"
@@ -36,8 +34,11 @@ class TestPlotSpectrum:
 
         kx = np.fft.fftshift(np.fft.fftfreq(32, 0.1)) * 2 * np.pi
         result = EMSpectrumResult(
-            quantity="e1", iteration=50, time=10.0,
-            kx_k0=kx, ky_k0=kx,
+            quantity="e1",
+            iteration=50,
+            time=10.0,
+            kx_k0=kx,
+            ky_k0=kx,
             spectrum=np.random.rand(32, 32),
         )
         out = tmp_path / "spectrum.png"

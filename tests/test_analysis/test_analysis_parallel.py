@@ -1,6 +1,5 @@
 """Tests for analysis.parallel."""
 
-
 from osiris_toolkit.analysis.parallel import describe_all, field_energy_all
 
 

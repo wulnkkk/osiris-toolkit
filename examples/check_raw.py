@@ -11,7 +11,7 @@ for it in [0, 9000, 44100]:
     if not hasattr(ps, 'data') or ps.data is None:
         print(f"it={it}: ps has no data")
         continue
-    
+
     ps = s.get_phasespace("p1p2", "electrons", 44100)
     d = ps.data
     print(f"shape={d.shape}, min={d.min():.4e}, max={d.max():.4e}, positive={(d>0).sum()}, nonzero={(d!=0).sum()}, deposited={ps.deposited_quantity}")

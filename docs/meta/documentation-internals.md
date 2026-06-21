@@ -40,7 +40,7 @@ For the what and where, see [Project Anatomy](project-anatomy.md) and
                     │              │
                     ▼              ▼
               Block commit    Block merge
-              
+
                                    │
                     ┌──────────────┼───────────────┐
                     │  (other checks run in parallel)

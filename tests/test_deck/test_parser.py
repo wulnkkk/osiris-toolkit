@@ -46,7 +46,7 @@ class TestParseTokens:
             assert param == [32, 32]
 
     def test_section_with_slice_param_2d(self):
-        text = "emf_bound { type(1:2,1) = \"conducting\", \"conducting\" }"
+        text = 'emf_bound { type(1:2,1) = "conducting", "conducting" }'
         deck = parse_tokens(tokenize(text))
         assert "type" in deck.sections[0].params
 

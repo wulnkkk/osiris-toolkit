@@ -1,4 +1,5 @@
 """Tests for HDF5 reader — _reader_hdf5.py."""
+
 import numpy as np
 import pytest
 
@@ -7,9 +8,18 @@ from osiris_toolkit.exceptions import FormatError
 h5py = pytest.importorskip("h5py", reason="h5py not installed")
 
 
-def _make_grid_h5(path, nx=(10,), ndims=1, label="e1", units="sim",
-                   it_n=0, it_t=0.0, it_tunits="1/\\omega_p",
-                   axis_info=None, sim_info=None):
+def _make_grid_h5(
+    path,
+    nx=(10,),
+    ndims=1,
+    label="e1",
+    units="sim",
+    it_n=0,
+    it_t=0.0,
+    it_tunits="1/\\omega_p",
+    axis_info=None,
+    sim_info=None,
+):
     """Create a minimal OSIRIS grid HDF5 file."""
     with h5py.File(path, "w") as f:
         f.attrs["TYPE"] = np.bytes_("grid")
@@ -24,8 +34,8 @@ def _make_grid_h5(path, nx=(10,), ndims=1, label="e1", units="sim",
 
         if axis_info:
             for i, ax in enumerate(axis_info):
-                ag = grp.create_group(f"AXIS{i+1}")
-                ag.attrs["NAME"] = np.bytes_(ax.get("name", f"x{i+1}"))
+                ag = grp.create_group(f"AXIS{i + 1}")
+                ag.attrs["NAME"] = np.bytes_(ax.get("name", f"x{i + 1}"))
                 ag.attrs["TYPE"] = ax.get("type", 0)
                 ag.attrs["MIN"] = ax.get("min", 0.0)
                 ag.attrs["MAX"] = ax.get("max", 1.0)
@@ -41,9 +51,9 @@ def _make_grid_h5(path, nx=(10,), ndims=1, label="e1", units="sim",
         f.create_dataset("DATA", data=data)
 
 
-def _make_particles_h5(path, nparts=100, quants=None,
-                        it_n=0, it_t=0.0, it_tunits="1/\\omega_p",
-                        label="electrons", sim_info=None):
+def _make_particles_h5(
+    path, nparts=100, quants=None, it_n=0, it_t=0.0, it_tunits="1/\\omega_p", label="electrons", sim_info=None
+):
     """Create a minimal OSIRIS particles HDF5 file."""
     with h5py.File(path, "w") as f:
         f.attrs["TYPE"] = np.bytes_("particles")
@@ -73,8 +83,7 @@ def _make_particles_h5(path, nparts=100, quants=None,
             f.create_dataset(qname, data=np.random.rand(nparts).astype("<f4"))
 
 
-def _make_tracks_h5(path, ntracks=2, ndump=3, niter=10,
-                     quants=None, sim_info=None):
+def _make_tracks_h5(path, ntracks=2, ndump=3, niter=10, quants=None, sim_info=None):
     """Create a minimal OSIRIS tracks HDF5 file."""
     with h5py.File(path, "w") as f:
         f.attrs["TYPE"] = np.bytes_("tracks")
@@ -109,9 +118,7 @@ class TestReadInfoGrid:
         from osiris_toolkit.io._reader_hdf5 import read_info
 
         path = tmp_path / "test.h5"
-        _make_grid_h5(path, nx=(10,), ndims=1, label="e1",
-                       units="m_e c \\omega_p e^{-1}",
-                       it_n=50, it_t=5.0)
+        _make_grid_h5(path, nx=(10,), ndims=1, label="e1", units="m_e c \\omega_p e^{-1}", it_n=50, it_t=5.0)
         info = read_info(str(path))
         assert info.file_type == "grid"
         assert info.grid is not None
@@ -127,8 +134,7 @@ class TestReadInfoGrid:
         from osiris_toolkit.io._reader_hdf5 import read_info
 
         path = tmp_path / "test.h5"
-        _make_grid_h5(path, nx=(4, 4), ndims=2,
-                       sim_info="OSIRIS v1.0.0\nCompiled: 2024")
+        _make_grid_h5(path, nx=(4, 4), ndims=2, sim_info="OSIRIS v1.0.0\nCompiled: 2024")
         info = read_info(str(path))
         assert info.file_type == "grid"
         assert info.simulation_info == "OSIRIS v1.0.0\nCompiled: 2024"
@@ -138,8 +144,7 @@ class TestReadInfoGrid:
 
         path = tmp_path / "test.h5"
         axis_info = [
-            {"name": "x1", "type": 0, "min": 0.0, "max": 10.0,
-             "label": "x_1", "units": "c/\\omega_p"},
+            {"name": "x1", "type": 0, "min": 0.0, "max": 10.0, "label": "x_1", "units": "c/\\omega_p"},
         ]
         _make_grid_h5(path, nx=(10,), ndims=1, axis_info=axis_info)
         info = read_info(str(path))
@@ -178,8 +183,7 @@ class TestReadParticles:
         from osiris_toolkit.io._reader_hdf5 import read_particles
 
         path = tmp_path / "test.h5"
-        quants = {"x1": {"label": "x1", "units": "c/\\omega_p"},
-                    "p1": {"label": "p1", "units": "m_e c"}}
+        quants = {"x1": {"label": "x1", "units": "c/\\omega_p"}, "p1": {"label": "p1", "units": "m_e c"}}
         _make_particles_h5(path, nparts=50, quants=quants, it_n=10, it_t=1.0)
         data, pi, it = read_particles(str(path))
         assert pi.nparts == 50
@@ -196,8 +200,7 @@ class TestReadParticles:
         from osiris_toolkit.io._reader_hdf5 import read_particles
 
         path = tmp_path / "test.h5"
-        _make_particles_h5(path, nparts=0,
-                            quants={"x1": {"label": "x1", "units": "c/\\omega_p"}})
+        _make_particles_h5(path, nparts=0, quants={"x1": {"label": "x1", "units": "c/\\omega_p"}})
         data, pi, it = read_particles(str(path))
         assert pi.nparts == 0
         assert len(data["x1"]) == 0
@@ -223,9 +226,9 @@ class TestReadInfoParticles:
         from osiris_toolkit.io._reader_hdf5 import read_info
 
         path = tmp_path / "test.h5"
-        _make_particles_h5(path, nparts=200, label="ions",
-                            quants={"x1": {"label": "x1", "units": "c/\\omega_p"}},
-                            it_n=5, it_t=0.5)
+        _make_particles_h5(
+            path, nparts=200, label="ions", quants={"x1": {"label": "x1", "units": "c/\\omega_p"}}, it_n=5, it_t=0.5
+        )
         info = read_info(str(path))
         assert info.file_type == "particles"
         assert info.particles is not None

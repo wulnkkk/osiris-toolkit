@@ -1,4 +1,5 @@
 """Tests for the custom exception hierarchy."""
+
 import pytest
 
 from osiris_toolkit.exceptions import (
@@ -21,8 +22,12 @@ class TestExceptionHierarchy:
 
     def test_all_inherit_from_base(self):
         for cls in [
-            DataNotFoundError, FormatError, ValidationError,
-            PipelineError, ConfigurationError, UnitConversionError,
+            DataNotFoundError,
+            FormatError,
+            ValidationError,
+            PipelineError,
+            ConfigurationError,
+            UnitConversionError,
             MissingDependencyError,
         ]:
             assert issubclass(cls, OsirisToolkitError)

@@ -1,6 +1,5 @@
 """Tests for Simulation path ownership and output_root."""
 
-
 from osiris_toolkit.sim import Simulation
 
 

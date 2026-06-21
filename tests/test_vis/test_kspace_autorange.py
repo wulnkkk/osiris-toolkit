@@ -11,6 +11,7 @@ from osiris_toolkit.vis.kspace import _auto_k_range
 @pytest.fixture
 def system_with_k0() -> UnitSystem:
     from osiris_toolkit.units.params import SimulationParams
+
     params = SimulationParams(omega_p0=3.55e15, omega0_norm=1.0)
     return UnitSystem(3.55e15, params=params)
 
@@ -23,7 +24,7 @@ class TestAutoKRange:
         # spectrum (3600, 4000) — asymmetric
         rng = np.random.default_rng(1)
         spectrum = rng.random((36, 40))
-        kx = np.linspace(-5, 5, 36)   # length matches shape[0]=36
+        kx = np.linspace(-5, 5, 36)  # length matches shape[0]=36
 
         k_min, k_max = _auto_k_range(kx, spectrum, "k0", system_with_k0.wavenumber)
         assert k_min < k_max
@@ -33,7 +34,7 @@ class TestAutoKRange:
         """When k_norm matches spectrum.shape[1], projects on axis=0 (correct for y)."""
         rng = np.random.default_rng(2)
         spectrum = rng.random((36, 40))
-        ky = np.linspace(-4, 4, 40)   # length matches shape[1]=40
+        ky = np.linspace(-4, 4, 40)  # length matches shape[1]=40
 
         k_min, k_max = _auto_k_range(ky, spectrum, "k0", system_with_k0.wavenumber)
         assert k_min < k_max
@@ -52,8 +53,7 @@ class TestAutoKRange:
         spectrum = np.zeros((20, 30))
         kx = np.linspace(-3, 3, 20)
 
-        k_min, k_max = _auto_k_range(kx, spectrum, "k0", system_with_k0.wavenumber,
-                                     threshold_frac=0.01)
+        k_min, k_max = _auto_k_range(kx, spectrum, "k0", system_with_k0.wavenumber, threshold_frac=0.01)
         # Should return the full converted range
         conv = system_with_k0.wavenumber.to(kx, "k0")
         assert k_min == pytest.approx(float(conv.min()))
@@ -65,8 +65,7 @@ class TestAutoKRange:
         spectrum[20:30, 25:35] = 100.0  # peak in middle
         kx = np.linspace(-5, 5, 50)
 
-        k_min, k_max = _auto_k_range(kx, spectrum, "k0", system_with_k0.wavenumber,
-                                     threshold_frac=0.01, margin=0.0)
+        k_min, k_max = _auto_k_range(kx, spectrum, "k0", system_with_k0.wavenumber, threshold_frac=0.01, margin=0.0)
         # Narrowed range should be inside the full range
         conv = system_with_k0.wavenumber.to(kx, "k0")
         assert k_min > float(conv.min())

@@ -1,6 +1,5 @@
 """Tests for deck.lexer — tokenizer."""
 
-
 from osiris_toolkit.deck.lexer import TokenType, tokenize
 
 
@@ -28,16 +27,23 @@ class TestTokenizeBasics:
     def test_simple_section(self):
         tokens = _filter_types("simulation { }")
         assert tokens == [
-            TokenType.SECTION_NAME, TokenType.LBRACE,
-            TokenType.RBRACE, TokenType.EOF,
+            TokenType.SECTION_NAME,
+            TokenType.LBRACE,
+            TokenType.RBRACE,
+            TokenType.EOF,
         ]
 
     def test_section_with_params(self):
         tokens = _filter_types("simulation {\n  omega_p0 = 3.55e15,\n}")
         expected = [
-            TokenType.SECTION_NAME, TokenType.LBRACE,
-            TokenType.NAME, TokenType.EQUALS, TokenType.REAL, TokenType.COMMA,
-            TokenType.RBRACE, TokenType.EOF,
+            TokenType.SECTION_NAME,
+            TokenType.LBRACE,
+            TokenType.NAME,
+            TokenType.EQUALS,
+            TokenType.REAL,
+            TokenType.COMMA,
+            TokenType.RBRACE,
+            TokenType.EOF,
         ]
         assert tokens == expected
 

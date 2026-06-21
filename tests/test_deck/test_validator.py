@@ -3,7 +3,7 @@
 from osiris_toolkit.deck import lint_deck_file, lint_deck_text
 from osiris_toolkit.deck.reporter import Severity
 
-FIXTURES_DIR = __import__('pathlib').Path(__file__).resolve().parents[1] / "fixtures"
+FIXTURES_DIR = __import__("pathlib").Path(__file__).resolve().parents[1] / "fixtures"
 
 
 class TestValidateValidDecks:
@@ -16,6 +16,7 @@ class TestValidateValidDecks:
         decks_dir = FIXTURES_DIR.parents[1] / "osiris-1.0.0" / "decks" / "test" / "base-1d"
         if not decks_dir.exists():
             import pytest
+
             pytest.skip("base-1d not available")
         report = lint_deck_file(str(decks_dir))
         # base-1d may have warnings but should not have errors
@@ -146,7 +147,6 @@ space {
 }
 """)
         # xmin > xmax should produce an error
-        assert any("xmin" in i.message.lower() or "xmax" in i.message.lower()
-                   for i in deck.issues)
+        assert any("xmin" in i.message.lower() or "xmax" in i.message.lower() for i in deck.issues)
         # At minimum there should be issues
         assert len(deck.issues) > 0
