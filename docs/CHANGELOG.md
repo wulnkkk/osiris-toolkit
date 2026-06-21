@@ -1,5 +1,6 @@
 ---
 audience: [human, agent]
+role: [user, developer]
 topic: changelog
 kind: reference
 updated: 2026-06-20

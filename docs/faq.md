@@ -1,3 +1,11 @@
+---
+audience: [human, agent]
+role: [user, developer]
+topic: faq
+kind: guide
+updated: 2026-06-21
+---
+
 # Frequently Asked Questions
 
 ## ZDF vs HDF5 Support

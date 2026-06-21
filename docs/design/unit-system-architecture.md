@@ -354,4 +354,3 @@ plot_k_space("e1", 100, sim=sim, system=system, k_unit="k0")
   - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) — Agent-driven data processing review
   - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) — UnitSystem + k-space 2π fix
 - Downstream Plan: GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3)
-- TODO: #65, #66, #67, #68, #69, #70, #71, #77, #78, #79, #80

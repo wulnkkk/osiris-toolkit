@@ -3,7 +3,7 @@ audience: [human]
 role: [user, developer]
 topic: architecture
 kind: architecture
-updated: YYYY-MM-DD
+updated: 2026-06-04
 ---
 
 # [Decision Title]
