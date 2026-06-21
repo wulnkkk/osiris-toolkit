@@ -61,6 +61,7 @@ nav:
       - PostProcessor Design: design/postproc-architecture.md
       - Doc System: design/doc-system-architecture.md
   - Meta:
+      - Project Anatomy: meta/project-anatomy.md
       - Documentation Standards: meta/documentation-standards.md
   - Modules:
       - Deck: modules/deck.md

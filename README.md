@@ -58,6 +58,7 @@ No setup needed — open the project in any AI tool and it will automatically fi
 
 - **Online**: [https://wulnkkk.github.io/osiris-toolkit/](https://wulnkkk.github.io/osiris-toolkit/) — automatically updated on every push
 - **Local**: `pip install "osiris-toolkit[docs]" && mkdocs serve`
+- **Project Layout**: [Project Anatomy](docs/meta/project-anatomy.md) — map of every directory, config file, and developer tool
 
 ## License
 
