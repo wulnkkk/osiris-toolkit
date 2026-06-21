@@ -13,6 +13,8 @@ from pathlib import Path
 
 import matplotlib
 
+from osiris_toolkit.vis.batch import BatchResult
+
 matplotlib.use("Agg")
 
 from osiris_toolkit.parallel._cluster import (
@@ -139,18 +141,16 @@ def batch_process_parallel(
     y_unit: str = "um",
     time_unit: str = "ps",
     max_workers: int | None = None,
-) -> None:
+) -> BatchResult:
     """Parallel version of ``process_simulation``.
 
     Fans out all (quantity, iteration) pairs for fields, k-space, and
     density across worker processes.  Scattering analysis (which has a
     cross-iteration dependency) runs sequentially after all workers finish.
 
-    .. versionchanged:: 0.16.1
+    .. versionchanged:: 0.17.0
         Now returns ``BatchResult`` instead of ``None``.
     """
-    from osiris_toolkit.vis.batch import BatchResult
-
     sim_path = str(sim_path)
     sim = Simulation(sim_path)
     output_root = sim.output_root if output_root is None else Path(output_root)

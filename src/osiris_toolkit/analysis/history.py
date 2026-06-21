@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from osiris_toolkit.exceptions import DataNotFoundError
+
 from ._protocol import DiagnosticAnalyzer
 from ._result_types import HistoryResult
-from osiris_toolkit.exceptions import DataNotFoundError
 
 
 class HistoryAnalyzer(DiagnosticAnalyzer):
@@ -59,8 +60,7 @@ class HistoryAnalyzer(DiagnosticAnalyzer):
             raise DataNotFoundError(f"No history data for '{name}'")
         if column not in hd.columns:
             raise DataNotFoundError(
-                f"Column '{column}' not found in history '{name}'. "
-                f"Available: {', '.join(hd.columns)}"
+                f"Column '{column}' not found in history '{name}'. Available: {', '.join(hd.columns)}"
             )
         # Try "time" column first, fall back to first column
         time_col = "time" if "time" in hd.data else hd.columns[0]

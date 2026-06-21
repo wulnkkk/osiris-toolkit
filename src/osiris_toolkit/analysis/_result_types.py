@@ -135,5 +135,5 @@ class HistoryResult:
 
     name: str
     column: str
-    time: "np.ndarray"
-    values: "np.ndarray"
+    time: np.ndarray
+    values: np.ndarray

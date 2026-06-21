@@ -281,9 +281,9 @@ def process_simulation(
                 continue
             for column in hd.columns[1:]:  # skip time column
                 try:
-                    result = history_analyzer.get_timeseries(name, column)
+                    hist_result = history_analyzer.get_timeseries(name, column)
                     fpath = plot_history_timeseries(
-                        result,
+                        hist_result,
                         output=str(history_dir / f"{name}_{column}.png"),
                     )
                     if fpath:
