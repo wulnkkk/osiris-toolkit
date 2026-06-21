@@ -6,17 +6,35 @@ from osiris_toolkit.resource._params import ResourceParams
 
 def _make_params(**overrides) -> ResourceParams:
     defaults = {
-        "ndim": 2, "nx_p": [32, 32], "ngrid_total": 1024,
-        "tmax": 50.0, "dt": 0.07, "n_steps": 714,
-        "node_number": [1, 1], "total_nodes": 1, "n_threads": 1,
-        "num_species": 1, "species_ppc": [[2, 2]], "species_names": [""],
-        "vpml_bnd_size": 0, "n_pml_boundaries": 0,
-        "solver": "yee", "solver_ord": 2, "interpolation": "quadratic",
-        "smooth_type": "none", "smooth_order": 0,
-        "if_move": False, "if_collide": False, "n_collide": 0,
-        "emf_ndump_fac": 0, "species_ndump_fac": [], "species_ndump_fac_raw": [],
-        "species_raw_fraction": [], "restart_ndump_fac": 0,
-        "field_precision_bytes": 4, "particle_precision_bytes": 8,
+        "ndim": 2,
+        "nx_p": [32, 32],
+        "ngrid_total": 1024,
+        "tmax": 50.0,
+        "dt": 0.07,
+        "n_steps": 714,
+        "node_number": [1, 1],
+        "total_nodes": 1,
+        "n_threads": 1,
+        "num_species": 1,
+        "species_ppc": [[2, 2]],
+        "species_names": [""],
+        "vpml_bnd_size": 0,
+        "n_pml_boundaries": 0,
+        "solver": "yee",
+        "solver_ord": 2,
+        "interpolation": "quadratic",
+        "smooth_type": "none",
+        "smooth_order": 0,
+        "if_move": False,
+        "if_collide": False,
+        "n_collide": 0,
+        "emf_ndump_fac": 0,
+        "species_ndump_fac": [],
+        "species_ndump_fac_raw": [],
+        "species_raw_fraction": [],
+        "restart_ndump_fac": 0,
+        "field_precision_bytes": 4,
+        "particle_precision_bytes": 8,
     }
     defaults.update(overrides)
     return ResourceParams(**defaults)
@@ -72,8 +90,10 @@ class TestResourceEstimator:
 
     def test_diagnostics_enabled_produces_disk(self):
         p = _make_params(
-            emf_ndump_fac=10, species_ppc=[[2, 2]],
-            species_ndump_fac_raw=[100], species_raw_fraction=[1.0],
+            emf_ndump_fac=10,
+            species_ppc=[[2, 2]],
+            species_ndump_fac_raw=[100],
+            species_raw_fraction=[1.0],
         )
         report = self.estimator.estimate(p)
         assert report.disk.emf_n_dumps > 0

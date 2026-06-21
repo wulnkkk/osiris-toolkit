@@ -31,8 +31,12 @@ class TestResultTypes:
         ky = np.array([-1.0, 0.0, 1.0])
         spec = np.ones((3, 3))
         r = EMSpectrumResult(
-            quantity="e1", iteration=50, time=10.0,
-            kx_k0=kx, ky_k0=ky, spectrum=spec,
+            quantity="e1",
+            iteration=50,
+            time=10.0,
+            kx_k0=kx,
+            ky_k0=ky,
+            spectrum=spec,
         )
         assert r.spectrum.shape == (3, 3)
 
@@ -52,21 +56,31 @@ class TestResultTypes:
 
     def test_density_profile_result(self):
         r = DensityProfileResult(
-            species="electrons", quantity="charge", iteration=50,
-            time=10.0, axis=0, coord=np.arange(10), profile=np.ones(10),
+            species="electrons",
+            quantity="charge",
+            iteration=50,
+            time=10.0,
+            axis=0,
+            coord=np.arange(10),
+            profile=np.ones(10),
         )
         assert r.profile.shape == (10,)
 
     def test_particle_spectrum_result(self):
         r = ParticleSpectrumResult(
-            species="electrons", iteration=50, time=10.0,
-            bin_centers=np.arange(100), counts=np.ones(100),
+            species="electrons",
+            iteration=50,
+            time=10.0,
+            bin_centers=np.arange(100),
+            counts=np.ones(100),
         )
         assert len(r.counts) == 100
 
     def test_temperature_result(self):
         r = TemperatureResult(
-            species="electrons", iteration=50, time=10.0,
+            species="electrons",
+            iteration=50,
+            time=10.0,
             components={"T11": 1.0, "T22": 2.0, "T33": 3.0},
         )
         assert r.components["T11"] == 1.0

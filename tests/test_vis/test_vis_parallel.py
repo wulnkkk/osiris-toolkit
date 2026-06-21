@@ -1,7 +1,6 @@
 """Tests for vis.parallel batch processing."""
 
 
-
 class TestBatchProcessParallel:
     def test_basic_parallel_run(self, tmp_sim_dir, tmp_path):
         """Parallel batch-process produces correct output structure."""

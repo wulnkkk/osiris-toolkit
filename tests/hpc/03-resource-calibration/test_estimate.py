@@ -80,6 +80,7 @@ def estimate_for_sim(sim_dir: Path) -> dict | None:
 
 # ── main ──
 
+
 def main() -> None:
     global pass_count, fail_count
 
@@ -91,9 +92,9 @@ def main() -> None:
         print("  your completed OSIRIS simulation directories.")
         sys.exit(1)
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print("Test 03: Resource Prediction Calibration")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print()
 
     estimates = {}
@@ -109,27 +110,27 @@ def main() -> None:
             continue
 
         estimates[i] = est
-        print(f"  Grid: {est['ngrid_total']} cells, {est['n_steps']} steps, "
-              f"{est['num_species']} species, {est['total_nodes']} nodes")
+        print(
+            f"  Grid: {est['ngrid_total']} cells, {est['n_steps']} steps, "
+            f"{est['num_species']} species, {est['total_nodes']} nodes"
+        )
         print(f"  Estimated memory : {est['memory_per_node_gb']:.1f} GB/node")
         print(f"  Estimated wall   : {est['wall_hours']:.1f} h")
         print(f"  Estimated disk   : {est['disk_gb']:.1f} GB")
         print()
 
     if len(estimates) >= 2:
-        record(True, "3.1 Parameter extraction",
-               f"Successfully extracted from {len(estimates)}/{len(SIM_DIRS)} sims")
+        record(True, "3.1 Parameter extraction", f"Successfully extracted from {len(estimates)}/{len(SIM_DIRS)} sims")
     elif len(estimates) == 1:
-        record(True, "3.1 Parameter extraction",
-               "Extracted from 1 sim (need >=3 for proper calibration)")
+        record(True, "3.1 Parameter extraction", "Extracted from 1 sim (need >=3 for proper calibration)")
     else:
         record(False, "3.1 Parameter extraction", "No simulations could be processed")
 
     # Print instructions for manual comparison
     print()
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print("MANUAL STEPS: Collect actual values and compare")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print()
     print("For each simulation directory, run these commands to get actual values:")
     print()
@@ -144,9 +145,9 @@ def main() -> None:
     print()
     print("Then fill in the comparison table in the report template.")
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"[TOTAL] {pass_count}/{pass_count + fail_count} automated checks passed")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if fail_count > 0:
         sys.exit(1)

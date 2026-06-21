@@ -64,4 +64,4 @@ class TestSpectralPower:
         _, _, power = spectral_power(data, dx=0.1, dy=0.1)
         _, _, spectrum = compute_k_space(data, dx=0.1, dy=0.1)
 
-        np.testing.assert_allclose(power, spectrum ** 2)
+        np.testing.assert_allclose(power, spectrum**2)

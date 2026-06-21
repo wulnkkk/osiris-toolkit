@@ -96,6 +96,7 @@ class TestParseValue:
 class TestAssembleParams:
     def test_simple_params(self):
         from osiris_toolkit.deck.ast import KeySpec, ParamAssignment
+
         raw = [
             ParamAssignment(keys=[KeySpec(name="omega_p0")], raw_values=["3.55e15"], line=1),
             ParamAssignment(keys=[KeySpec(name="gamma")], raw_values=["5.0"], line=2),
@@ -107,6 +108,7 @@ class TestAssembleParams:
 
     def test_slice_params(self):
         from osiris_toolkit.deck.ast import KeySpec, ParamAssignment, SliceSpec
+
         raw = [
             ParamAssignment(
                 keys=[KeySpec(name="nx_p", slice=SliceSpec(dims=[(1, 2)]))],

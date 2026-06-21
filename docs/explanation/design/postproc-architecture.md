@@ -200,7 +200,7 @@ class PostProcessor:
 
     @cached_property
     def analyze(self) -> PostAnalysisHub: ...
-    
+
     @cached_property
     def vis(self) -> PostVisHub: ...
 

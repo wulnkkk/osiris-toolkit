@@ -16,16 +16,18 @@ def _make_fake_tracks(ntracks=3, niter=100, seed=42):
     for _ in range(ntracks):
         n = rng.integers(niter // 2, niter)
         t = np.linspace(0, 10, n)
-        data = np.column_stack([
-            t,
-            np.cumsum(rng.normal(0, 0.1, n)),   # x1: random walk
-            np.cumsum(rng.normal(0, 0.1, n)),   # x2
-            np.cumsum(rng.normal(0, 0.05, n)),  # x3
-            rng.normal(0, 1, n),                # p1
-            rng.normal(0, 1, n),                # p2
-            rng.normal(0, 1, n),                # p3
-            np.abs(rng.normal(5, 2, n)),        # ene
-        ])
+        data = np.column_stack(
+            [
+                t,
+                np.cumsum(rng.normal(0, 0.1, n)),  # x1: random walk
+                np.cumsum(rng.normal(0, 0.1, n)),  # x2
+                np.cumsum(rng.normal(0, 0.05, n)),  # x3
+                rng.normal(0, 1, n),  # p1
+                rng.normal(0, 1, n),  # p2
+                rng.normal(0, 1, n),  # p3
+                np.abs(rng.normal(5, 2, n)),  # ene
+            ]
+        )
         tracks.append(data)
     return TrackData(tracks=tracks, quants=quants, niter=sum(len(t) for t in tracks))
 

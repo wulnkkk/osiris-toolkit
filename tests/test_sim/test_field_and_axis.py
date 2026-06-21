@@ -1,4 +1,5 @@
 """Tests for sim.diagnostics — GridAxis methods and Field operators."""
+
 import numpy as np
 import pytest
 
@@ -93,7 +94,7 @@ class TestFieldOperators:
 
     def test_pow(self):
         f = Field(data=np.array([1.0, 2.0, 3.0]))
-        result = f ** 2
+        result = f**2
         np.testing.assert_array_equal(result.data, np.array([1.0, 4.0, 9.0]))
 
     def test_neg(self):
@@ -122,8 +123,7 @@ class TestFieldOperators:
         np.testing.assert_array_equal(result.data, np.array([8.0, 12.0]))
 
     def test_operator_preserves_metadata(self):
-        f = Field(data=np.array([1.0, 2.0]), iteration=42, time=3.5,
-                  label="e1", units="sim")
+        f = Field(data=np.array([1.0, 2.0]), iteration=42, time=3.5, label="e1", units="sim")
         result = f + 1.0
         assert result.iteration == 42
         assert result.time == 3.5
@@ -174,8 +174,7 @@ class TestFieldProperties:
 
 class TestFieldGetitem:
     def test_positional_slice_1d(self):
-        f = Field(data=np.array([10.0, 20.0, 30.0, 40.0]),
-                  axes=[GridAxis(name="x1", min=0.0, max=3.0, npoints=4)])
+        f = Field(data=np.array([10.0, 20.0, 30.0, 40.0]), axes=[GridAxis(name="x1", min=0.0, max=3.0, npoints=4)])
         result = f[1:3]
         assert isinstance(result, Field)
         np.testing.assert_array_equal(result.data, np.array([20.0, 30.0]))
@@ -183,7 +182,7 @@ class TestFieldGetitem:
     def test_positional_slice_2d(self):
         f = Field(data=np.arange(16.0).reshape(4, 4))
         result = f[1:3, 1:3]
-        np.testing.assert_array_equal(result.data, np.array([[5., 6.], [9., 10.]]))
+        np.testing.assert_array_equal(result.data, np.array([[5.0, 6.0], [9.0, 10.0]]))
 
     def test_empty_slice_returns_empty_field(self):
         f = Field(data=np.arange(9.0).reshape(3, 3))
@@ -196,9 +195,10 @@ class TestFieldGetitem:
         assert isinstance(result, Field)
 
     def test_mixed_scalar_slice_getitem(self):
-        f = Field(data=np.arange(12.0).reshape(3, 4),
-                  axes=[GridAxis(name="x1", min=0, max=2, npoints=3),
-                        GridAxis(name="x2", min=0, max=3, npoints=4)])
+        f = Field(
+            data=np.arange(12.0).reshape(3, 4),
+            axes=[GridAxis(name="x1", min=0, max=2, npoints=3), GridAxis(name="x2", min=0, max=3, npoints=4)],
+        )
         result = f[0, 1:3]
         assert isinstance(result, Field)
         assert result.data.ndim == 1
@@ -220,6 +220,7 @@ class TestBackwardCompatibility:
 
 
 # ── fixtures for float-indexing tests ──────────────────────
+
 
 @pytest.fixture
 def grid_2d():

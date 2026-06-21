@@ -25,12 +25,14 @@ class TestMaskEnergy:
         ky = np.fft.fftshift(np.fft.fftfreq(32, 0.1)) * 2 * np.pi
 
         total = mask_energy(
-            spectrum, kx, ky,
+            spectrum,
+            kx,
+            ky,
             kx_range=(-100, 100),
             ky_range=(-100, 100),
             system=kspace_system,
         )
-        assert total == pytest.approx(float(np.sum(spectrum ** 2)))
+        assert total == pytest.approx(float(np.sum(spectrum**2)))
 
     def test_empty_mask_zero(self, kspace_system):
         """A mask covering no k-space returns 0."""
@@ -39,7 +41,9 @@ class TestMaskEnergy:
         ky = np.fft.fftshift(np.fft.fftfreq(16, 0.1)) * 2 * np.pi
 
         total = mask_energy(
-            spectrum, kx, ky,
+            spectrum,
+            kx,
+            ky,
             kx_range=(1e10, 1e11),
             ky_range=(1e10, 1e11),
             system=kspace_system,

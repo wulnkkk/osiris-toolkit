@@ -74,6 +74,7 @@ class TestSaveOrShowConfig:
     def test_overwrite_from_config(self, tmp_path):
         """save_or_show uses config.overwrite when not explicitly passed."""
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import pytest

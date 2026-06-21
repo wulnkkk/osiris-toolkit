@@ -48,8 +48,7 @@ def _make_record(record_type: int, version: int, name: str, data: bytes) -> byte
     return struct.pack("<I", id_ver) + name_enc + struct.pack("<Q", length) + data
 
 
-def _make_grid_info(nx: list[int], label: str = "", units: str = "",
-                    axes: list[dict] | None = None) -> bytes:
+def _make_grid_info(nx: list[int], label: str = "", units: str = "", axes: list[dict] | None = None) -> bytes:
     """Build a GRID_INFO v1 record body."""
     ndims = len(nx)
     buf = struct.pack("<I", ndims)
@@ -88,9 +87,13 @@ def _make_iteration(n: int, t: float, tunits: str = "1/\\omega_p") -> bytes:
     return buf
 
 
-def _make_part_info(label: str, nparts: int,
-                    quants: list[str], qlabels: dict[str, str] | None = None,
-                    qunits: dict[str, str] | None = None) -> bytes:
+def _make_part_info(
+    label: str,
+    nparts: int,
+    quants: list[str],
+    qlabels: dict[str, str] | None = None,
+    qunits: dict[str, str] | None = None,
+) -> bytes:
     """Build a PART_INFO v1 record body."""
     buf = _encode_string(label)
     buf += struct.pack("<Q", nparts)
@@ -104,9 +107,15 @@ def _make_part_info(label: str, nparts: int,
     return buf
 
 
-def _make_track_info(label: str, ntracks: int, ndump: int, niter: int,
-                     quants: list[str], qlabels: list[str] | None = None,
-                     qunits: list[str] | None = None) -> bytes:
+def _make_track_info(
+    label: str,
+    ntracks: int,
+    ndump: int,
+    niter: int,
+    quants: list[str],
+    qlabels: list[str] | None = None,
+    qunits: list[str] | None = None,
+) -> bytes:
     """Build a TRACK_INFO v1 record body."""
     buf = _encode_string(label)
     buf += struct.pack("<I", ntracks)
@@ -122,8 +131,7 @@ def _make_track_info(label: str, ntracks: int, ndump: int, niter: int,
     return buf
 
 
-def _make_dataset(data_type_id: int, ndims: int, nx: list[int],
-                  data: np.ndarray) -> bytes:
+def _make_dataset(data_type_id: int, ndims: int, nx: list[int], data: np.ndarray) -> bytes:
     """Build a DATASET v1 record body. Data is written in Fortran order."""
     buf = struct.pack("<I", 0)  # dataset ID
     buf += struct.pack("<i", data_type_id)
@@ -227,8 +235,9 @@ def write_minimal_particles_zdf(
     Path(path).write_bytes(buf)
 
 
-def _make_cdset(data_type_id: int, ndims: int, nx: list[int],
-                 data: np.ndarray, dsid: int = 0, record_name: str = "") -> bytes:
+def _make_cdset(
+    data_type_id: int, ndims: int, nx: list[int], data: np.ndarray, dsid: int = 0, record_name: str = ""
+) -> bytes:
     """Build CDSET_START + CDSET_CHUNK + CDSET_END records as one chunk.
 
     Writes the entire array as a single chunk covering the full extent.
@@ -251,13 +260,13 @@ def _make_cdset(data_type_id: int, ndims: int, nx: list[int],
     arr = np.asarray(data)  # ensure ndarray
     chunk_data_bytes = arr.tobytes()
     chunk_body = b""
-    chunk_body += struct.pack("<I", dsid)          # dataset_id (uint32, per OSIRIS zdf.c)
+    chunk_body += struct.pack("<I", dsid)  # dataset_id (uint32, per OSIRIS zdf.c)
     for c in nx:
-        chunk_body += struct.pack("<q", c)       # count (Fortran dims)
+        chunk_body += struct.pack("<q", c)  # count (Fortran dims)
     for _ in range(ndims):
-        chunk_body += struct.pack("<q", 0)       # start
+        chunk_body += struct.pack("<q", 0)  # start
     for _ in range(ndims):
-        chunk_body += struct.pack("<q", 1)       # stride
+        chunk_body += struct.pack("<q", 1)  # stride
     chunk_body += chunk_data_bytes
     buf += _make_record(CDSET_CHUNK, 1, chunk_name, chunk_body)
 
@@ -317,8 +326,7 @@ def write_minimal_tracks_zdf(
     Path(path).write_bytes(buf)
 
 
-def write_invalid_zdf(path: str | Path, *, magic_corrupt: bool = False,
-                      truncated: bool = False) -> None:
+def write_invalid_zdf(path: str | Path, *, magic_corrupt: bool = False, truncated: bool = False) -> None:
     """Write an intentionally invalid ZDF file for robustness testing.
 
     Parameters

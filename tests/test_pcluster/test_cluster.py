@@ -61,8 +61,7 @@ class TestDetectAvailableWorkers:
 class TestLimitBlasThreads:
     def test_sets_all_vars(self, monkeypatch):
         # Clear first
-        for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS",
-                     "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
             monkeypatch.delenv(var, raising=False)
 
         limit_blas_threads(1)

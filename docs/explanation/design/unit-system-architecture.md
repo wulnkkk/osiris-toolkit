@@ -119,10 +119,10 @@ class UnitSystem:
     def __init__(self, omega_p: float, params: SimulationParams | None = None):
         # omega_p must be > 0
         # params is optional; dimensions like Wavenumber access additional simulation parameters via params
-        
+
     # Attribute access: system.length, system.wavenumber, ...
     def __getitem__(self, name: str) -> QuantityKind: ...
-    
+
     @classmethod
     def from_params(cls, params: SimulationParams) -> "UnitSystem": ...
 ```
@@ -134,13 +134,13 @@ class UnitSystem:
 class QuantifiedGrid:
     grid: GridData
     system: UnitSystem | None
-    
+
     def to(self, unit="auto") -> np.ndarray:
         """Auto-infer quantity from unit → convert data."""
-        
+
     def as_quantity(self, name: str) -> _QuantityView: ...
     def norm(self) -> np.ndarray: ...  # always works
-    
+
     @property
     def x(self) -> _AxisView: ...
     @property
@@ -167,12 +167,12 @@ class QuantifiedSpectrum:
     iteration: int
     time: float
     system: UnitSystem
-    
+
     @property
     def kx(self) -> _QuantityView: ...
     @property
     def ky(self) -> _QuantityView: ...
-    
+
     @classmethod
     def from_field(cls, grid: GridData, system: UnitSystem) -> "QuantifiedSpectrum": ...
 ```

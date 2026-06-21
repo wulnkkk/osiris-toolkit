@@ -18,6 +18,7 @@ from osiris_toolkit.workflow.pipeline import (
 
 class _TestStep(PipelineStep):
     """A step that records it was called."""
+
     name = "test_step"
 
     def __init__(self) -> None:
@@ -70,10 +71,7 @@ class TestPipeline:
 
 class TestDeckParseStep:
     def test_parse_au_deck(self) -> None:
-        deck_path = (
-            Path(__file__).resolve().parents[3]
-            / "osiris-deck-parser" / "inputtest" / "Au.in"
-        )
+        deck_path = Path(__file__).resolve().parents[3] / "osiris-deck-parser" / "inputtest" / "Au.in"
         if not deck_path.exists():
             pytest.skip("Test deck not found")
 
@@ -89,10 +87,7 @@ class TestDeckParseStep:
         assert ctx.deck_path == deck_path
 
     def test_validate_valid_deck(self) -> None:
-        deck_path = (
-            Path(__file__).resolve().parents[3]
-            / "osiris-1.0.0" / "decks" / "test" / "base-2d"
-        )
+        deck_path = Path(__file__).resolve().parents[3] / "osiris-1.0.0" / "decks" / "test" / "base-2d"
         if not deck_path.exists():
             pytest.skip("Test deck not found")
 
@@ -117,9 +112,7 @@ class TestPipelineYaml:
   - deck_parse:
       path: \"{yaml_path}\"
 """
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             tmp = f.name
 
@@ -147,8 +140,10 @@ class TestPipelineDryRun:
         )
 
         executed = []
+
         class CounterStep(PipelineStep):
             name = "counter"
+
             def run(self, ctx):
                 executed.append(1)
                 return ctx
@@ -173,6 +168,7 @@ class TestPipelineDryRun:
 
         class DummyStep(PipelineStep):
             name = "dummy"
+
             def run(self, ctx):
                 return ctx
 
@@ -192,8 +188,10 @@ class TestPipelineDryRun:
         )
 
         executed = []
+
         class CounterStep(PipelineStep):
             name = "counter"
+
             def run(self, ctx):
                 executed.append(1)
                 return ctx

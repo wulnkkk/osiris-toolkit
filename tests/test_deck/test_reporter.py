@@ -11,6 +11,7 @@ class TestSeverity:
 
     def test_enum_is_enum(self):
         import enum
+
         assert isinstance(Severity.ERROR, enum.Enum)
 
 

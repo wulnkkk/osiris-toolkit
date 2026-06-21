@@ -1,4 +1,5 @@
 """Tests for _logging module."""
+
 import json
 import logging
 

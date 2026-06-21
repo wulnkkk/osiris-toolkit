@@ -1,4 +1,5 @@
 """Smoke tests for _models.py — data classes are correctly importable and usable."""
+
 import numpy as np
 
 from osiris_toolkit._models import (
@@ -54,7 +55,9 @@ class TestParticleData:
     def test_basic(self):
         pd = ParticleData(
             data={"x1": np.array([1.0, 2.0, 3.0])},
-            nparts=3, iteration=0, label="electrons",
+            nparts=3,
+            iteration=0,
+            label="electrons",
         )
         assert len(pd) == 3
 

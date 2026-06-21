@@ -1,6 +1,5 @@
 """Tests for io._parallel — parallel batch I/O."""
 
-
 import numpy as np
 import pytest
 

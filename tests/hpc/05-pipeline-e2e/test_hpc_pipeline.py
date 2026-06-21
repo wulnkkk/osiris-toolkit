@@ -29,8 +29,7 @@ def test_5_1_pipeline_execution() -> None:
 
     yaml_path = Path(__file__).parent / "pipeline_test.yaml"
     if not yaml_path.exists():
-        record(False, "5.1 Pipeline execution",
-               f"pipeline_test.yaml not found at {yaml_path}")
+        record(False, "5.1 Pipeline execution", f"pipeline_test.yaml not found at {yaml_path}")
         return
 
     try:
@@ -45,12 +44,13 @@ def test_5_1_pipeline_execution() -> None:
         print(f"[INFO] Deck loaded: {deck is not None}")
         print(f"[INFO] Sim loaded: {sim is not None}")
 
-        record(deck is not None and sim is not None,
-               "5.1 Pipeline execution",
-               f"{step_count} steps, deck={deck is not None}, sim={sim is not None}")
+        record(
+            deck is not None and sim is not None,
+            "5.1 Pipeline execution",
+            f"{step_count} steps, deck={deck is not None}, sim={sim is not None}",
+        )
     except FileNotFoundError as e:
-        record(False, "5.1 Pipeline execution",
-               f"File not found (check paths in pipeline_test.yaml): {e}")
+        record(False, "5.1 Pipeline execution", f"File not found (check paths in pipeline_test.yaml): {e}")
     except Exception as e:
         record(False, "5.1 Pipeline execution", f"{type(e).__name__}: {e}")
 
@@ -78,13 +78,17 @@ def test_5_2_path_resolution() -> None:
                     resolved = Path(raw_path).resolve()
                     print(f"[INFO] {step_name}: {raw_path} → {resolved}")
                     if step_name == "sim_load":
-                        record(resolved.is_dir(),
-                               "5.2 Path resolution: sim_load",
-                               f"resolved={resolved}, is_dir={resolved.is_dir()}")
+                        record(
+                            resolved.is_dir(),
+                            "5.2 Path resolution: sim_load",
+                            f"resolved={resolved}, is_dir={resolved.is_dir()}",
+                        )
                     elif step_name == "deck_parse":
-                        record(resolved.is_file() or True,  # may not exist on cluster
-                               "5.2 Path resolution: deck_parse",
-                               f"resolved={resolved}")
+                        record(
+                            resolved.is_file() or True,  # may not exist on cluster
+                            "5.2 Path resolution: deck_parse",
+                            f"resolved={resolved}",
+                        )
     except Exception as e:
         record(False, "5.2 Path resolution", f"{type(e).__name__}: {e}")
 
@@ -109,26 +113,28 @@ def test_5_3_minimal_environment() -> None:
             print(f"[ERROR] {mod_name}: {e}")
             all_ok = False
 
-    record(all_ok, "5.3 Minimal environment",
-           f"{'all modules imported' if all_ok else 'some modules failed to import'}")
+    record(
+        all_ok, "5.3 Minimal environment", f"{'all modules imported' if all_ok else 'some modules failed to import'}"
+    )
 
 
 # ── main ──
 
+
 def main() -> None:
     global pass_count, fail_count
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print("Test 05: Pipeline End-to-End")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     test_5_1_pipeline_execution()
     test_5_2_path_resolution()
     test_5_3_minimal_environment()
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"[TOTAL] {pass_count}/{pass_count + fail_count} passed")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if fail_count > 0:
         sys.exit(1)

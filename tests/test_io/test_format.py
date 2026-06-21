@@ -25,10 +25,17 @@ class TestMagic:
 class TestRecordType:
     def test_all_types_distinct(self):
         types = [
-            RecordType.INT32, RecordType.DOUBLE, RecordType.STRING,
-            RecordType.DATASET, RecordType.CDSET_START, RecordType.CDSET_CHUNK,
-            RecordType.CDSET_END, RecordType.ITERATION, RecordType.GRID_INFO,
-            RecordType.PART_INFO, RecordType.TRACK_INFO,
+            RecordType.INT32,
+            RecordType.DOUBLE,
+            RecordType.STRING,
+            RecordType.DATASET,
+            RecordType.CDSET_START,
+            RecordType.CDSET_CHUNK,
+            RecordType.CDSET_END,
+            RecordType.ITERATION,
+            RecordType.GRID_INFO,
+            RecordType.PART_INFO,
+            RecordType.TRACK_INFO,
         ]
         assert len(set(types)) == len(types)
 

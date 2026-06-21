@@ -28,9 +28,7 @@ class TestSimulationParams:
 
     def test_from_deck_missing_omega_p0(self) -> None:
         with pytest.raises(MissingParameterError, match="omega_p0"):
-            SimulationParams.from_deck(
-                {"sections": [{"name": "simulation", "params": {}}]}
-            )
+            SimulationParams.from_deck({"sections": [{"name": "simulation", "params": {}}]})
 
     def test_from_omega_p0(self) -> None:
         params = SimulationParams.from_omega_p0(1.0e15)
