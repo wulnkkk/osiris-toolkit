@@ -288,4 +288,3 @@ for the current mapping.
 
 - Devlog: `docs/devlog/0.16.0.md` â€?release implementing this design
 - ADR: This design doc was created before the ADR Issue system was established.
-  See `docs/note/execution/2026-06-04-design-doc-system.md` (local) for upstream analysis.

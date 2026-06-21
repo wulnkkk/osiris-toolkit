@@ -216,5 +216,4 @@ hub.plot_field("e1", iteration=50)
 
 ## References
 
-- ADR: GitHub Issue [#1](https://github.com/wulnkkk/osiris-toolkit/issues/1) â€?[ADR] Architecture Refactor
-- Upstream analysis: `docs/note/analysis/2026-06-03-comprehensive-project-review.md` (local)
+- ADR: GitHub Issue [#1](https://github.com/wulnkkk/osiris-toolkit/issues/1) — [ADR] Architecture Refactor
