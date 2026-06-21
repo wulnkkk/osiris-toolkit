@@ -145,7 +145,12 @@ def batch_process_parallel(
     Fans out all (quantity, iteration) pairs for fields, k-space, and
     density across worker processes.  Scattering analysis (which has a
     cross-iteration dependency) runs sequentially after all workers finish.
+
+    .. versionchanged:: 0.16.1
+        Now returns ``BatchResult`` instead of ``None``.
     """
+    from osiris_toolkit.vis.batch import BatchResult
+
     sim_path = str(sim_path)
     sim = Simulation(sim_path)
     output_root = sim.output_root if output_root is None else Path(output_root)
@@ -156,7 +161,7 @@ def batch_process_parallel(
     species_list = sim.list_species()
     if not available_fields:
         logger.info("[%s] No field data found.", sim_name)
-        return
+        return BatchResult(sim_name=sim_name, files=[], elapsed=0.0, errors=["No field data found."])
 
     iterations = sim.list_iterations(available_fields[0])
     base = output_root / sim_name
@@ -194,6 +199,9 @@ def batch_process_parallel(
         "y_unit": y_unit,
         "time_unit": time_unit,
     }
+
+    all_files: list[Path] = []
+    all_errors: list[str] = []
 
     with ProcessPoolExecutor(max_workers=max_workers, mp_context=ctx) as ex:
         futures: dict = {}
@@ -243,9 +251,12 @@ def batch_process_parallel(
         for done, future in enumerate(as_completed(futures), start=1):
             label = futures[future]
             try:
-                future.result()
+                fpath = future.result()
+                if fpath:
+                    all_files.append(Path(fpath))
             except Exception as exc:
                 logger.info("  [%s] %s: %s", sim_name, label, exc)
+                all_errors.append(f"{label}: {exc}")
             if done % 50 == 0:
                 logger.info("  [%s] %d/%d tasks done", sim_name, done, len(futures))
 
@@ -268,14 +279,24 @@ def batch_process_parallel(
                 quantity=qty,
                 verbose=False,
             )
-            plot_scattering_fraction(
+            fpath = plot_scattering_fraction(
                 result,
                 system=system,
                 time_unit=time_unit,
                 output=str(scattering_dir / f"scattering_{qty}.png"),
             )
+            if fpath is not None:
+                all_files.append(Path(fpath))
             logger.info("  [%s] scattering %s done", sim_name, qty)
         except Exception as exc:
             logger.info("  [%s] scattering %s: %s", sim_name, qty, exc)
+            all_errors.append(f"scattering {qty}: {exc}")
 
-    logger.info("[%s] All done, elapsed %.0fs.", sim_name, time.time() - t_start)
+    total = time.time() - t_start
+    logger.info("[%s] All done, elapsed %.0fs.", sim_name, total)
+    return BatchResult(
+        sim_name=sim_name,
+        files=all_files,
+        elapsed=total,
+        errors=all_errors,
+    )

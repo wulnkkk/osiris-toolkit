@@ -112,7 +112,7 @@ def process_simulation(
     if max_workers is not None and max_workers > 0:
         from osiris_toolkit.vis.parallel import batch_process_parallel
 
-        batch_process_parallel(
+        return batch_process_parallel(
             sim_path,
             sim_name,
             output_root,
@@ -120,12 +120,6 @@ def process_simulation(
             y_unit=y_unit,
             time_unit=time_unit,
             max_workers=max_workers,
-        )
-        return BatchResult(
-            sim_name=sim_name,
-            files=[],
-            elapsed=0.0,
-            errors=["Parallel path does not yet support BatchResult details"],
         )
 
     t_start = time.time()
