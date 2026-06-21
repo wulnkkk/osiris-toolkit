@@ -13,8 +13,8 @@ language: en
 > Type: Design Document
 > Target Version: v0.15.0 (or v1.0.0)
 > Upstream Analysis:
->   - `docs/note/analysis/2026-06-04-agent-data-processing-review.md`
->   - `docs/note/analysis/2026-06-04-kspace-2pi-unit-architecture.md`
+>   - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) — Agent-driven data processing review
+>   - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) — UnitSystem + k-space 2π fix
 
 ---
 
@@ -351,7 +351,7 @@ plot_k_space("e1", 100, sim=sim, system=system, k_unit="k0")
 ## References
 
 - Upstream Analysis:
-  - `docs/note/analysis/2026-06-04-agent-data-processing-review.md`
-  - `docs/note/analysis/2026-06-04-kspace-2pi-unit-architecture.md`
-- Downstream Plan: `docs/note/execution/2026-06-04-plan-unit-system-architecture.md` (pending writing-plans output)
+  - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) — Agent-driven data processing review
+  - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) — UnitSystem + k-space 2π fix
+- Downstream Plan: GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3)
 - TODO: #65, #66, #67, #68, #69, #70, #71, #77, #78, #79, #80

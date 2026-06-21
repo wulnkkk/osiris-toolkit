@@ -220,6 +220,6 @@ hub.plot_field("e1", iteration=50)
 
 ## References
 
-- Upstream: `docs/note/analysis/2026-06-03-comprehensive-project-review.md`
-- Downstream: `docs/note/execution/2026-06-04-plan-architecture-refactor.md`
+- Upstream: GitHub Issue [#1](https://github.com/wulnkkk/osiris-toolkit/issues/1)
+- Downstream: GitHub Issue [#1](https://github.com/wulnkkk/osiris-toolkit/issues/1)
 - TODO: #60, #62

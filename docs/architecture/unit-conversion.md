@@ -3,7 +3,7 @@ audience: [human, agent]
 role: [user, developer]
 topic: architecture
 kind: architecture
-updated: 2026-06-04
+updated: 2026-06-21
 ---
 
 # Unit Conversion Architecture
@@ -77,3 +77,5 @@ The old `UnitConverter` class has been deprecated in favor of `UnitSystem`:
 | No wavenumber support | Full wavenumber support (k0, 1/m, etc.) |
 
 `UnitConverter` remains available as a deprecated shim that wraps `UnitSystem` internally. New code must use `UnitSystem` directly.
+
+> **Migration target:** `UnitConverter` will be removed in v1.0.0. All code using `converter=` parameters should migrate to `system=` before then.

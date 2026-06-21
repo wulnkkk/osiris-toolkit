@@ -3,7 +3,7 @@ audience: [human, agent]
 role: [user, developer]
 topic: architecture
 kind: architecture
-updated: 2026-06-04
+updated: 2026-06-21
 ---
 
 # Architecture Overview
@@ -24,7 +24,7 @@ updated: 2026-06-04
 +---------------------------------------------------+
 |  middle  sim  analysis  vis  resource             |
 +---------------------------------------------------+
-|  bottom  deck  io  units  compute  sync           |
+|  bottom  deck  io  units  compute  sync  config     |
 +---------------------------------------------------+
 |  base    exceptions  _models  _generated          |
 +---------------------------------------------------+

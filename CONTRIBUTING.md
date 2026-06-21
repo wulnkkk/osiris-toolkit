@@ -204,7 +204,8 @@ Before submitting a PR, confirm each item:
 - [ ] CHANGELOG.md updated
 - [ ] **No internal paths, usernames, or hostnames leaked**
 - [ ] **All text is in English** — code comments, docstrings, docs, and commit messages
-- [ ] **`make check-all` passes** — runs lint + typecheck + test + docs-build + arch check + doc sync + english check
+- [ ] **Make check-all passes** — runs lint + typecheck + test + docs-build + arch check + doc sync + english check
+- [ ] **Decision record exists** — if this PR introduces an architectural change (data model, new module, API break, new dependency), a corresponding Issue with `[ADR]` label or `docs/design/` doc must exist and be referenced
 - [ ] **Sync targets updated if applicable** (see When Adding/Changing Public API above)
 - [ ] Branch rebased onto latest main
 
@@ -234,11 +235,45 @@ When ready to release 1.0.0, that section must be removed so that
 
 1. Ensure all features are merged to `main` and CI passes
 2. Run `uv run cz bump` to auto-bump version and create a git tag
-3. Update `CHANGELOG.md`: rename `[Unreleased]` → `[vX.Y.Z]`, fill in release date
-4. Push the tag: `git push --follow-tags`
-5. Create a GitHub Release linked to the tag
+3. **Verify that every architectural change in this release has a public decision record.**
+   Check `docs/design/` and GitHub Issues for each new feature / breaking change.
+   Missing records must be created before proceeding. See [Decision Records](#decision-records) below.
+4. Update `CHANGELOG.md`: rename `[Unreleased]` → `[vX.Y.Z]`, fill in release date
+5. Push the tag: `git push --follow-tags`
+6. Create a GitHub Release linked to the tag
 
 > Versions follow [Semantic Versioning 2.0](https://semver.org/).
+
+---
+
+## Decision Records
+
+Architectural decisions must be recorded publicly so that anyone reading the code
+can understand **why** it was designed that way without reverse-engineering.
+
+Decision records have two tiers:
+
+| Tier | Format | When | Content depth | Updates |
+|------|--------|------|---------------|---------|
+| **ADR** | GitHub Issue with `[ADR]` label | Every architectural change | **Why + What** — context, decision, consequences (~200 words) | Written once, never updated |
+| **Design doc** | `docs/design/<topic>.md` | Only major cross-module refactors | **How** — class definitions, data flow, migration steps, code examples | Maintained, `updated` frontmatter refreshed |
+
+**Relationship:** An ADR is the lightweight entry log. A design doc exists only when
+the architecture is complex enough to need ongoing maintenance documentation.
+Design docs **reference their source ADR** in a "Related" section.
+
+| Change type | Required record | Upgrade to design doc? | Example |
+|-------------|----------------|------------------------|---------|
+| New module / data model | Issue `[ADR]` | Only if cross-layer dependency changes | `#5 [ADR] Core Data Model` |
+| API breaking change | Issue `[ADR]` | No | `#3 [ADR] UnitSystem` |
+| New optional dependency | Issue `[ADR]` | No | — |
+| Architecture refactor | Issue `[ADR]` | Yes — `docs/design/` doc needed | `#1` + `docs/design/architecture-refactor.md` |
+| Bug fix / minor improvement | devlog only | No | `docs/devlog/0.16.0.md` |
+
+**ADR template:** See `.github/ISSUE_TEMPLATE/adr.md`.
+
+**When to create:** Before or during implementation, not after. The ADR captures
+the reasoning *at decision time*, not reconstructed afterward.
 
 ---
 

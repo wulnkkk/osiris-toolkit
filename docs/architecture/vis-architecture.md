@@ -3,7 +3,7 @@ audience: [human, agent]
 role: [user, developer]
 topic: architecture
 kind: architecture
-updated: 2026-06-04
+updated: 2026-06-21
 ---
 
 # Visualization Architecture
@@ -16,15 +16,24 @@ The visualization layer uses a "hub" with namespace sub-objects:
 from osiris_toolkit.vis import PostVisHub
 
 hub = PostVisHub(sim, system=unit_system)
-hub.field.plot("e1", iteration=50)        # field plots
-hub.density.plot("electrons", iter=50)    # density plots
-hub.kspace.plot("e1", iter=50)            # k-space plots
-hub.energy.plot()                         # energy time series
-hub.phasespace.plot("electrons", iter=50) # phase space plots
-hub.tracks.plot()                         # particle tracks
+hub.plot_field("e1", iteration=50)            # field plots (direct)
+hub.plot_density("electrons", iter=50)        # density plots (direct)
+hub.plot_k_space("e1", iter=50)                # k-space plots (direct)
+hub.plot_phasespace("electrons", iter=50)      # phase space plots (direct)
+
+hub.field.plot("e1", iter=50)                  # field via namespace
+hub.energy.timeline(results)                   # energy via namespace
+hub.raw.scatter("electrons", iter=50)           # RAW particles via namespace
+hub.raw.momentum("electrons", iter=50)
+hub.tracks.plot()                              # particle tracks via namespace
+
+# Scattering is a standalone plot function (not namespaced)
+from osiris_toolkit.vis.scattering import plot_scattering_fraction
 ```
 
-Each namespace (`field`, `density`, `kspace`, etc.) exposes a consistent `.plot()` method that delegates to the corresponding module-level plot function.
+Each namespace (`field`, `energy`, `raw`, `tracks`) exposes methods scoped to
+its diagnostic type. Direct methods (`plot_field`, `plot_density`, etc.)
+are convenience wrappers that accept `sim` + `system` directly.
 
 ## Standardized Plot Function Signatures
 
