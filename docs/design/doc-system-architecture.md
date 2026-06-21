@@ -281,3 +281,11 @@ for the current mapping.
 
 3. **Version pinning**: Consider adding a `compatibility` field to skill
    frontmatter indicating the minimum osiris-toolkit version required.
+
+---
+
+## Related
+
+- Devlog: `docs/devlog/0.16.0.md` — release implementing this design
+- ADR: This design doc was created before the ADR Issue system was established.
+  See `docs/note/execution/2026-06-04-design-doc-system.md` (local) for upstream analysis.

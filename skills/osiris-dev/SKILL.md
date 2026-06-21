@@ -135,9 +135,26 @@ pytest --cov=osiris_toolkit --cov-report=html  # coverage
 
 1. All features merged to `main`, CI passes
 2. `uv run cz bump` — auto-bump version + git tag
-3. Update `CHANGELOG.md`: `[Unreleased]` → `[vX.Y.Z]`
-4. `git push --follow-tags`
-5. Create GitHub Release
+3. **Verify that every architectural change has a public decision record.**
+   Check `docs/design/` and Issues with `[ADR]` label. Missing records must
+   be created before releasing. See the Decision Records section below.
+4. Update `CHANGELOG.md`: `[Unreleased]` → `[vX.Y.Z]`
+5. `git push --follow-tags`
+6. Create GitHub Release
+
+## Decision Records
+
+Architectural decisions use a two-tier system:
+
+| Tier | Format | When | Content |
+|------|--------|------|---------|
+| **ADR** | GitHub Issue with `[ADR]` label | Every architectural change | **Why + What** — context, decision, consequences (~200 words)
+| **Design doc** | `docs/design/<topic>.md` | Only major cross-module refactors | **How** — class definitions, data flow, migration steps
+
+- **When to create:** Before or during implementation. The ADR captures reasoning *at decision time*, not after.
+- **ADR template:** `.github/ISSUE_TEMPLATE/adr.md` (Context → Decision → Consequences)
+- **Design docs reference their source ADR** in a "Related" section.
+- See `CONTRIBUTING.md` §Decision Records for the full policy.
 
 ## Privacy & Security
 
@@ -191,6 +208,9 @@ Before committing or opening a PR, verify each item:
 - [ ] Language: all code/comments/docs/commits in **English**
 - [ ] No internal paths, usernames, or hostnames (`/work/home/...`, `/Users/...`)
 - [ ] CHANGELOG.md updated (if user-facing change)
+- [ ] **Decision record exists** — if this change touches data model,
+      new module, API break, or new dependency, a corresponding Issue
+      with `[ADR]` label or `docs/design/` doc must exist
 - [ ] Sync targets updated if applicable:
       - CLI change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`
       - API change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`

@@ -30,6 +30,7 @@ Closes #(issue-number)
 - [ ] **No internal paths, usernames, or hostnames leaked**
 - [ ] **All text is in English** (code, docs, comments, commit messages)
 - [ ] **CI checks all pass** — no pending or failed checks on this PR
+- [ ] **Decision record exists** — if this is an architectural change (data model, new module, API break, new dep), a corresponding `[ADR]` Issue or `docs/design/` doc exists
 - [ ] Branch rebased onto latest main
 
 ## Additional Information
