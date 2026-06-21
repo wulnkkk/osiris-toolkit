@@ -5,235 +5,6 @@ All notable changes to **osiris-toolkit** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-- HISTORY diagnostic analysis (`HistoryAnalyzer`) and visualization (`plot_history_timeseries`)
-- HISTORY batch processing in `process_simulation` (auto-discovers and plots all columns)
-- `PostAnalysisHub.history` and `PostVisHub.history` namespace accessors
-- `HistoryResult` dataclass in `analysis._result_types`
-- 20 unit tests for `resource._estimator.py` covering internal formulas
-
-### Fixed
-- `field_energy_all` dict key renamed `"energy"` → `"total_energy"` to match `FieldEnergyResult`
-- Parallel batch path now returns populated `BatchResult` instead of empty stub
-- Flat `{quant}-{species}-{iter:06d}.zdf` filenames now correctly discovered for DENSITY/RAW/PHA
-- `_parse_iter_file` regex changed from greedy `(.+)` to non-greedy `([^-]+?)` to split species
-
-### Changed
-- `Makefile` and `.pre-commit-config.yaml` decoupled from `uv` — commands work with any venv
-- Development installation docs now show dual-track setup (uv + pip/venv)
-
-## [0.16.0] - 2026-06-20
-
-### Added
-- AGENTS.md: cross-platform AI agent entry point (auto-loaded by Claude Code, Copilot, Cursor)
-- Two agent skills in Agent Skills open standard format (`skills/osiris-user/`, `skills/osiris-dev/`)
-- CODE_OF_CONDUCT.md (Contributor Covenant v2.1) and SECURITY.md
-- Compliance check system: `check_arch.py` (import architecture), `check_docs_sync.py` (path validity), `check_english.py` (language)
-- Makefile targets: `check-all`, `check-arch`, `check-docs`, `check-english`
-- Pre-commit hooks for architecture, English, and doc-sync checks
-- CI `checks` job (parallel to `test`) running all compliance scripts
-- Agent Submit Checklist in `skills/osiris-dev/SKILL.md`
-- SemVer versioning policy with explicit `[tool.commitizen.bump_map]` (0.x stays in MINOR for breaking changes)
-- Design record: `docs/design/doc-system-architecture.md`
-
-### Changed
-- **Agent skills adopted open standard**: migrated from `docs/agent-*` wrappers to `skills/*/SKILL.md` directories with proper `name`/`description` frontmatter
-- **Documentation architecture**: `docs/` is now pure human documentation; all agent content lives in `skills/`
-- Skills now contain full links to all relevant `docs/` documentation (API reference, user guides, architecture)
-- Architecture rules unified across CONTRIBUTING.md, skills, and architecture docs (5 rules, consistent wording)
-- README, CONTRIBUTING, docs/index all updated with AI-assisted development/usage guidance
-- All cross-references migrated from `docs/agent-*` (deleted) to `skills/`
-- Links from skills to human docs use GitHub absolute URLs (avoids mkdocs build issues)
-
-### Removed
-- `docs/agent-dev/` and `docs/agent-user/` directories — content migrated to `skills/`
-- `mkdocs-include-markdown-plugin` dependency (no longer needed)
-
-### Fixed
-- HDF5 support description in user skill (was incorrectly marked as unsupported)
-- Circular reference between CONTRIBUTING.md and docs/contributing.md
-- CLI command tables no longer duplicated (skill references `cli-reference.md`)
-- Mkdocs strict mode build failures from relative links crossing docs/ boundary
-
-## [0.15.0] - 2025-06-09
-
-### Added
-- Angular k-space analysis with EPW and hot electron diagnostics
-- CLI k-space parameters, `--dry-run`, `--progress`, `--json` output for `sim info`
-- QuantifiedGrid, QuantifiedSpectrum helper classes for unit-aware visualization
-- UnitSystem registry class with resolved scales
-- QuantityKind frozen dataclass with 13 pre-defined instances
-- `get_system()` method with `get_converter()` deprecation
-- `omega0_norm` field to SimulationParams and `_extract_omega0` helper
-- Documentation site with mkdocs-material and mkdocstrings (user guides, API reference, ADRs)
-
-### Changed
-- **Breaking**: Full `converter → system` migration across the entire codebase:
-  - `plot_field` / `plot_all_fields` / `plot_density` / `plot_phasespace`
-  - `plot_k_space` / `plot_spectrum` (removed `/(2π)` normalization)
-  - `scattering` / `composite` / `comparison` visualization layers
-  - `batch` / `PostVisHub` / `parallel` subsystems
-  - `analysis` layer — `KSpaceAnalyzer` returns `QuantifiedSpectrum`
-  - `PostProcessor` module
-- `mask_energy` now accepts `system` parameter (removed `/(2π)` normalization)
-- `save_or_show` reads `config.overwrite`, CLI sets `OsirisConfig`
-
-### Fixed
-- Auto-detect projection axis in `_auto_k_range` for k-space plots
-- Pass `UnitSystem` to `mask_energy` in `ScatteringAnalyzer`
-- Close matplotlib figures after parallel worker plots to prevent memory leak
-- Use `grid.time` instead of `axes[0].min` for field plot time title
-- Ruff F821/F401 type annotation errors in `compute/integrate.py`
-
-## [0.14.0] - 2025-04-28
-
-### Added
-- Simulation split into `_DataAccessors` + `_InfoAccessors` mixins
-- Parse helpers extracted to `sim/_parse.py`
-- Data model extracted to `_models.py` with `diagnostics` as re-export shim
-
-### Removed
-- **Breaking**: Removed deprecated `VisEngine`, `Analyzer`, and wrapper functions
-
-### Changed
-- Eliminated `io/compute → sim` reverse dependencies
-
-## [0.13.0] - 2025-04-21
-
-### Added
-- Custom exception hierarchy (`OsirisToolkitError` and subclasses) for AI-friendly error handling
-- `Simulation.to_dict` / `from_dict` for lightweight serialization
-- `PipelineContext.save_snapshot` / `load_snapshot` for interrupt-resume
-- `PostVisHub.invalidate_cache` and `set_converter` for AI reuse
-- `PostAnalysisHub` integration
-
-## [0.12.0] - 2025-04-09
-
-### Added
-- HDF5 reader for grid, particles, and tracks files
-- `Simulation` extended to discover and read HDF5 files
-- `simulation_info` field to `ZdfFileInfo` for HDF5 metadata
-- `hdf5` optional dependency (`h5py>=3.0`)
-
-### Changed
-- Updated module documentation for v0.12.0 and v0.13.0 features
-
-## [0.11.0] - 2025-03-23
-
-### Added
-- VTK export via pyevtk (`Field.to_vtk`)
-- `to_npz()` and `to_csv()` methods on `Field` and `ParticleData`
-- `list_iterations` step parameter and `LazySimulation` wrapper
-- `vtk` optional dependency (`pyevtk>=1.6`)
-
-## [0.10.0] - 2025-03-14
-
-### Added
-- `OsirisConfig` singleton for global configuration
-- `OsirisConfig` integration into `Simulation`
-- `PipelineContext.dry_run` mode
-- `ParticleData.filter()` and `compress()` for particle filtering
-- `process_simulation` returns `BatchResult`, supports `progress_callback`
-- `save_or_show` reads `config.overwrite`
-
-## [0.9.0] - 2025-03-05
-
-### Added
-- RAW particle visualization: scatter, momentum, phasespace, energy spectrum
-- TRACKS visualization: orbit, energy evolution, field along track
-- `TracksAnalyzer` for track energy and field analysis
-- Integration of RAW and TRACKS vis into `PostVisHub`
-
-## [0.8.0] - 2025-02-22
-
-### Added
-- Field time-evolution animation with GIF/MP4 output
-- Field difference and overlay comparison plots
-- Energy timeseries, spectrum colormap, and Poynting vector plots
-- Coordinate transform framework with `to_cylindrical`
-- Bilinear interpolation in `Field.__getitem__` for float indices
-- Symmetrical colormap with `EField`/`BField` presets
-
-### Changed
-- Updated module documentation for v0.8.0 new vis features
-
-## [0.7.1] - 2025-02-15
-
-### Fixed
-- Removed redundant `.T` transpose in: `plot_field`, `plot_all_fields`, `plot_density`,
-  `plot_composite`, `plot_phasespace`, `plot_k_space`, `energy`/`Poynting` plots
-
-## [0.7.0] - 2025-02-02
-
-### Added
-- 1D line plot support to `plot_field`
-- Particle-to-grid deposition engine (NGP / tophat / triangular / spline3)
-- `info_field` / `info_raw` / `info_tracks` metadata-only accessors
-- Report modifier full-chain support (savg / senv / line / slice / tavg)
-- Centralized logging with `--verbose` / `--quiet` CLI options
-- `Field` class with operators and `GridAxis` coordinate methods
-- `overwrite=False` protection to `save_or_show`, `plot_field`, and batch functions
-
-### Fixed
-- Parallel batch performance bottleneck: create `Simulation` once, pickle to workers
-- `print → logger` migration in all vis/ modules
-- `Field.__getitem__` bounds handling, `_copy_meta` axis isolation, `mean/std` axis support
-
-## [0.6.0] - 2025-01-19
-
-### Added
-- HPC cluster test suite
-- Matplotlib Agg backend fix for headless environments
-
-### Changed
-- **Breaking**: Post-processing three-layer architecture refactor
-
-## [0.5.0] - 2025-01-10
-
-### Added
-- Simulation path ownership: absolute resolve + `output_root`
-- `save_or_show` auto-creates parent directories
-- Plot functions auto-derive output path from `sim.output_root`
-- Batch `output_root` defaults to `sim.output_root` (in-place)
-- CLI `vis batch -o` optional; `vis plot` auto-saves
-
-### Changed
-- **Breaking**: Path I/O architecture refactor
-
-## [0.4.0] - 2024-12-28
-
-### Added
-- Parallel data processing architecture
-
-### Fixed
-- Cross-platform issues: remove hardcoded batch output path, drop CJK font config
-
-## [0.3.0] - 2024-12-15
-
-### Added
-- Resource prediction module (BatchWalltime, HardwareSpec, resource calibration)
-
-## [0.2.0] - 2024-12-01
-
-### Added
-- TIMINGS parser
-- Format detection
-- Sync tests
-- Reader refactor with param descriptions
-- Comprehensive test suite (255 tests, 55% coverage)
-- Per-module developer documentation (8 modules)
-- Bundled test deck fixture for self-contained CI tests
-
-### Fixed
-- Three P0 blocking issues
-
-### Changed
-- Migrated to `[dependency-groups]` for uv compatibility
-- Updated GitHub URLs to `wulnkkk/osiris-toolkit`
-
-## [0.1.0] - 2024-11-10
 
 ### Added
 - Initial release of osiris-toolkit
@@ -261,3 +32,161 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.3.0]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/wulnkkk/osiris-toolkit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/wulnkkk/osiris-toolkit/releases/tag/v0.1.0
+
+## v0.17.0 (2026-06-21)
+
+### Feat
+
+- **history**: add HISTORY timeseries analysis and visualization
+- add suggest_updates.py — sync suggestion tool
+- self-describing documentation system with automated frontmatter validation
+- sync Decision Records policy to agent side
+- replace note file references with GitHub Issue ADRs
+- add GitHub Pages deploy step to Deploy Docs workflow
+- add pre-push hook (check-all), CI failure policy, PR CI checkbox
+
+### Fix
+
+- **sim**: support flat {quant}-{species}-{iter}.zdf filenames for DENSITY/RAW/PHA
+- **vis**: parallel batch now returns populated BatchResult instead of stub
+- **analysis**: unify field_energy_all dict key from energy to total_energy
+- update stale path references in docs after Diataxis reorganization
+- repair encoding corruption in all docs/ files
+- repair encoding corruption in docs/devlog/0.15.0.md
+- add --extra docs to checks job so mkdocs is available for docs-build step
+- add mkdocs build --strict to CI checks job, so docs build is verified on every push/PR
+- quote BREAKING CHANGE key in pyproject.toml bump_map — TOML does not allow spaces in bare keys
+- add devlog-exists check to check_docs_sync.py — version bump must have corresponding devlog
+
+### Refactor
+
+- decouple toolchain from uv — remove uv run from Makefile and pre-commit config
+- update frontmatter and references for Diataxis structure
+- reorganize docs/ into Diataxis structure
+
+## v0.16.0 (2026-06-20)
+
+### Feat
+
+- add compliance check system — arch, doc-sync, english scripts + pre-commit + CI + Agent checklist
+- adopt Agent Skills open standard — migrate to .claude/skills/ with spec-compliant frontmatter, docs/ wraps via include-markdown
+- add AGENTS.md as cross-platform agent entry point, install Reasonix skills
+- **analysis**: comprehensive PIC post-processing - angular k-space + EPW + hot electrons
+
+### Fix
+
+- sync inconsistencies — update stale docs/agent-* paths, unify architecture rules across CONTRIBUTING/dev-skill, add make bump to dev-skill
+- update stale maintenance checklist paths from docs/agent-* to skills/
+- use absolute URL for CONTRIBUTING.md link in dev-skill.md to fix mkdocs strict build
+- simplify Deploy Docs workflow to build-only, remove failing deploy step (requires GitHub Pages config)
+- resolve all residual CI issues
+- adjust mypy strictness to pass CI with existing codebase
+- resolve ruff errors and format issues for CI pass
+- **vis**: use grid.time instead of axes[0].min for field plot time title
+- **vis**: auto-detect projection axis in _auto_k_range for k-space plots
+- **analysis**: pass UnitSystem to mask_energy in ScatteringAnalyzer
+- **vis**: close matplotlib figures after parallel worker plots to prevent memory leak
+- add UnitSystem to __all__ to fix CI lint error
+
+### Refactor
+
+- migrate all agent docs from docs/agent-* to skills/*/references/, remove include-markdown dependency
+- move agent skills to skills/ (cross-platform), remove .claude/ dependency, add config guidance in AGENTS.md
+- **docs**: split agent docs into user/dev, add role dimension to frontmatter
+
+## v0.15.0 (2026-06-04)
+
+### Feat
+
+- add CLI k-space params, --dry-run, --progress, sim info --json
+- add get_system(); deprecate get_converter()
+- add system param to mask_energy, remove /(2*pi) normalization
+- add omega0_norm field to SimulationParams and _extract_omega0 helper
+- add QuantifiedGrid, QuantifiedSpectrum, and helper classes to vis/_quantified.py
+- add UnitSystem registry class with resolved scales
+- add QuantityKind frozen dataclass with 13 pre-defined instances
+- add PostVisHub.invalidate_cache and set_converter for AI reuse
+- add PipelineContext.save_snapshot/load_snapshot for interrupt-resume
+- add Simulation.to_dict/from_dict for lightweight serialization
+- add custom exception hierarchy for AI-friendly error handling
+- extend Simulation to discover and read HDF5 files
+- add HDF5 reader for grid, particles, tracks files
+- add simulation_info field to ZdfFileInfo for HDF5 metadata
+- add list_iterations step param and LazySimulation wrapper
+- add VTK export via pyevtk (Field.to_vtk)
+- add to_npz() and to_csv() to Field and ParticleData
+- add ParticleData.filter() and compress() for particle filtering
+- process_simulation returns BatchResult, supports progress_callback
+- add PipelineContext.dry_run mode to Pipeline
+- save_or_show reads config.overwrite, CLI sets OsirisConfig
+- integrate OsirisConfig into Simulation
+- add OsirisConfig singleton for global configuration
+- integrate RAW and TRACKS vis into PostVisHub
+- add TRACKS visualization — orbit, energy evolution, field along track
+- add RAW particle visualization — scatter, momentum, phasespace, energy spectrum
+- integrate TracksAnalyzer into PostAnalysisHub
+- add TracksAnalyzer for track energy and field analysis
+- add momentum_stats() to SpeciesAnalyzer
+- add MomentumStatsResult dataclass for raw particle analysis
+- add field time-evolution animation with GIF/MP4 output (#36)
+- add field difference and overlay comparison plots (#35)
+- add energy timeseries, spectrum colormap, and Poynting vector plots (#34)
+- add coordinate transform framework with to_cylindrical (#39)
+- add bilinear interpolation to Field.__getitem__ for float indices (#38)
+- add symmetrical colormap with EField/BField presets (#42)
+- add overwrite=False protection to save_or_show, plot_field, and batch functions
+- add 1D line plot support to plot_field
+- add particle-to-grid deposition engine with NGP/tophat/triangular/spline3
+- add info_field/info_raw/info_tracks metadata-only accessors
+- add report modifier full-chain support (savg/senv/line/slice/tavg)
+- add centralized logging with --verbose/--quiet CLI options
+- add Field class with operators and GridAxis coordinate methods
+- CLI vis batch -o optional, vis plot auto-saves
+- VisEngine.batch output_root defaults to sim.output_root
+- batch output_root defaults to sim.output_root (in-place)
+- plot functions auto-derive output path from sim.output_root
+- Simulation path ownership — absolute resolve + output_root
+
+### Fix
+
+- ruff F821/F401 in compute/integrate.py UnitSystem type annotation
+- set pipeline logger level to INFO in dry_run test to fix caplog capture
+- resolve ruff lint errors — import ordering and F821 OsirisConfig
+- clamp float indices to valid range in Field._interpolate
+- add input validation and constants to symmetrical_colormap
+- remove redundant .T transpose in energy/Poynting plots
+- remove redundant .T transpose in k-space plot
+- remove redundant .T transpose in plot_phasespace
+- remove redundant .T transpose in plot_composite
+- remove redundant .T transpose in plot_density
+- remove redundant .T transpose in plot_field and plot_all_fields
+- resolve test_pipeline naming conflict and exclude hpc tests from CI
+- resolve all ruff lint errors (E402 import ordering, E501 line length, F841 unused var)
+- resolve F821 undefined name errors (FieldInfo/ParticleInfo/TrackInfo/overwrite)
+- complete print->logger migration in all vis/ modules
+- Field.__getitem__ bounds handling, _copy_meta axis isolation, mean/std axis support
+- save_or_show auto-creates parent directories
+
+### Refactor
+
+- add DeprecationWarning to UnitConverter
+- PostProcessor converter→system
+- analysis layer converter→system, KSpaceAnalyzer returns QuantifiedSpectrum
+- batch/PostVisHub/parallel converter→system
+- scattering/composite/comparison converter→system
+- plot_spectrum remove /(2π), converter→system
+- plot_k_space remove /(2π), add _auto_k_range, converter→system
+- plot_phasespace converter→system
+- plot_density converter→system
+- plot_field/plot_all_fields converter→system
+- remove omega0_norm normalization from compute_k_space and spectral_power
+- remove deprecated VisEngine, Analyzer, and wrapper functions
+- split Simulation into _DataAccessors + _InfoAccessors mixins
+- extract parse helpers to sim/_parse.py
+- update imports to use _models, eliminate io/compute → sim reverse dependencies
+- extract data model to _models.py, keep diagnostics as re-export shim
+- replace built-in exceptions with custom exception hierarchy
+
+### Perf
+
+- fix parallel batch bottleneck — create Simulation once, pickle to workers
