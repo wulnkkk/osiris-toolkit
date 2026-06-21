@@ -83,6 +83,7 @@ nav:
       - Documentation Internals: meta/documentation-internals.md
   - Changelog:
       - Summary: CHANGELOG.md
+      - v0.17.0: devlog/0.17.0.md
       - v0.16.0: devlog/0.16.0.md
       - v0.15.0: devlog/0.15.0.md
       - v0.14.0: devlog/0.14.0.md
