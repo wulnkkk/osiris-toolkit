@@ -101,7 +101,7 @@ CI will validate the new vocabulary against all documents on the next run.
 | `explanation/` | `explanation` | `[human, agent]` | `[user, developer]` or `developer` |
 | `devlog/` | `reference` | `[human, agent]` | `[user, developer]` |
 | `tutorials/` | `tutorial` | `[human]` or `[human, agent]` | `user` |
-| `meta/` | `reference` | `[human, agent]` | `developer` |
+| `meta/` | `reference` or `explanation` | `[human, agent]` | `developer` |
 | Root (`index.md`, `faq.md`, etc.) | `how-to`, `reference`, or `index` | `[human]` or `[human, agent]` | `user`, `developer`, or `[user, developer]` |
 
 `check_docs_sync.py` enforces these conventions.  Violations block commits.

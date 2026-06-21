@@ -42,7 +42,7 @@ DIR_KIND_MAP = {
     "explanation/design/": "explanation",
     "devlog/": "reference",
     "tutorials/": "tutorial",
-    "meta/": "reference",
+    "meta/": None,  # reference or explanation
     "how-to/": None,  # how-to or reference (cli-reference.md)
 }
 

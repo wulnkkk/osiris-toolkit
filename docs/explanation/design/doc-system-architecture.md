@@ -3,7 +3,7 @@ audience: [human]
 role: [developer, user]
 topic: design
 kind: explanation
-updated: 2026-06-20
+updated: 2026-06-21
 ---
 
 # Documentation System Architecture — Agent Skills & Compliance Design

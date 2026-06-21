@@ -80,6 +80,7 @@ nav:
   - Meta:
       - Project Anatomy: meta/project-anatomy.md
       - Documentation Standards: meta/documentation-standards.md
+      - Documentation Internals: meta/documentation-internals.md
   - Changelog:
       - Summary: CHANGELOG.md
       - v0.16.0: devlog/0.16.0.md
