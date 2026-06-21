@@ -1,5 +1,5 @@
 # osiris-toolkit development automation
-# Requires uv (https://docs.astral.sh/uv/)
+# Requires Python 3.10+ with venv activated
 
 .PHONY: help install setup lint format typecheck test test-cov test-file \
         docs-serve docs-build precommit bump clean clean-all check-all check-arch check-docs check-english suggest-updates
@@ -17,18 +17,19 @@ help: ## Show help
 		xargs -I _ sh -c 'printf "  %-16s", _; grep -h "^_:" Makefile | grep -v "^_:" | head -1' 2>/dev/null
 	@echo ""
 	@echo "=== Install ==="
-	@echo "  uv venv                         Create virtual environment"
-	@echo "  uv sync --dev                   Install all dependencies"
+	@echo "  python -m venv .venv             Create virtual environment"
+	@echo "  pip install -e .                 Install in editable mode"
 
 # ---------------------------------------------------------------------------
 # Install & Setup
 # ---------------------------------------------------------------------------
 
 install: ## Install all dependencies (including dev)
-	uv sync --dev
+	pip install -e .
+	pip install pytest pytest-cov ruff mypy pre-commit commitizen
 
 setup: install ## Full dev environment setup
-	uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
+	pre-commit install --hook-type pre-commit --hook-type commit-msg
 	@echo "✅ pre-commit hooks installed"
 
 # ---------------------------------------------------------------------------
@@ -36,68 +37,68 @@ setup: install ## Full dev environment setup
 # ---------------------------------------------------------------------------
 
 lint: ## Run ruff lint check
-	uv run ruff check src/
+	ruff check src/
 
 lint-fix: ## Auto-fix ruff issues
-	uv run ruff check --fix src/
+	ruff check --fix src/
 
 format: ## Run ruff formatter
-	uv run ruff format src/
+	ruff format src/
 
 format-check: ## Check ruff formatting (read-only)
-	uv run ruff format --check src/
+	ruff format --check src/
 
 typecheck: ## Run mypy type check
-	uv run mypy src/
+	mypy src/
 
 # ---------------------------------------------------------------------------
 # Testing
 # ---------------------------------------------------------------------------
 
 test: ## Run all tests
-	uv run pytest tests/ -v
+	pytest tests/ -v
 
 test-quick: ## Run fast tests (exclude slow + data markers)
-	uv run pytest tests/ -v -m "not slow and not data"
+	pytest tests/ -v -m "not slow and not data"
 
 test-cov: ## Run tests with coverage report
-	uv run pytest tests/ --cov=osiris_toolkit --cov-report=term --cov-report=html
+	pytest tests/ --cov=osiris_toolkit --cov-report=term --cov-report=html
 
 test-file: ## Run a single test file: make test-file f=tests/test_units.py
-	uv run pytest $(f) -v
+	pytest $(f) -v
 
 # ---------------------------------------------------------------------------
 # Documentation
 # ---------------------------------------------------------------------------
 
 docs-serve: ## Serve docs locally
-	uv run mkdocs serve
+	mkdocs serve
 
 docs-build: ## Build docs in strict mode
-	uv run mkdocs build --strict
+	mkdocs build --strict
 
 # ---------------------------------------------------------------------------
 # Git & Version Management
 # ---------------------------------------------------------------------------
 
 precommit: ## Run all pre-commit hooks manually
-	uv run pre-commit run --all-files
+	pre-commit run --all-files
 
 # ---------------------------------------------------------------------------
 # Compliance checks
 # ---------------------------------------------------------------------------
 
 check-arch: ## Check module dependency hierarchy (no reverse deps)
-	uv run python dev-tools/check_arch.py
+	python dev-tools/check_arch.py
 
 check-docs: ## Check documentation sync (manifest paths, nav entries, skill refs, frontmatter)
-	uv run python dev-tools/check_docs_sync.py
+	python dev-tools/check_docs_sync.py
 
 suggest-updates: ## Suggest doc updates based on changed files
-	uv run python dev-tools/suggest_updates.py --since HEAD~1
+	python dev-tools/suggest_updates.py --since HEAD~1
 
 check-english: ## Check all content is in English
-	uv run python dev-tools/check_english.py
+	python dev-tools/check_english.py
 
 check-all: ## Run all checks: lint + format + typecheck + test + docs + compliance + suggestions
 	$(MAKE) lint
@@ -114,10 +115,10 @@ check-all: ## Run all checks: lint + format + typecheck + test + docs + complian
 	@echo "All checks passed."
 
 cz: ## Interactive Commitizen commit
-	uv run cz commit
+	cz commit
 
 bump: ## Interactive version bump (auto-updates version + git tag)
-	uv run cz bump --changelog
+	cz bump --changelog
 
 # ---------------------------------------------------------------------------
 # Cleanup
@@ -132,4 +133,4 @@ clean: ## Clean build artifacts and caches
 	rm -rf .coverage htmlcov/
 
 clean-all: clean ## Additionally remove virtual environment
-	rm -rf .venv/ uv.lock
+	rm -rf .venv/

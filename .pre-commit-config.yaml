@@ -42,49 +42,30 @@ repos:
     hooks:
       - id: check-arch
         name: Architecture dependency check
-        entry: uv run python dev-tools/check_arch.py
+        entry: python dev-tools/check_arch.py
         language: system
         pass_filenames: false
         files: ^src/osiris_toolkit/
 
       - id: check-english
         name: English language check
-        entry: uv run python dev-tools/check_english.py
+        entry: python dev-tools/check_english.py
         language: system
         pass_filenames: false
 
       - id: check-docs-sync
         name: Documentation sync check
-        entry: uv run python dev-tools/check_docs_sync.py
+        entry: python dev-tools/check_docs_sync.py
         language: system
         pass_filenames: false
         files: ^(docs/|skills/|mkdocs\.yml|AGENTS\.md)
 
       - id: check-all-pre-push
         name: Full compliance check (pre-push)
-        entry: uv run make check-all
+        entry: make check-all
         language: system
         pass_filenames: false
         stages: [pre-push]
         description: >
           Runs lint, format-check, typecheck, tests, docs-build, arch check,
           doc-sync check, and english check before every push.
-      - id: check-arch
-        name: Architecture dependency check
-        entry: uv run python dev-tools/check_arch.py
-        language: system
-        pass_filenames: false
-        files: ^src/osiris_toolkit/
-
-      - id: check-english
-        name: English language check
-        entry: uv run python dev-tools/check_english.py
-        language: system
-        pass_filenames: false
-
-      - id: check-docs-sync
-        name: Documentation sync check
-        entry: uv run python dev-tools/check_docs_sync.py
-        language: system
-        pass_filenames: false
-        files: ^(docs/|skills/|mkdocs\.yml|AGENTS\.md)
