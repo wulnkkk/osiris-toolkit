@@ -3,7 +3,7 @@ audience: [human, agent]
 role: [user, developer]
 topic: overview
 kind: index
-updated: 2026-06-04
+updated: 2026-06-21
 ---
 
 # osiris-toolkit
@@ -15,13 +15,14 @@ simulations — input deck parsing, data extraction, unit conversion, analysis, 
 
 | I want to... | Start here |
 |-------------|-----------|
-| Install and try it out | [Installation](getting-started/installation.md) → [Quick Start](getting-started/quick-start.md) |
-| Parse an input deck | [Deck Parsing](user-guide/deck-parsing.md) |
-| Browse simulation data | [Simulation Browsing](user-guide/simulation-browsing.md) |
-| Convert to physical units | [Unit Conversion](user-guide/unit-conversion.md) |
-| Generate figures | [Field Plotting](user-guide/field-plotting.md) · [K-Space](user-guide/kspace-analysis.md) · [Batch](user-guide/batch-processing.md) |
-| Understand the architecture | [Architecture Overview](architecture/overview.md) |
-| Look up a function or class | [API Reference](api/sim.md) |
+| Install and try it out | [Installation](tutorials/installation.md) → [Quick Start](tutorials/quick-start.md) |
+| Parse an input deck | [Deck Parsing](how-to/deck-parsing.md) |
+| Browse simulation data | [Simulation Browsing](how-to/simulation-browsing.md) |
+| Convert to physical units | [Unit Conversion](how-to/unit-conversion.md) |
+| Generate figures | [Field Plotting](how-to/field-plotting.md) · [K-Space](how-to/kspace-analysis.md) · [Batch](how-to/batch-processing.md) |
+| Understand the architecture | [Architecture Overview](explanation/architecture/overview.md) |
+| Look up a function or class | [API Reference](reference/api/sim.md) |
+| Find any file in the project | [Project Anatomy](meta/project-anatomy.md) |
 | Use AI to help process data | [`AGENTS.md` on GitHub](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) — AI assistants auto-load this entry point |
 | Use AI to help develop | [`AGENTS.md` on GitHub](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) — then load the dev skill |
 
@@ -52,4 +53,4 @@ osiris-toolkit/
 └── _generated/   Auto-generated parameter/quantity definitions
 ```
 
-See [Architecture Overview](architecture/overview.md) for details.
+See [Architecture Overview](explanation/architecture/overview.md) for details.

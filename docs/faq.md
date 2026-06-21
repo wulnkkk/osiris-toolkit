@@ -89,7 +89,7 @@ system = UnitSystem.from_params(params)
 length_um = system.length.to(1.0, "um")   # 1 normalized length -> μm
 ```
 
-The older `UnitConverter` class is still available for backward compatibility but is deprecated in favor of `UnitSystem`. See the [Unit Conversion user guide](user-guide/unit-conversion.md) for a detailed migration guide.
+The older `UnitConverter` class is still available for backward compatibility but is deprecated in favor of `UnitSystem`. See the [Unit Conversion guide](how-to/unit-conversion.md) for a detailed migration guide.
 
 ---
 

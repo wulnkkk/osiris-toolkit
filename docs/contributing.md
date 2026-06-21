@@ -53,7 +53,7 @@ make bump        # version bump + changelog
 
 ## Architecture rules
 
-See [Architecture Overview](architecture/overview.md). Key rules:
+See [Architecture Overview](explanation/architecture/overview.md). Key rules:
 - No reverse dependencies (compute → sim is forbidden)
 - Compute layer does pure math, never unit conversion
 - Use `UnitSystem`, not `UnitConverter` (deprecated since v0.15.0)

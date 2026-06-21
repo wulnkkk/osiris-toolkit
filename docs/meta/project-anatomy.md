@@ -17,9 +17,9 @@ find what you need without guessing.
 
 | I am a… | Start here | Then go to… |
 |----------|-----------|-------------|
-| **User** (want to process data) | [`README.md`](../README.md) | `docs/tutorials/` → `docs/how-to/` → `docs/reference/api/` |
-| **Contributor** (want to change code) | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | `docs/explanation/architecture/` → `docs/explanation/design/` → `docs/reference/modules/` |
-| **AI Agent** (helping a user/contributor) | [`AGENTS.md`](../AGENTS.md) | `skills/osiris-user/` or `skills/osiris-dev/` |
+| **User** (want to process data) | [README.md](https://github.com/wulnkkk/osiris-toolkit#readme) | `tutorials/` → `how-to/` → `reference/api/` |
+| **Contributor** (want to change code) | [CONTRIBUTING.md](https://github.com/wulnkkk/osiris-toolkit/blob/main/CONTRIBUTING.md) | `explanation/architecture/` → `explanation/design/` → `reference/modules/` |
+| **AI Agent** (helping a user/contributor) | [AGENTS.md](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) | `skills/osiris-user/` or `skills/osiris-dev/` |
 | **Lost** (want to understand the repo) | This file | Keep reading ↓ |
 
 ---
@@ -191,6 +191,6 @@ make clean         # remove build artifacts and caches
 ## Related
 
 - [Documentation Standards](documentation-standards.md) — frontmatter spec and controlled vocabularies
-- [Architecture Overview](../architecture/overview.md) — design principles and layer hierarchy
-- [CONTRIBUTING.md](../../CONTRIBUTING.md) — full contributor guide
-- [AGENTS.md](../../AGENTS.md) — AI agent entry point
+- [Architecture Overview](../explanation/architecture/overview.md) — design principles and layer hierarchy
+- [CONTRIBUTING.md](https://github.com/wulnkkk/osiris-toolkit/blob/main/CONTRIBUTING.md) — full contributor guide
+- [AGENTS.md](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) — AI agent entry point
