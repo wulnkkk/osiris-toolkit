@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: phasespace
-kind: guide
+kind: how-to
 tasks: ["plot phasespace", "list available", "configure momentum units"]
 api: ["plot_phasespace", "Simulation.list_phasespaces", "Simulation.get_phasespace"]
 cli: ["vis plot --kind PHASESPACE", "sim list --kind PHASESPACE"]

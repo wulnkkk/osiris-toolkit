@@ -15,14 +15,14 @@ osiris-toolkit is a Python CLI and library for post-processing OSIRIS PIC simula
 
 | Command group | Quick examples | Full reference |
 |---------------|----------------|----------------|
-| `deck` | `parse`, `lint`, `validate`, `estimate` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md#deck-parse) |
-| `sim` | `info`, `list` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md#sim-info) |
-| `vis` | `plot` (EMF/KSPACE/DENSITY/PHASESPACE), `batch` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md#vis-plot) |
-| `analyze` | `describe` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md#analyze-describe) |
-| `run` | `<workflow.yaml>` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md#run) |
-| `sync` | `extract` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md#sync-extract) |
+| `deck` | `parse`, `lint`, `validate`, `estimate` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md#deck-parse) |
+| `sim` | `info`, `list` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md#sim-info) |
+| `vis` | `plot` (EMF/KSPACE/DENSITY/PHASESPACE), `batch` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md#vis-plot) |
+| `analyze` | `describe` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md#analyze-describe) |
+| `run` | `<workflow.yaml>` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md#run) |
+| `sync` | `extract` | [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md#sync-extract) |
 
-> See the **[complete CLI reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md)** for detailed usage, all options, and examples.
+> See the **[complete CLI reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md)** for detailed usage, all options, and examples.
 
 ## Python API Entry Points
 
@@ -96,36 +96,36 @@ For detailed guides, API signatures, and architecture docs beyond this skill:
 
 ### User guides
 
-- [Installation](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/getting-started/installation.md)
-- [Quick Start](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/getting-started/quick-start.md)
-- [Basic Workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/getting-started/basic-workflow.md)
-- [Deck Parsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/deck-parsing.md)
-- [Simulation Browsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/simulation-browsing.md)
-- [Unit Conversion](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/unit-conversion.md)
-- [Field Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/field-plotting.md)
-- [K-Space Analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/kspace-analysis.md)
-- [Density Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/density-plotting.md)
-- [Phasespace Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/phasespace-plotting.md)
-- [Batch Processing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/batch-processing.md)
-- [Parallel Execution](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/parallel-execution.md)
-- [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/user-guide/cli-reference.md) (all commands, options, environment variables)
+- [Installation](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/installation.md)
+- [Quick Start](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/quick-start.md)
+- [Basic Workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/basic-workflow.md)
+- [Deck Parsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/deck-parsing.md)
+- [Simulation Browsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/simulation-browsing.md)
+- [Unit Conversion](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/unit-conversion.md)
+- [Field Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/field-plotting.md)
+- [K-Space Analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/kspace-analysis.md)
+- [Density Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/density-plotting.md)
+- [Phasespace Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/phasespace-plotting.md)
+- [Batch Processing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/batch-processing.md)
+- [Parallel Execution](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/parallel-execution.md)
+- [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md) (all commands, options, environment variables)
 
 ### API reference (class signatures, method parameters, return types)
 
-- [sim](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/sim.md) — Simulation class, data access
-- [units](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/units.md) — UnitSystem, SimulationParams, QuantityKind
-- [io](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/io.md) — ZDF/HDF5 reader
-- [deck](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/deck.md) — Parsing and validation
-- [compute](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/compute.md) — FFT, integration, deposition
-- [analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/analysis.md) — Field energy, k-space, species, scattering
-- [vis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/vis.md) — Plot functions, customization, batch
-- [workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/workflow.md) — YAML pipeline
-- [resource](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/resource.md) — Memory/runtime/disk estimation
-- [exceptions](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/api/exceptions.md) — Error type hierarchy
+- [sim](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/sim.md) — Simulation class, data access
+- [units](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/units.md) — UnitSystem, SimulationParams, QuantityKind
+- [io](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/io.md) — ZDF/HDF5 reader
+- [deck](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/deck.md) — Parsing and validation
+- [compute](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/compute.md) — FFT, integration, deposition
+- [analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/analysis.md) — Field energy, k-space, species, scattering
+- [vis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/vis.md) — Plot functions, customization, batch
+- [workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/workflow.md) — YAML pipeline
+- [resource](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/resource.md) — Memory/runtime/disk estimation
+- [exceptions](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/exceptions.md) — Error type hierarchy
 
 ### Module overviews
 
-- [Modules index](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/modules/) — per-module deep dives
+- [Modules index](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/modules/) — per-module deep dives
 
 ### FAQ
 

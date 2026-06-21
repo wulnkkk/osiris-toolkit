@@ -21,63 +21,65 @@ exclude_docs: |
   note/
 nav:
   - Home: index.md
-  - Getting Started:
-      - Installation: getting-started/installation.md
-      - Quick Start: getting-started/quick-start.md
-      - Basic Workflow: getting-started/basic-workflow.md
-  - User Guide:
-      - Deck Parsing: user-guide/deck-parsing.md
-      - Simulation Browsing: user-guide/simulation-browsing.md
-      - Unit Conversion: user-guide/unit-conversion.md
-      - Field Plotting: user-guide/field-plotting.md
-      - K-Space Analysis: user-guide/kspace-analysis.md
-      - Density Plotting: user-guide/density-plotting.md
-      - Phasespace: user-guide/phasespace-plotting.md
-      - Batch Processing: user-guide/batch-processing.md
-      - Parallel Execution: user-guide/parallel-execution.md
-      - CLI Reference: user-guide/cli-reference.md
-  - API Reference:
-      - sim: api/sim.md
-      - units: api/units.md
-      - compute: api/compute.md
-      - analysis: api/analysis.md
-      - vis: api/vis.md
-      - io: api/io.md
-      - deck: api/deck.md
-      - exceptions: api/exceptions.md
-      - workflow: api/workflow.md
-      - resource: api/resource.md
-  - Architecture:
-      - Overview: architecture/overview.md
-      - Dependency Hierarchy: architecture/dependency-hierarchy.md
-      - Data Flow: architecture/data-flow.md
-      - Unit Conversion: architecture/unit-conversion.md
-      - K-Space Pipeline: architecture/k-space-pipeline.md
-      - Vis Architecture: architecture/vis-architecture.md
-      - Template: architecture/_template.md
-  - Design:
-      - Unit System: design/unit-system-architecture.md
-      - Architecture Refactor v0.14: design/architecture-refactor.md
-      - PostProcessor Design: design/postproc-architecture.md
-      - Doc System: design/doc-system-architecture.md
+  - Tutorials:
+      - Installation: tutorials/installation.md
+      - Quick Start: tutorials/quick-start.md
+      - Basic Workflow: tutorials/basic-workflow.md
+  - How-To:
+      - Deck Parsing: how-to/deck-parsing.md
+      - Simulation Browsing: how-to/simulation-browsing.md
+      - Unit Conversion: how-to/unit-conversion.md
+      - Field Plotting: how-to/field-plotting.md
+      - K-Space Analysis: how-to/kspace-analysis.md
+      - Density Plotting: how-to/density-plotting.md
+      - Phasespace: how-to/phasespace-plotting.md
+      - Batch Processing: how-to/batch-processing.md
+      - Parallel Execution: how-to/parallel-execution.md
+      - CLI Reference: how-to/cli-reference.md
+  - Reference:
+      - API:
+          - sim: reference/api/sim.md
+          - units: reference/api/units.md
+          - compute: reference/api/compute.md
+          - analysis: reference/api/analysis.md
+          - vis: reference/api/vis.md
+          - io: reference/api/io.md
+          - deck: reference/api/deck.md
+          - exceptions: reference/api/exceptions.md
+          - workflow: reference/api/workflow.md
+          - resource: reference/api/resource.md
+      - Modules:
+          - Deck: reference/modules/deck.md
+          - Simulation: reference/modules/sim.md
+          - Units: reference/modules/units.md
+          - IO: reference/modules/io.md
+          - Compute: reference/modules/compute.md
+          - Analysis: reference/modules/analysis.md
+          - Visualization: reference/modules/vis.md
+          - Workflow: reference/modules/workflow.md
+          - Parallel: reference/modules/parallel.md
+          - Resource: reference/modules/resource.md
+          - Sync: reference/modules/sync.md
+          - Data Models: reference/modules/_models.md
+          - Generated: reference/modules/_generated.md
+          - Exceptions: reference/modules/exceptions.md
+  - Explanation:
+      - Architecture:
+          - Overview: explanation/architecture/overview.md
+          - Dependency Hierarchy: explanation/architecture/dependency-hierarchy.md
+          - Data Flow: explanation/architecture/data-flow.md
+          - Unit Conversion: explanation/architecture/unit-conversion.md
+          - K-Space Pipeline: explanation/architecture/k-space-pipeline.md
+          - Vis Architecture: explanation/architecture/vis-architecture.md
+          - Template: explanation/architecture/_template.md
+      - Design:
+          - Unit System: explanation/design/unit-system-architecture.md
+          - Architecture Refactor v0.14: explanation/design/architecture-refactor.md
+          - PostProcessor Design: explanation/design/postproc-architecture.md
+          - Doc System: explanation/design/doc-system-architecture.md
   - Meta:
       - Project Anatomy: meta/project-anatomy.md
       - Documentation Standards: meta/documentation-standards.md
-  - Modules:
-      - Deck: modules/deck.md
-      - Simulation: modules/sim.md
-      - Units: modules/units.md
-      - IO: modules/io.md
-      - Compute: modules/compute.md
-      - Analysis: modules/analysis.md
-      - Visualization: modules/vis.md
-      - Workflow: modules/workflow.md
-      - Parallel: modules/parallel.md
-      - Resource: modules/resource.md
-      - Sync: modules/sync.md
-      - Data Models: modules/_models.md
-      - Generated: modules/_generated.md
-      - Exceptions: modules/exceptions.md
   - Changelog:
       - Summary: CHANGELOG.md
       - v0.16.0: devlog/0.16.0.md

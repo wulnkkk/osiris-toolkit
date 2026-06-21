@@ -219,7 +219,7 @@ Before submitting a PR, confirm each item:
 - [ ] **No internal paths, usernames, or hostnames leaked**
 - [ ] **All text is in English** — code comments, docstrings, docs, and commit messages
 - [ ] **Make check-all passes** — runs lint + typecheck + test + docs-build + arch check + doc sync + english check
-- [ ] **Decision record exists** — if this PR introduces an architectural change (data model, new module, API break, new dependency), a corresponding Issue with `[ADR]` label or `docs/design/` doc must exist and be referenced
+- [ ] **Decision record exists** — if this PR introduces an architectural change (data model, new module, API break, new dependency), a corresponding Issue with `[ADR]` label or `docs/explanation/design/` doc must exist and be referenced
 - [ ] **Sync targets updated if applicable** (see When Adding/Changing Public API above)
 - [ ] Branch rebased onto latest main
 
@@ -250,7 +250,7 @@ When ready to release 1.0.0, that section must be removed so that
 1. Ensure all features are merged to `main` and CI passes
 2. Run `uv run cz bump` to auto-bump version and create a git tag
 3. **Verify that every architectural change in this release has a public decision record.**
-   Check `docs/design/` and GitHub Issues for each new feature / breaking change.
+   Check `docs/explanation/design/` and GitHub Issues for each new feature / breaking change.
    Missing records must be created before proceeding. See [Decision Records](#decision-records) below.
 4. Update `CHANGELOG.md`: rename `[Unreleased]` → `[vX.Y.Z]`, fill in release date
 5. Push the tag: `git push --follow-tags`
@@ -270,7 +270,7 @@ Decision records have two tiers:
 | Tier | Format | When | Content depth | Updates |
 |------|--------|------|---------------|---------|
 | **ADR** | GitHub Issue with `[ADR]` label | Every architectural change | **Why + What** — context, decision, consequences (~200 words) | Written once, never updated |
-| **Design doc** | `docs/design/<topic>.md` | Only major cross-module refactors | **How** — class definitions, data flow, migration steps, code examples | Maintained, `updated` frontmatter refreshed |
+| **Design doc** | `docs/explanation/design/<topic>.md` | Only major cross-module refactors | **How** — class definitions, data flow, migration steps, code examples | Maintained, `updated` frontmatter refreshed |
 
 **Relationship:** An ADR is the lightweight entry log. A design doc exists only when
 the architecture is complex enough to need ongoing maintenance documentation.
@@ -281,7 +281,7 @@ Design docs **reference their source ADR** in a "Related" section.
 | New module / data model | Issue `[ADR]` | Only if cross-layer dependency changes | `#5 [ADR] Core Data Model` |
 | API breaking change | Issue `[ADR]` | No | `#3 [ADR] UnitSystem` |
 | New optional dependency | Issue `[ADR]` | No | — |
-| Architecture refactor | Issue `[ADR]` | Yes — `docs/design/` doc needed | `#1` + `docs/design/architecture-refactor.md` |
+| Architecture refactor | Issue `[ADR]` | Yes — `docs/explanation/design/` doc needed | `#1` + `docs/explanation/design/architecture-refactor.md` |
 | Bug fix / minor improvement | devlog only | No | `docs/devlog/0.16.0.md` |
 
 **ADR template:** See `.github/ISSUE_TEMPLATE/adr.md`.
@@ -312,7 +312,7 @@ These rules are enforced by design and must never be broken:
 4. **Use `UnitSystem`, not `UnitConverter`** — `UnitConverter` is deprecated since v0.15.0.
 5. **Public API through `__init__.py`** — each module exports its public symbols there.
 
-See [Architecture Overview](docs/architecture/overview.md) for design principles.
+See [Architecture Overview](docs/explanation/architecture/overview.md) for design principles.
 For documentation conventions (frontmatter spec, controlled vocabularies), see
 [Documentation Standards](docs/meta/documentation-standards.md).
 
@@ -334,7 +334,7 @@ Items to verify when making changes, grouped by frequency.
 
 - [ ] Update `__init__.py` `__all__` — every new public symbol must be exported
 - [ ] Write NumPy-style docstring — feeds mkdocstrings API docs
-- [ ] Update `docs/modules/*.md` if module behavior changed
+- [ ] Update `docs/reference/modules/*.md` if module behavior changed
 - [ ] Update `skills/osiris-user/SKILL.md` and `skills/osiris-user/references/task-map.md` if CLI or Python API changed
 - [ ] Update `skills/osiris-dev/SKILL.md` and `skills/osiris-dev/references/task-map.md` if development entry points changed
 - [ ] Update `docs/manifest.json` if entry point paths changed
@@ -357,7 +357,7 @@ Items to verify when making changes, grouped by frequency.
 ### Quarterly / As-Needed
 
 - [ ] Review `examples/` and `dev-tools/` — paths and references still valid
-- [ ] Review `docs/architecture/` — still reflects current design
+- [ ] Review `docs/explanation/architecture/` — still reflects current design
 - [ ] Review `.pre-commit-config.yaml` hook versions
 - [ ] Review `skills/osiris-user/` and `skills/osiris-dev/` — still match actual capabilities
 

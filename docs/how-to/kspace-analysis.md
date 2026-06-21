@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: kspace
-kind: guide
+kind: how-to
 tasks: ["compute FFT", "plot k-space", "configure k0 unit", "set axis limits"]
 api: ["plot_k_space", "QuantifiedSpectrum", "KSpaceAnalyzer.spectrum", "compute_k_space"]
 cli: ["vis plot --kind KSPACE"]

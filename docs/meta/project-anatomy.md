@@ -17,8 +17,8 @@ find what you need without guessing.
 
 | I am a… | Start here | Then go to… |
 |----------|-----------|-------------|
-| **User** (want to process data) | [`README.md`](../README.md) | `docs/getting-started/` → `docs/user-guide/` → `docs/api/` |
-| **Contributor** (want to change code) | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | `docs/architecture/` → `docs/design/` → `docs/modules/` |
+| **User** (want to process data) | [`README.md`](../README.md) | `docs/tutorials/` → `docs/how-to/` → `docs/reference/api/` |
+| **Contributor** (want to change code) | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | `docs/explanation/architecture/` → `docs/explanation/design/` → `docs/reference/modules/` |
 | **AI Agent** (helping a user/contributor) | [`AGENTS.md`](../AGENTS.md) | `skills/osiris-user/` or `skills/osiris-dev/` |
 | **Lost** (want to understand the repo) | This file | Keep reading ↓ |
 

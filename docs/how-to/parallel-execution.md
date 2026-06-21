@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: parallel
-kind: guide
+kind: how-to
 tasks: ["parallel batch", "SLURM detection", "MPI sharding", "memory tuning"]
 api: ["batch_process_parallel", "detect_available_workers", "detect_job_array", "detect_mpi_rank", "limit_blas_threads", "split_iterations"]
 cli: ["vis batch -j"]

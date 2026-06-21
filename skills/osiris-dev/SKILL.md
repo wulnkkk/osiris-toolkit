@@ -136,7 +136,7 @@ pytest --cov=osiris_toolkit --cov-report=html  # coverage
 1. All features merged to `main`, CI passes
 2. `uv run cz bump` — auto-bump version + git tag
 3. **Verify that every architectural change has a public decision record.**
-   Check `docs/design/` and Issues with `[ADR]` label. Missing records must
+   Check `docs/explanation/design/` and Issues with `[ADR]` label. Missing records must
    be created before releasing. See the Decision Records section below.
 4. Update `CHANGELOG.md`: `[Unreleased]` → `[vX.Y.Z]`
 5. `git push --follow-tags`
@@ -149,7 +149,7 @@ Architectural decisions use a two-tier system:
 | Tier | Format | When | Content |
 |------|--------|------|---------|
 | **ADR** | GitHub Issue with `[ADR]` label | Every architectural change | **Why + What** — context, decision, consequences (~200 words)
-| **Design doc** | `docs/design/<topic>.md` | Only major cross-module refactors | **How** — class definitions, data flow, migration steps
+| **Design doc** | `docs/explanation/design/<topic>.md` | Only major cross-module refactors | **How** — class definitions, data flow, migration steps
 
 - **When to create:** Before or during implementation. The ADR captures reasoning *at decision time*, not after.
 - **ADR template:** `.github/ISSUE_TEMPLATE/adr.md` (Context → Decision → Consequences)
@@ -183,17 +183,17 @@ Architectural decisions use a two-tier system:
 
 For architecture details, design decisions, and module internals beyond this skill:
 
-- [Architecture Overview](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/overview.md)
-- [Dependency Hierarchy](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/dependency-hierarchy.md)
-- [Data Flow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/data-flow.md)
-- [Unit Conversion Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/unit-conversion.md)
-- [K-Space Pipeline](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/k-space-pipeline.md)
-- [Vis Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/architecture/vis-architecture.md)
-- [Design: Unit System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/unit-system-architecture.md)
-- [Design: PostProcessor](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/postproc-architecture.md)
-- [Design: Documentation System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/doc-system-architecture.md)
-- [Design: Architecture Refactor v0.14](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/architecture-refactor.md)
-- [Module Docs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/modules/) — per-module deep dives
+- [Architecture Overview](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/overview.md)
+- [Dependency Hierarchy](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/dependency-hierarchy.md)
+- [Data Flow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/data-flow.md)
+- [Unit Conversion Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/unit-conversion.md)
+- [K-Space Pipeline](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/k-space-pipeline.md)
+- [Vis Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/vis-architecture.md)
+- [Design: Unit System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/unit-system-architecture.md)
+- [Design: PostProcessor](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/postproc-architecture.md)
+- [Design: Documentation System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/doc-system-architecture.md)
+- [Design: Architecture Refactor v0.14](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/architecture-refactor.md)
+- [Module Docs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/modules/) — per-module deep dives
 - [Contributing (mkdocs version)](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/contributing.md)
 - [Documentation Standards](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/meta/documentation-standards.md) — frontmatter spec, controlled vocabularies
 - [Devlogs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/devlog/) — version history and technical decisions
@@ -212,7 +212,7 @@ Before committing or opening a PR, verify each item:
 - [ ] CHANGELOG.md updated (if user-facing change)
 - [ ] **Decision record exists** — if this change touches data model,
       new module, API break, or new dependency, a corresponding Issue
-      with `[ADR]` label or `docs/design/` doc must exist
+      with `[ADR]` label or `docs/explanation/design/` doc must exist
 - [ ] Sync targets updated if applicable:
       - CLI change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`
       - API change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`

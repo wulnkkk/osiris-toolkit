@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: density
-kind: guide
+kind: how-to
 tasks: ["plot density", "configure colorbar", "log scale density"]
 api: ["plot_density", "Simulation.get_density"]
 cli: ["vis plot --kind DENSITY"]

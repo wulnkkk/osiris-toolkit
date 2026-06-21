@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: deck
-kind: guide
+kind: how-to
 tasks: ["parse deck", "lint deck", "extract parameters"]
 api: ["parse_deck_file", "lint_deck_file", "SimulationParams"]
 cli: ["deck parse", "deck lint", "deck validate", "deck estimate"]

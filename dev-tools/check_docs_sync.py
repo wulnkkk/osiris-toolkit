@@ -23,7 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # ── Frontmatter validation rules (mirrors docs/meta/documentation-standards.md) ──
 
-VALID_KINDS = {"architecture", "design", "guide", "index", "reference", "tutorial"}
+VALID_KINDS = {"how-to", "index", "reference", "tutorial", "explanation"}
 
 VALID_TOPICS = {
     "api", "architecture", "batch", "changelog", "cli", "contributing",
@@ -36,14 +36,14 @@ VALID_AUDIENCES = {r"[human]", r"[agent]", r"[human, agent]"}
 VALID_ROLES = {"user", "developer", "[user, developer]"}
 
 DIR_KIND_MAP = {
-    "api/": "reference",
-    "architecture/": "architecture",
-    "design/": "design",
+    "reference/api/": "reference",
+    "reference/modules/": "reference",
+    "explanation/architecture/": "explanation",
+    "explanation/design/": "explanation",
     "devlog/": "reference",
-    "getting-started/": "tutorial",
+    "tutorials/": "tutorial",
     "meta/": "reference",
-    "modules/": "reference",
-    "user-guide/": None,  # guide or reference
+    "how-to/": None,  # how-to or reference (cli-reference.md)
 }
 
 # Files that are excluded from frontmatter checks

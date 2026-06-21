@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: batch
-kind: guide
+kind: how-to
 tasks: ["batch process simulation", "dry-run preview", "parallel batch"]
 api: ["process_simulation", "PostProcessor.batch", "BatchResult", "ProgressEvent"]
 cli: ["vis batch", "vis batch --dry-run", "vis batch --progress"]

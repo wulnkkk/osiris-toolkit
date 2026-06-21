@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: field
-kind: guide
+kind: how-to
 tasks: ["plot field", "plot all fields", "configure units", "customize appearance"]
 api: ["plot_field", "plot_all_fields", "QuantifiedGrid"]
 cli: ["vis plot --kind EMF"]

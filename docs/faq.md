@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: [user, developer]
 topic: faq
-kind: guide
+kind: how-to
 updated: 2026-06-21
 ---
 

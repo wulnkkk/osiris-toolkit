@@ -2,7 +2,7 @@
 audience: [human]
 role: developer
 topic: contributing
-kind: guide
+kind: how-to
 updated: 2026-06-20
 ---
 

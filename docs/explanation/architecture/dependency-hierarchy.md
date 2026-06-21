@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: [user, developer]
 topic: architecture
-kind: architecture
+kind: explanation
 updated: 2026-06-21
 ---
 

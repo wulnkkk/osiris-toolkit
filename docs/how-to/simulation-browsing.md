@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: simulation
-kind: guide
+kind: how-to
 tasks: ["load simulation", "list diagnostics", "read data", "inspect metadata"]
 api: ["Simulation", "list_fields", "list_iterations", "get_field", "get_density", "get_phasespace", "info_field"]
 cli: ["sim info", "sim list"]

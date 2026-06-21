@@ -2,7 +2,7 @@
 audience: [human, agent]
 role: user
 topic: units
-kind: guide
+kind: how-to
 tasks: ["create unit system", "convert quantities", "format labels", "wavenumber setup"]
 api: ["SimulationParams", "UnitSystem", "QuantityKind.to", "QuantityKind.label", "QuantityKind.latex"]
 cli: []

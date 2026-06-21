@@ -3,45 +3,45 @@
   "generated": "2026-06-20",
   "description": "Agent entry point for osiris-toolkit documentation discovery.",
   "entry_points": {
-    "architecture": "docs/architecture/overview.md",
-    "api_reference": "docs/api/",
-    "cli_reference": "docs/user-guide/cli-reference.md",
+    "architecture": "docs/explanation/architecture/overview.md",
+    "api_reference": "docs/reference/api/",
+    "cli_reference": "docs/how-to/cli-reference.md",
     "skill": "skills/osiris-user/SKILL.md",
     "task_map": "skills/osiris-user/references/task-map.md",
     "dev_skill": "skills/osiris-dev/SKILL.md",
     "dev_task_map": "skills/osiris-dev/references/task-map.md",
-    "design_doc_system": "docs/design/doc-system-architecture.md",
+    "design_doc_system": "docs/explanation/design/doc-system-architecture.md",
     "faq": "docs/faq.md"
   },
   "task_map": {
     "discover simulations": {
-      "guide": "docs/user-guide/simulation-browsing.md",
+      "guide": "docs/how-to/simulation-browsing.md",
       "recipe": "skills/osiris-user/references/recipes/discover-sims.md",
       "cli": "osiris-toolkit sim info <path> --output json",
       "api": "Simulation(path).list_fields()"
     },
     "parse deck": {
-      "guide": "docs/user-guide/deck-parsing.md",
+      "guide": "docs/how-to/deck-parsing.md",
       "cli": "osiris-toolkit deck parse <file>",
       "api": "parse_deck_file(path)"
     },
     "plot fields": {
-      "guide": "docs/user-guide/field-plotting.md",
+      "guide": "docs/how-to/field-plotting.md",
       "cli": "osiris-toolkit vis plot --kind EMF --quantity <q> -i <n> <path>",
       "api": "plot_field(quantity, iteration, sim=sim, system=system)"
     },
     "plot k-space": {
-      "guide": "docs/user-guide/kspace-analysis.md",
+      "guide": "docs/how-to/kspace-analysis.md",
       "cli": "osiris-toolkit vis plot --kind KSPACE --quantity <q> -i <n> <path> --k-unit k0",
       "api": "plot_k_space(quantity, iteration, sim=sim, system=system, k_unit='k0')"
     },
     "batch process": {
-      "guide": "docs/user-guide/batch-processing.md",
+      "guide": "docs/how-to/batch-processing.md",
       "cli": "osiris-toolkit vis batch [--dry-run] [--progress] [-j N] <path> <name>",
       "api": "process_simulation(sim_path, sim_name, system=system)"
     },
     "convert units": {
-      "guide": "docs/user-guide/unit-conversion.md",
+      "guide": "docs/how-to/unit-conversion.md",
       "api": "UnitSystem.from_params(params).length.to(value, 'um')"
     },
     "compare two simulations": {

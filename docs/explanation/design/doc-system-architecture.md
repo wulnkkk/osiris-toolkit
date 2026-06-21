@@ -2,7 +2,7 @@
 audience: [human]
 role: [developer, user]
 topic: design
-kind: design
+kind: explanation
 updated: 2026-06-20
 ---
 

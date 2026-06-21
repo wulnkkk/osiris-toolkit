@@ -36,48 +36,47 @@ Every `.md` file under `docs/` must have YAML frontmatter delimited by `---`.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `tasks` | List of strings | CLI task names this document covers (user-guide/) |
-| `api` | List of strings | Python API names this document covers (api/) |
-| `cli` | List of strings | CLI command names this document covers (api/) |
-| `module` | string | Python module name this document covers (modules/, api/) |
+| `tasks` | List of strings | CLI task names this document covers (how-to/) |
+| `api` | List of strings | Python API names this document covers (reference/api/) |
+| `cli` | List of strings | CLI command names this document covers (reference/api/) |
+| `module` | string | Python module name this document covers (reference/modules/, reference/api/) |
 
 ### `kind` — Controlled Vocabulary
 
 | Value | Meaning | Used in directories |
 |-------|---------|---------------------|
-| `architecture` | Architectural rule, pipeline, or constraint | `architecture/` |
-| `design` | Design decision record — why something was built a certain way | `design/` |
-| `guide` | Task-oriented how-to | `user-guide/`, root |
+| `how-to` | Task-oriented how-to guide | `how-to/` |
 | `index` | Landing / overview page | root |
-| `reference` | Exhaustive API / module / changelog reference | `api/`, `modules/`, `devlog/`, root |
-| `tutorial` | Step-by-step getting-started | `getting-started/` |
+| `reference` | Exhaustive API / module / changelog reference | `reference/api/`, `reference/modules/`, `devlog/`, root |
+| `tutorial` | Step-by-step getting-started | `tutorials/` |
+| `explanation` | Architectural rules, design decisions, pipelines | `explanation/` |
 
 ### `topic` — Controlled Vocabulary
 
 | Value | Category |
 |-------|----------|
-| `api` | api/ files |
-| `architecture` | architecture/ files |
-| `batch` | user-guide/batch-processing |
+| `api` | reference/api/ files |
+| `architecture` | explanation/architecture/ files |
+| `batch` | how-to/batch-processing |
 | `changelog` | Changelog and devlog files |
-| `cli` | user-guide/cli-reference |
+| `cli` | how-to/cli-reference |
 | `contributing` | docs/contributing.md |
-| `deck` | user-guide/deck-parsing |
-| `density` | user-guide/density-plotting |
-| `design` | design/ files |
+| `deck` | how-to/deck-parsing |
+| `density` | how-to/density-plotting |
+| `design` | explanation/design/ files |
 | `faq` | docs/faq.md |
-| `field` | user-guide/field-plotting |
-| `installation` | getting-started/installation |
-| `kspace` | user-guide/kspace-analysis |
+| `field` | how-to/field-plotting |
+| `installation` | tutorials/installation |
+| `kspace` | how-to/kspace-analysis |
 | `meta` | docs/meta/ files |
-| `modules` | modules/ files |
+| `modules` | reference/modules/ files |
 | `overview` | docs/index.md |
-| `parallel` | user-guide/parallel-execution |
-| `phasespace` | user-guide/phasespace-plotting |
-| `quick-start` | getting-started/quick-start |
-| `simulation` | user-guide/simulation-browsing |
-| `units` | user-guide/unit-conversion |
-| `workflow` | user-guide and getting-started workflow docs |
+| `parallel` | how-to/parallel-execution |
+| `phasespace` | how-to/phasespace-plotting |
+| `quick-start` | tutorials/quick-start |
+| `simulation` | how-to/simulation-browsing |
+| `units` | how-to/unit-conversion |
+| `workflow` | how-to and tutorials workflow docs |
 
 To add a new topic: add it to this table, then update this file's `updated` date.
 CI will validate the new vocabulary against all documents on the next run.
@@ -96,15 +95,14 @@ CI will validate the new vocabulary against all documents on the next run.
 
 | Directory | Expected `kind` | Expected `audience` | Expected `role` |
 |-----------|----------------|---------------------|-----------------|
-| `api/` | `reference` | `[human, agent]` | `[user, developer]` |
-| `architecture/` | `architecture` | `[human, agent]` | `[user, developer]` |
-| `design/` | `design` | `[human]` | `developer` |
+| `how-to/` | `how-to` | `[human, agent]` | `user` or `[user, developer]` |
+| `reference/api/` | `reference` | `[human, agent]` | `[user, developer]` |
+| `reference/modules/` | `reference` | `[human, agent]` | `developer` |
+| `explanation/` | `explanation` | `[human, agent]` | `[user, developer]` or `developer` |
 | `devlog/` | `reference` | `[human, agent]` | `[user, developer]` |
-| `getting-started/` | `tutorial` | `[human]` or `[human, agent]` | `user` |
+| `tutorials/` | `tutorial` | `[human]` or `[human, agent]` | `user` |
 | `meta/` | `reference` | `[human, agent]` | `developer` |
-| `modules/` | `reference` | `[human, agent]` | `developer` |
-| `user-guide/` | `guide` or `reference` | `[human, agent]` | `user` or `[user, developer]` |
-| Root (`index.md`, `faq.md`, etc.) | `guide`, `reference`, or `index` | `[human]` or `[human, agent]` | `user`, `developer`, or `[user, developer]` |
+| Root (`index.md`, `faq.md`, etc.) | `how-to`, `reference`, or `index` | `[human]` or `[human, agent]` | `user`, `developer`, or `[user, developer]` |
 
 `check_docs_sync.py` enforces these conventions.  Violations block commits.
 
@@ -113,5 +111,5 @@ CI will validate the new vocabulary against all documents on the next run.
 ## Related
 
 - Enforced by: `dev-tools/check_docs_sync.py`
-- Referenced by: `CONTRIBUTING.md`, `skills/osiris-dev/SKILL.md`, `docs/architecture/_template.md`
+- Referenced by: `CONTRIBUTING.md`, `skills/osiris-dev/SKILL.md`, `docs/explanation/architecture/_template.md`
 - This file is part of the public documentation site (mkdocs nav entry).
