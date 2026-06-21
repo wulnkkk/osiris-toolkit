@@ -55,11 +55,24 @@ osiris-toolkit/
 ## Development Workflow
 
 ```bash
-# Setup
+# ---- Setup ----
+
+# Option A: uv (recommended)
+uv venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate     # Windows
 uv sync --dev
 uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 
-# Common tasks
+# Option B: pip + venv (if you don't have uv)
+python -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate     # Windows
+pip install -e .
+pip install pytest pytest-cov ruff mypy pre-commit commitizen
+pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+
+# ---- Common tasks (both options) ----
 make lint        # ruff check
 make format      # ruff format
 make typecheck   # mypy
@@ -119,7 +132,7 @@ These are non-obvious traps that defy reasonable assumptions. Read before writin
 - **`_generated/` is overwritten without warning.** Editing those files by hand is waste — `extract_definitions.py` silently replaces them. Always regenerate.
 - **`UnitConverter` is deprecated but still importable.** New code must use `UnitSystem`. `converter=` parameters are legacy — use `system=` instead.
 - **Bypassing `QuantifiedSpectrum` produces wrong units.** Never compute `k_phys = kx * 2*np.pi/dx` by hand. Use `QuantifiedSpectrum.from_field(grid, system=system)` then `qspec.kx.to("k0")`.
-- **Simulation directories are read-only.** `vis/` produces PNGs; `sim/` reads ZDF. No module writes to simulation directories.
+- **`[dependency-groups]` is uv-only syntax.** `pip install -e ".[dev]"` will silently skip dev dependencies (pytest, ruff, mypy, pre-commit, commitizen) because pip doesn't understand uv's `[dependency-groups]` table. Install dev dependencies manually with pip.
 - **Without an input deck, `UnitSystem` is `None` — there is no fallback.** Never assume `omega_p=1.0` or any dummy default. Callers must handle `system=None` explicitly.
 
 ## Code Style
