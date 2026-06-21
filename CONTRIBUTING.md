@@ -276,7 +276,9 @@ When ready to release 1.0.0, that section must be removed so that
 3. **Verify that every architectural change in this release has a public decision record.**
    Check `docs/explanation/design/` and GitHub Issues for each new feature / breaking change.
    Missing records must be created before proceeding. See [Decision Records](#decision-records) below.
-4. Update `CHANGELOG.md`: rename `[Unreleased]` → `[vX.Y.Z]`, fill in release date
+4. Update `CHANGELOG.md`: rename `[Unreleased]` → `[vX.Y.Z]`, fill in release date.
+   Maintain the Keep a Changelog format manually — do **not** use `cz bump --changelog`
+   as it overwrites the structure.
 5. Push the tag: `git push --follow-tags`
 6. Create a GitHub Release linked to the tag
 
@@ -371,9 +373,9 @@ Items to verify when making changes, grouped by frequency.
 
 ### Before Release
 
-- [ ] `uv run cz bump` — version + git tag
+- [ ] `uv run cz bump` — version + git tag (do **not** use `--changelog`; CHANGELOG is manually maintained in Keep a Changelog format)
 - [ ] `CHANGELOG.md` — `[Unreleased]` → `[vX.Y.Z]` + date
-- [ ] `docs/devlog/X.Y.Z.md` — new version devlog with technical decisions
+- [ ] `docs/devlog/X.Y.Z.md` — new version devlog with technical decisions + add nav entry in `mkdocs.yml`
 - [ ] `pyproject.toml` version = git tag = CHANGELOG version
 - [ ] `make docs-build` — strict mode passes with no broken links
 - [ ] `git push --follow-tags` + GitHub Release

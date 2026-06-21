@@ -134,6 +134,8 @@ These are non-obvious traps that defy reasonable assumptions. Read before writin
 - **Bypassing `QuantifiedSpectrum` produces wrong units.** Never compute `k_phys = kx * 2*np.pi/dx` by hand. Use `QuantifiedSpectrum.from_field(grid, system=system)` then `qspec.kx.to("k0")`.
 - **`[dependency-groups]` is uv-only syntax.** `pip install -e ".[dev]"` will silently skip dev dependencies (pytest, ruff, mypy, pre-commit, commitizen) because pip doesn't understand uv's `[dependency-groups]` table. Install dev dependencies manually with pip.
 - **Without an input deck, `UnitSystem` is `None` — there is no fallback.** Never assume `omega_p=1.0` or any dummy default. Callers must handle `system=None` explicitly.
+- **Adding a new diagnostic type requires 6+ wiring points.** analyzer class + `_result_types` dataclass + `analysis/__init__.py` hub property + plot function + `vis/__init__.py` hub/namespace/dispatch + `batch.py` processing block. Tests need a `conftest.py` fixture and two test files with distinct basenames.
+- **Changing `_parse_iter_file` return type breaks 8+ callers.** Always grep `_parse_iter_file` across the whole codebase before releasing.
 
 ## Code Style
 
@@ -162,11 +164,13 @@ pytest --cov=osiris_toolkit --cov-report=html  # coverage
 ## Release Process
 
 1. All features merged to `main`, CI passes
-2. `uv run cz bump` — auto-bump version + git tag
-3. **Verify that every architectural change has a public decision record.**
+2. `uv run cz bump` — auto-bump version + git tag (do **not** use `--changelog`; CHANGELOG is manually maintained)
+3. Create `docs/devlog/{version}.md` + add nav entry in `mkdocs.yml`
+4. **Verify that every architectural change has a public decision record.**
    Check `docs/explanation/design/` and Issues with `[ADR]` label. Missing records must
    be created before releasing. See the Decision Records section below.
-4. Update `CHANGELOG.md`: `[Unreleased]` → `[vX.Y.Z]`
+4. Update `CHANGELOG.md` manually: `[Unreleased]` → `[vX.Y.Z]`, fill in date.
+   Maintain Keep a Changelog format — `cz bump --changelog` destroys the structure.
 5. `git push --follow-tags`
 6. Create GitHub Release
 
@@ -233,10 +237,9 @@ Pre-push hooks also run `make check-all` automatically. Use `git push --no-verif
 Before committing or opening a PR, verify each item:
 
 ```markdown
-- [ ] `make lint` — ruff passes on `src/`
-- [ ] `make typecheck` — mypy has no new errors
-- [ ] `make test-quick` — all fast tests pass
-- [ ] `make format-check` — ruff formatting is clean
+- [ ] `ruff check src/ && ruff format --check src/ && mypy src/ && pytest -m "not slow and not data"`
+      must pass locally before every commit — **never use `--no-verify` to bypass**.
+      If pre-commit hooks fail, fix the reported issues and commit again.
 - [ ] Language: all code/comments/docs/commits in **English**
 - [ ] No internal paths, usernames, or hostnames (`/work/home/...`, `/Users/...`)
 - [ ] CHANGELOG.md updated (if user-facing change)
