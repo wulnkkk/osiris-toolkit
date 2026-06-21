@@ -298,9 +298,9 @@ These rules are enforced by design and must never be broken:
 4. **Use `UnitSystem`, not `UnitConverter`** — `UnitConverter` is deprecated since v0.15.0.
 5. **Public API through `__init__.py`** — each module exports its public symbols there.
 
-See [Architecture Overview](docs/architecture/overview.md) for design principles
-and [Architecture Rules (agent skill)](https://github.com/wulnkkk/osiris-toolkit/blob/main/skills/osiris-dev/SKILL.md)
-for the canonical agent-facing version.
+See [Architecture Overview](docs/architecture/overview.md) for design principles.
+For documentation conventions (frontmatter spec, controlled vocabularies), see
+[Documentation Standards](docs/meta/documentation-standards.md).
 
 ---
 

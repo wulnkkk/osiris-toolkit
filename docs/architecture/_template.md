@@ -3,10 +3,13 @@ audience: [human]
 role: [user, developer]
 topic: architecture
 kind: architecture
-updated: 2026-06-04
+updated: 2026-06-21
 ---
 
 # [Decision Title]
+
+> **Before using this template**, read `docs/meta/documentation-standards.md`
+> for the full frontmatter specification and controlled vocabularies.
 
 ## Context
 What problem are we solving? What constraints exist?

@@ -7,14 +7,14 @@ updated: 2026-06-04
 language: en
 ---
 
-# UnitSystem Architecture Design — Comprehensive Unit Handling Refactoring
+# UnitSystem Architecture Design â€?Comprehensive Unit Handling Refactoring
 
 > Date: 2026-06-04
 > Type: Design Document
 > Target Version: v0.15.0 (or v1.0.0)
 > Upstream Analysis:
->   - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) — Agent-driven data processing review
->   - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) — UnitSystem + k-space 2π fix
+>   - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) â€?Agent-driven data processing review
+>   - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) â€?UnitSystem + k-space 2Ï€ fix
 
 ---
 
@@ -22,68 +22,25 @@ language: en
 
 The current `UnitConverter` has the following structural deficiencies:
 
-1. **K-space completely bypasses it** — `compute_k_space`, `plot_k_space`, `mask_energy` perform ad-hoc unit conversions (×2π, /ω₀, ÷2π) without going through UnitConverter, causing axis labels to deviate from 2π and xlim to be hardcoded and mismatched with the data
-2. **Monolithic coupling** — All unit scales are hardcoded in a single 100-line `_build_scales()` function; adding a new dimension requires modifying the function body
-3. **Code duplication** — Every vis function repeats `if converter is not None` branches × 3-5 times (value conversion, coordinate conversion, label generation)
-4. **No type safety** — `convert(data, "length", "um")` uses three raw strings; typos are only exposed at runtime
-5. **Not extensible** — Third parties cannot register custom dimensions
+1. **K-space completely bypasses it** â€?`compute_k_space`, `plot_k_space`, `mask_energy` perform ad-hoc unit conversions (Ã—2Ï€, /Ï‰â‚€, Ã·2Ï€) without going through UnitConverter, causing axis labels to deviate from 2Ï€ and xlim to be hardcoded and mismatched with the data
+2. **Monolithic coupling** â€?All unit scales are hardcoded in a single 100-line `_build_scales()` function; adding a new dimension requires modifying the function body
+3. **Code duplication** â€?Every vis function repeats `if converter is not None` branches Ã— 3-5 times (value conversion, coordinate conversion, label generation)
+4. **No type safety** â€?`convert(data, "length", "um")` uses three raw strings; typos are only exposed at runtime
+5. **Not extensible** â€?Third parties cannot register custom dimensions
 
 ## 2. Design Principles
 
-- **The compute layer only does math; the units layer handles units** — FFT does not touch normalization parameters
-- **Data and the unit system are composed through a Facade** — `GridData` stays pure; `QuantifiedGrid` layers unit capabilities on top
-- **Auto-inference first, explicit disambiguation second** — `grid.to("um")` auto-detects length; when ambiguous, use `grid.as_quantity("e_field").to("um")`
-- **Hard switch, incompatible with old API** — Completed in a single major version update; `UnitConverter` → `UnitSystem`, `converter` parameter → `system` parameter
-- **Strict error reporting** — Without a system, only `"norm"` units can be used; any non-norm query raises an exception, no fictitious omega_p is assumed
+- **The compute layer only does math; the units layer handles units** â€?FFT does not touch normalization parameters
+- **Data and the unit system are composed through a Facade** â€?`GridData` stays pure; `QuantifiedGrid` layers unit capabilities on top
+- **Auto-inference first, explicit disambiguation second** â€?`grid.to("um")` auto-detects length; when ambiguous, use `grid.as_quantity("e_field").to("um")`
+- **Hard switch, incompatible with old API** â€?Completed in a single major version update; `UnitConverter` â†?`UnitSystem`, `converter` parameter â†?`system` parameter
+- **Strict error reporting** â€?Without a system, only `"norm"` units can be used; any non-norm query raises an exception, no fictitious omega_p is assumed
 
 ## 3. Architecture Overview
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  UnitSystem (omega_p, params)                            │
-│  ├── length: QuantityKind                                │
-│  ├── time: QuantityKind                                  │
-│  ├── e_field: QuantityKind                               │
-│  ├── b_field: QuantityKind                               │
-│  ├── wavenumber: QuantityKind      ← NEW                 │
-│  ├── momentum: QuantityKind                              │
-│  ├── energy: QuantityKind                                │
-│  ├── density: QuantityKind                               │
-│  ├── frequency: QuantityKind                             │
-│  ├── velocity: QuantityKind                              │
-│  ├── charge: QuantityKind                                │
-│  ├── current: QuantityKind                               │
-│  └── mass: QuantityKind                                  │
-└──────────────┬───────────────────────────────────────────┘
-               │ attach to data
-               ▼
-┌──────────────────────────────────────────────────────────┐
-│  QuantifiedGrid(grid, system)                            │
-│  ├── .to(unit)          → auto-infer quantity            │
-│  ├── .as_quantity(name) → explicit quantity view         │
-│  ├── .norm()            → raw normalized data            │
-│  ├── .x / .y / .time    → _AxisView with .to(), .label() │
-│  └── .label / .latex()  → unit-aware labels              │
-└──────────────┬───────────────────────────────────────────┘
-               │
-               ▼
-┌──────────────────────────────────────────────────────────┐
-│  QuantifiedSpectrum(result, system)                      │
-│  ├── .kx / .ky            → _QuantityView (wavenumber)   │
-│  ├── .spectrum            → np.ndarray                   │
-│  └── from_field(grid)     → factory                      │
-└──────────────────────────────────────────────────────────┘
-               │
-               ▼
-┌──────────────────────────────────────────────────────────┐
-│  vis / analysis layer                                    │
-│  - Accept system parameter (replaces converter)           │
-│  - Internally use QuantifiedGrid / QuantifiedSpectrum    │
-│  - Labels obtained from QuantityKind.latex()              │
-│  - Unit conversions go through the single UnitSystem      │
-│  - CLI exposes --k-unit, --omega0-norm, --xlim, --ylim...│
-└──────────────────────────────────────────────────────────┘
-```
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?â”? UnitSystem (omega_p, params)                            â”?â”? â”œâ”€â”€ length: QuantityKind                                â”?â”? â”œâ”€â”€ time: QuantityKind                                  â”?â”? â”œâ”€â”€ e_field: QuantityKind                               â”?â”? â”œâ”€â”€ b_field: QuantityKind                               â”?â”? â”œâ”€â”€ wavenumber: QuantityKind      â†?NEW                 â”?â”? â”œâ”€â”€ momentum: QuantityKind                              â”?â”? â”œâ”€â”€ energy: QuantityKind                                â”?â”? â”œâ”€â”€ density: QuantityKind                               â”?â”? â”œâ”€â”€ frequency: QuantityKind                             â”?â”? â”œâ”€â”€ velocity: QuantityKind                              â”?â”? â”œâ”€â”€ charge: QuantityKind                                â”?â”? â”œâ”€â”€ current: QuantityKind                               â”?â”? â””â”€â”€ mass: QuantityKind                                  â”?â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?               â”?attach to data
+               â–?â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?â”? QuantifiedGrid(grid, system)                            â”?â”? â”œâ”€â”€ .to(unit)          â†?auto-infer quantity            â”?â”? â”œâ”€â”€ .as_quantity(name) â†?explicit quantity view         â”?â”? â”œâ”€â”€ .norm()            â†?raw normalized data            â”?â”? â”œâ”€â”€ .x / .y / .time    â†?_AxisView with .to(), .label() â”?â”? â””â”€â”€ .label / .latex()  â†?unit-aware labels              â”?â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?               â”?               â–?â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?â”? QuantifiedSpectrum(result, system)                      â”?â”? â”œâ”€â”€ .kx / .ky            â†?_QuantityView (wavenumber)   â”?â”? â”œâ”€â”€ .spectrum            â†?np.ndarray                   â”?â”? â””â”€â”€ from_field(grid)     â†?factory                      â”?â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?               â”?               â–?â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?â”? vis / analysis layer                                    â”?â”? - Accept system parameter (replaces converter)           â”?â”? - Internally use QuantifiedGrid / QuantifiedSpectrum    â”?â”? - Labels obtained from QuantityKind.latex()              â”?â”? - Unit conversions go through the single UnitSystem      â”?â”? - CLI exposes --k-unit, --omega0-norm, --xlim, --ylim...â”?â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”?```
 
 ## 4. Core Components
 
@@ -100,8 +57,8 @@ class QuantityKind:
     norm_unit_latex: str         # r"c/\omega_p"
     scales: dict[str, float]     # {"norm": 1.0, "um": ..., "nm": ...}
     auto_unit: str               # "um" for length
-    label_template: str          # r"x [${unit}$]"  — uses "${unit}$" placeholder
-    latex_template: str | None   # r"$x\ [\mathrm{${unit}$}]$"  — same placeholder
+    label_template: str          # r"x [${unit}$]"  â€?uses "${unit}$" placeholder
+    latex_template: str | None   # r"$x\ [\mathrm{${unit}$}]$"  â€?same placeholder
     axis_types: tuple[int, ...]  # e.g., (0, 1) for spatial axes
 
     def to(self, data, unit="auto") -> np.ndarray: ...
@@ -137,7 +94,7 @@ class QuantifiedGrid:
     system: UnitSystem | None
     
     def to(self, unit="auto") -> np.ndarray:
-        """Auto-infer quantity from unit → convert data."""
+        """Auto-infer quantity from unit â†?convert data."""
         
     def as_quantity(self, name: str) -> _QuantityView: ...
     def norm(self) -> np.ndarray: ...  # always works
@@ -206,7 +163,7 @@ class _AxisView:
 
 ```python
 def _build_wavenumber_scales(
-    k_p_si: float,                   # ω_p / c  [rad/m]
+    k_p_si: float,                   # Ï‰_p / c  [rad/m]
     params: SimulationParams | None,
 ) -> dict[str, float]:
     scales = {
@@ -217,17 +174,17 @@ def _build_wavenumber_scales(
         "um^-1": k_p_si / (2 * np.pi * 1e6),
     }
     if params is not None and params.omega0_norm is not None:
-        scales["k0"] = 1.0 / params.omega0_norm   # k/k₀
+        scales["k0"] = 1.0 / params.omega0_norm   # k/kâ‚€
     return scales
 ```
 
 ### 5.2 K-space Pipeline
 
 ```
-ZDF grid → compute_k_space(data, dx, dy) → kx, ky (normalized angular wavenumber)
-         → QuantifiedSpectrum.from_field(grid, system)
-         → qspec.kx.to("k0")  →  k/k₀  (via system.wavenumber)
-         → no more handwritten /(2π)
+ZDF grid â†?compute_k_space(data, dx, dy) â†?kx, ky (normalized angular wavenumber)
+         â†?QuantifiedSpectrum.from_field(grid, system)
+         â†?qspec.kx.to("k0")  â†? k/kâ‚€  (via system.wavenumber)
+         â†?no more handwritten /(2Ï€)
 ```
 
 ### 5.3 Adaptive xlim
@@ -247,7 +204,7 @@ class SimulationParams:
     omega_p0: float
     n0: float | None = None
     gamma: float | None = None
-    omega0_norm: float | None = None   # ← NEW
+    omega0_norm: float | None = None   # â†?NEW
 
     @classmethod
     def from_deck(cls, deck: dict) -> "SimulationParams":
@@ -258,7 +215,7 @@ class SimulationParams:
 
 ### 7.1 Uniform Signature Change
 
-All vis functions change `converter: UnitConverter | None = None` → `system: UnitSystem | None = None`.
+All vis functions change `converter: UnitConverter | None = None` â†?`system: UnitSystem | None = None`.
 
 Internally, data is accessed via `QuantifiedGrid` / `QuantifiedSpectrum`, and labels are obtained from `QuantityKind`.
 
@@ -267,24 +224,24 @@ Internally, data is accessed via `QuantifiedGrid` / `QuantifiedSpectrum`, and la
 | File | Change |
 |------|--------|
 | `compute/fft.py` | `compute_k_space` removes `omega0_norm` parameter |
-| `compute/integrate.py` | `mask_energy` adds `system` parameter, removes `/2π` |
-| `vis/common.py` | `get_converter()` → `get_system()` |
-| `vis/field.py` | converter → system |
-| `vis/density.py` | converter → system |
-| `vis/phasespace.py` | converter → system |
-| `vis/kspace.py` | converter → system, removes `/2π`, adds `_auto_k_range` |
-| `vis/energy.py` | `plot_spectrum` removes `/2π`, converter → system |
-| `vis/scattering.py` | converter → system |
-| `vis/composite.py` | converter → system |
-| `vis/comparison.py` | converter → system |
-| `vis/batch.py` | converter → system, adds wavenumber diagnostic support + progress |
-| `vis/__init__.py` | PostVisHub converter → system |
+| `compute/integrate.py` | `mask_energy` adds `system` parameter, removes `/2Ï€` |
+| `vis/common.py` | `get_converter()` â†?`get_system()` |
+| `vis/field.py` | converter â†?system |
+| `vis/density.py` | converter â†?system |
+| `vis/phasespace.py` | converter â†?system |
+| `vis/kspace.py` | converter â†?system, removes `/2Ï€`, adds `_auto_k_range` |
+| `vis/energy.py` | `plot_spectrum` removes `/2Ï€`, converter â†?system |
+| `vis/scattering.py` | converter â†?system |
+| `vis/composite.py` | converter â†?system |
+| `vis/comparison.py` | converter â†?system |
+| `vis/batch.py` | converter â†?system, adds wavenumber diagnostic support + progress |
+| `vis/__init__.py` | PostVisHub converter â†?system |
 | `analysis/kspace.py` | KSpaceAnalyzer returns `QuantifiedSpectrum` |
-| `analysis/_protocol.py` | `_converter` → `_system` |
-| `analysis/__init__.py` | PostAnalysisHub converter → system |
+| `analysis/_protocol.py` | `_converter` â†?`_system` |
+| `analysis/__init__.py` | PostAnalysisHub converter â†?system |
 | `units/converter.py` | Retain old `UnitConverter` with DeprecationWarning; add `UnitSystem` + `QuantityKind` |
 | `units/params.py` | `SimulationParams` adds `omega0_norm` |
-| `postproc.py` | PostProcessor converter → system |
+| `postproc.py` | PostProcessor converter â†?system |
 | `cli.py` | Add `--k-unit`, `--omega0-norm`, `--xlim`, `--ylim`, `--clim`, `--white-low`, `--dry-run`, `--progress` |
 
 ## 8. CLI Changes
@@ -327,8 +284,8 @@ osiris-toolkit sim info <path> --output json
 | 2 | Add `QuantifiedGrid`, `QuantifiedSpectrum`, `_AxisView`, `_QuantityView` | No |
 | 3 | Add `SimulationParams.omega0_norm` + `_extract_omega0` | No |
 | 4 | Rewrite `compute_k_space` (remove `omega0_norm` parameter) | **Yes** |
-| 5 | Migrate all vis functions: `converter` → `system` | **Yes** |
-| 6 | Migrate analysis modules: `_converter` → `_system` | **Yes** |
+| 5 | Migrate all vis functions: `converter` â†?`system` | **Yes** |
+| 6 | Migrate analysis modules: `_converter` â†?`_system` | **Yes** |
 | 7 | Deprecate `UnitConverter` (DeprecationWarning) | No (transition period) |
 | 8 | Add CLI k-space parameters | No |
 | 9 | Add wavenumber + UnitSystem tests, update existing tests | No |
@@ -351,6 +308,6 @@ plot_k_space("e1", 100, sim=sim, system=system, k_unit="k0")
 ## References
 
 - Upstream Analysis:
-  - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) — Agent-driven data processing review
-  - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) — UnitSystem + k-space 2π fix
+  - GitHub Issue [#2](https://github.com/wulnkkk/osiris-toolkit/issues/2) â€?Agent-driven data processing review
+  - GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3) â€?UnitSystem + k-space 2Ï€ fix
 - Downstream Plan: GitHub Issue [#3](https://github.com/wulnkkk/osiris-toolkit/issues/3)

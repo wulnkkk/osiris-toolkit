@@ -60,6 +60,8 @@ nav:
       - Architecture Refactor v0.14: design/architecture-refactor.md
       - PostProcessor Design: design/postproc-architecture.md
       - Doc System: design/doc-system-architecture.md
+  - Meta:
+      - Documentation Standards: meta/documentation-standards.md
   - Modules:
       - Deck: modules/deck.md
       - Simulation: modules/sim.md

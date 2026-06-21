@@ -7,7 +7,7 @@ updated: 2026-06-20
 language: en
 ---
 
-# Documentation System Architecture — Agent Skills & Compliance Design
+# Documentation System Architecture â€?Agent Skills & Compliance Design
 
 This document records the architectural decisions, design rationale, and
 migration history of the osiris-toolkit documentation system, including
@@ -23,10 +23,10 @@ channels (human readers + AI agents). This creates four distinct personas:
 
 | Persona | Role | Entry point | Format |
 |---------|------|-------------|--------|
-| Human-User | Uses CLI/Python API for data processing | `README.md` → mkdocs site | HTML website |
-| Agent-User | AI assistant helping process data | `AGENTS.md` → `skills/osiris-user/SKILL.md` | Markdown |
-| Human-Dev | Contributes code to the project | `CONTRIBUTING.md` → mkdocs site | HTML website |
-| Agent-Dev | AI assistant helping write code | `AGENTS.md` → `skills/osiris-dev/SKILL.md` | Markdown |
+| Human-User | Uses CLI/Python API for data processing | `README.md` â†?mkdocs site | HTML website |
+| Agent-User | AI assistant helping process data | `AGENTS.md` â†?`skills/osiris-user/SKILL.md` | Markdown |
+| Human-Dev | Contributes code to the project | `CONTRIBUTING.md` â†?mkdocs site | HTML website |
+| Agent-Dev | AI assistant helping write code | `AGENTS.md` â†?`skills/osiris-dev/SKILL.md` | Markdown |
 
 Initially, both sets of content lived under `docs/agent-user/` and
 `docs/agent-dev/`. This had several problems (see Problem below).
@@ -37,7 +37,7 @@ Initially, both sets of content lived under `docs/agent-user/` and
 
 1. **Semantic mismatch**: Files under `docs/` are published on the mkdocs
    website (audience: human). But agent-skill content has `audience: agent`
-   frontmatter — it was never meant for human readers.
+   frontmatter â€?it was never meant for human readers.
 
 2. **Cross-platform lock-in**: The initial implementation used `.claude/skills/`
    (Claude Code convention). This tied the canonical skill source to a
@@ -78,19 +78,19 @@ space, published exclusively via mkdocs.
 
 ```
 osiris-toolkit/
-├── skills/
-│   ├── osiris-dev/                     # Developer skill
-│   │   ├── SKILL.md                    # Frontmatter: name, description
-│   │   └── references/
-│   │       └── task-map.md             # Auxiliary reference
-│   └── osiris-user/                    # User skill
-│       ├── SKILL.md
-│       └── references/
-│           ├── task-map.md
-│           └── recipes/                # Step-by-step walkthroughs
-├── docs/                               # Human documentation only
-├── AGENTS.md                           # Cross-platform entry point
-└── CONTRIBUTING.md                     # Human contributor guide
+â”œâ”€â”€ skills/
+â”?  â”œâ”€â”€ osiris-dev/                     # Developer skill
+â”?  â”?  â”œâ”€â”€ SKILL.md                    # Frontmatter: name, description
+â”?  â”?  â””â”€â”€ references/
+â”?  â”?      â””â”€â”€ task-map.md             # Auxiliary reference
+â”?  â””â”€â”€ osiris-user/                    # User skill
+â”?      â”œâ”€â”€ SKILL.md
+â”?      â””â”€â”€ references/
+â”?          â”œâ”€â”€ task-map.md
+â”?          â””â”€â”€ recipes/                # Step-by-step walkthroughs
+â”œâ”€â”€ docs/                               # Human documentation only
+â”œâ”€â”€ AGENTS.md                           # Cross-platform entry point
+â””â”€â”€ CONTRIBUTING.md                     # Human contributor guide
 ```
 
 ### Rejected alternatives
@@ -99,7 +99,7 @@ osiris-toolkit/
 |-------------|-------------|
 | Keep in `.claude/skills/` | Platform-specific (Claude Code only) |
 | Keep in `docs/agent-*/` with include plugin | Build dependency + semantic mismatch |
-| Symlink `docs/agent-*/` → `.claude/skills/` | Windows git core.symlinks=false |
+| Symlink `docs/agent-*/` â†?`.claude/skills/` | Windows git core.symlinks=false |
 
 ---
 
@@ -109,13 +109,13 @@ osiris-toolkit/
 
 Use two link styles depending on the target:
 
-| Source → Target | Link style | Example |
+| Source â†?Target | Link style | Example |
 |-----------------|-----------|---------|
-| `AGENTS.md` → `skills/` | **Local** relative | `skills/osiris-dev/SKILL.md` |
-| `docs/*.md` → `AGENTS.md` | **Local** relative | `AGENTS.md` |
-| `skills/*/SKILL.md` → `docs/` | **Absolute** GitHub URL | `https://github.com/.../docs/...` |
-| `skills/*/SKILL.md` → `skills/` | **Local** relative | `references/task-map.md` |
-| `docs/*.md` → `docs/` | **Local** relative | `user-guide/cli-reference.md` |
+| `AGENTS.md` â†?`skills/` | **Local** relative | `skills/osiris-dev/SKILL.md` |
+| `docs/*.md` â†?`AGENTS.md` | **Local** relative | `AGENTS.md` |
+| `skills/*/SKILL.md` â†?`docs/` | **Absolute** GitHub URL | `https://github.com/.../docs/...` |
+| `skills/*/SKILL.md` â†?`skills/` | **Local** relative | `references/task-map.md` |
+| `docs/*.md` â†?`docs/` | **Local** relative | `user-guide/cli-reference.md` |
 
 ### Rationale
 
@@ -141,7 +141,7 @@ point for all AI tools.
 
 - Recognized by Claude Code, Cursor, GitHub Copilot, and Reasonix
   (see [GitHub docs on AGENTS.md](https://docs.github.com/en/copilot/...))
-- Auto-loaded every session — gives any AI tool immediate project context
+- Auto-loaded every session â€?gives any AI tool immediate project context
 - Contains platform-specific configuration guides for Claude Code, Cursor,
   Copilot, and Reasonix
 - Avoids needing separate `CLAUDE.md`, `.cursorrules`, etc.
@@ -159,7 +159,7 @@ Enforce project norms through five complementary layers:
 | 1. Agent guide | `skills/osiris-dev/SKILL.md` Submit Checklist | Architecture rules, sync matrix, pre-submit verification | Agents |
 | 2. Pre-commit | 13 git hooks | Format, types, arch deps, English, doc sync, private keys | Both |
 | 3. CI | `checks` job (parallel to `test`) | Arch deps, doc sync, English (on push/PR) | Both |
-| 4. Sync matrix | `CONTRIBUTING.md` maintenance checklist | CLI/API/architecture change → corresponding skill files | Both |
+| 4. Sync matrix | `CONTRIBUTING.md` maintenance checklist | CLI/API/architecture change â†?corresponding skill files | Both |
 | 5. PR checklist | `CONTRIBUTING.md` + GitHub PR template | Human verification before merge | Humans |
 
 ### Compliance scripts
@@ -186,7 +186,7 @@ make check-english  # English language check only
 ### Decision
 
 Define the set of files that must be updated together for each type
-of change, documented in `CONTRIBUTING.md` §When Adding/Changing Public
+of change, documented in `CONTRIBUTING.md` Â§When Adding/Changing Public
 API.
 
 | Change type | Files to update |
@@ -208,9 +208,9 @@ the **0.y.z** initial development phase:
 
 | Change type | Bump | Example |
 |-------------|------|---------|
-| Breaking API change | MINOR | `0.15.0` → `0.16.0` |
-| Backward compatible feature | MINOR | `0.15.0` → `0.16.0` |
-| Bug fix | PATCH | `0.15.0` → `0.15.1` |
+| Breaking API change | MINOR | `0.15.0` â†?`0.16.0` |
+| Backward compatible feature | MINOR | `0.15.0` â†?`0.16.0` |
+| Bug fix | PATCH | `0.15.0` â†?`0.15.1` |
 
 Both `BREAKING CHANGE` and `feat` increment MINOR while version is 0.x.
 When the project graduates to 1.0.0, `BREAKING CHANGE` will revert to
@@ -252,7 +252,7 @@ for the current mapping.
 - **GitHub URL brittleness**: URLs in skill files contain `blob/main/`.
   If the default branch is renamed, all URLs break.
 - **No automated semantic sync**: The sync matrix is documented but not
-  enforced — a CLI change could be merged without updating the user skill
+  enforced â€?a CLI change could be merged without updating the user skill
   if the developer skips the checklist.
 - **Pre-commit scripts are Python**: `check_arch.py` etc. are Python
   scripts, adding a small overhead compared to native pre-commit hooks.
@@ -286,6 +286,6 @@ for the current mapping.
 
 ## Related
 
-- Devlog: `docs/devlog/0.16.0.md` — release implementing this design
+- Devlog: `docs/devlog/0.16.0.md` â€?release implementing this design
 - ADR: This design doc was created before the ADR Issue system was established.
   See `docs/note/execution/2026-06-04-design-doc-system.md` (local) for upstream analysis.

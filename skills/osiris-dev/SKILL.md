@@ -155,6 +155,7 @@ Architectural decisions use a two-tier system:
 - **ADR template:** `.github/ISSUE_TEMPLATE/adr.md` (Context → Decision → Consequences)
 - **Design docs reference their source ADR** in a "Related" section.
 - See `CONTRIBUTING.md` §Decision Records for the full policy.
+- When creating or editing `docs/` files, follow the frontmatter specification in `docs/meta/documentation-standards.md`.
 
 ## Privacy & Security
 
@@ -172,7 +173,7 @@ Architectural decisions use a two-tier system:
 | Add a new data format reader | `src/osiris_toolkit/io/` + extend `Simulation` discovery |
 | Add a new unit quantity | `src/osiris_toolkit/units/_quantity.py` — add `QuantityKind` instance |
 | Update parameter definitions | `dev-tools/extract_definitions.py` + regenerate `_generated/` |
-| Add documentation page | Create `.md` in `docs/`, add nav entry in `mkdocs.yml` |
+| Add documentation page | Create `.md` in `docs/`, add nav entry in `mkdocs.yml`, follow frontmatter spec in `docs/meta/documentation-standards.md` |
 
 ### Reference files
 
@@ -194,6 +195,7 @@ For architecture details, design decisions, and module internals beyond this ski
 - [Design: Architecture Refactor v0.14](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/design/architecture-refactor.md)
 - [Module Docs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/modules/) — per-module deep dives
 - [Contributing (mkdocs version)](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/contributing.md)
+- [Documentation Standards](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/meta/documentation-standards.md) — frontmatter spec, controlled vocabularies
 - [Devlogs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/devlog/) — version history and technical decisions
 
 ## Submit Checklist
@@ -216,7 +218,7 @@ Before committing or opening a PR, verify each item:
       - API change → `skills/osiris-user/SKILL.md` + `docs/manifest.json`
       - Architecture change → `CONTRIBUTING.md` + `AGENTS.md`
       - File added/removed → `mkdocs.yml` nav + `docs/manifest.json`
-- [ ] `make check-all` passes (runs lint + typecheck + test + docs-build + arch check)
+- [ ] `make check-all` passes (runs lint + typecheck + test + docs-build + arch check + doc sync + frontmatter validation)
 ```
 
 > Tip: Pre-commit hooks catch most formatting/type issues automatically on commit.
