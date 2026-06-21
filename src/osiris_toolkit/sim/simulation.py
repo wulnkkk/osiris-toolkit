@@ -215,7 +215,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
         if flat:
             result: list[tuple[str, Path]] = []
             for f in sorted(flat):
-                q, _ = _parse_iter_file(f.name)
+                q, _, _ = _parse_iter_file(f.name)
                 result.append((q, f))
             return result
         # Nested: subdirectory name is the quantity
@@ -231,7 +231,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
     def _discover_fld(self, fld_dir: Path) -> None:
         for raw_quantity, zdf_file in self._zdf_files_with_quant(fld_dir):
             quantity, report_type = _parse_quantity(raw_quantity)
-            _, iteration = _parse_iter_file(zdf_file.name)
+            _, _, iteration = _parse_iter_file(zdf_file.name)
             self._fields.setdefault(quantity, []).append(
                 _FieldEntry(
                     quantity=quantity,
@@ -245,7 +245,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
     def _discover_chargecons(self, cc_dir: Path) -> None:
         for raw_quantity, zdf_file in self._zdf_files_with_quant(cc_dir):
             quantity, report_type = _parse_quantity(raw_quantity)
-            _, iteration = _parse_iter_file(zdf_file.name)
+            _, _, iteration = _parse_iter_file(zdf_file.name)
             self._chargecons.append(
                 _FieldEntry(
                     quantity=quantity,
@@ -264,7 +264,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
             sp_entries: dict[str, list[_FieldEntry]] = {}
             for raw_quantity, zdf_file in self._zdf_files_with_quant(sp_dir):
                 quantity, report_type = _parse_quantity(raw_quantity)
-                _, iteration = _parse_iter_file(zdf_file.name)
+                _, _, iteration = _parse_iter_file(zdf_file.name)
                 sp_entries.setdefault(quantity, []).append(
                     _FieldEntry(
                         quantity=quantity,
@@ -275,6 +275,24 @@ class Simulation(_DataAccessors, _InfoAccessors):
                     )
                 )
             target[species] = sp_entries
+
+        # Flat-file fallback: {quant}-{species}-{iter:06d}.zdf directly in parent
+        if not target:
+            for raw_quantity, zdf_file in self._zdf_files_with_quant(parent):
+                quantity, report_type = _parse_quantity(raw_quantity)
+                _, label, iteration = _parse_iter_file(zdf_file.name)
+                if not label:
+                    continue  # skip files without species label
+                sp_entries = target.setdefault(label, {})
+                sp_entries.setdefault(quantity, []).append(
+                    _FieldEntry(
+                        quantity=quantity,
+                        label=label,
+                        iteration=iteration,
+                        path=zdf_file,
+                        report_type=report_type,
+                    )
+                )
 
     def _discover_phasespace(self, pha_dir: Path) -> None:
         for ps_dir in pha_dir.iterdir():
@@ -287,7 +305,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
                 species = sp_dir.name
                 entries: list[_FieldEntry] = []
                 for zdf_file in sorted(sp_dir.glob("*.zdf")):
-                    quant_label, iteration = _parse_iter_file(zdf_file.name)
+                    quant_label, _, iteration = _parse_iter_file(zdf_file.name)
                     entries.append(
                         _FieldEntry(
                             quantity=quant_label,
@@ -298,6 +316,21 @@ class Simulation(_DataAccessors, _InfoAccessors):
                     )
                 self._phasespace.setdefault(ps_name, {})[species] = entries
 
+        # Flat-file fallback: {ps_name}-{species}-{iter:06d}.zdf directly in MS/PHA/
+        if not self._phasespace:
+            for zdf_file in sorted(pha_dir.glob("*.zdf")):
+                ps_name, species, iteration = _parse_iter_file(zdf_file.name)
+                if not species:
+                    continue
+                self._phasespace.setdefault(ps_name, {}).setdefault(species, []).append(
+                    _FieldEntry(
+                        quantity=ps_name,
+                        label=species,
+                        iteration=iteration,
+                        path=zdf_file,
+                    )
+                )
+
     def _discover_raw(self, raw_dir: Path) -> None:
         for sp_dir in raw_dir.iterdir():
             if not sp_dir.is_dir():
@@ -305,7 +338,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
             species = sp_dir.name
             entries: list[_FieldEntry] = []
             for data_file in sorted(list(sp_dir.glob("*.zdf")) + list(sp_dir.glob("*.h5"))):
-                quant_label, iteration = _parse_iter_file(data_file.name)
+                quant_label, _, iteration = _parse_iter_file(data_file.name)
                 entries.append(
                     _FieldEntry(
                         quantity=quant_label,
@@ -315,6 +348,21 @@ class Simulation(_DataAccessors, _InfoAccessors):
                     )
                 )
             self._raw[species] = entries
+
+        # Flat-file fallback: {quant}-{species}-{iter:06d}.zdf directly in MS/RAW/
+        if not self._raw:
+            for data_file in sorted(list(raw_dir.glob("*.zdf")) + list(raw_dir.glob("*.h5"))):
+                quant_label, species, iteration = _parse_iter_file(data_file.name)
+                if not species:
+                    continue
+                self._raw.setdefault(species, []).append(
+                    _FieldEntry(
+                        quantity=quant_label,
+                        label=species,
+                        iteration=iteration,
+                        path=data_file,
+                    )
+                )
 
     def _discover_tracks(self, tracks_dir: Path) -> None:
         for data_file in sorted(list(tracks_dir.glob("*.zdf")) + list(tracks_dir.glob("*.h5"))):
@@ -327,7 +375,7 @@ class Simulation(_DataAccessors, _InfoAccessors):
             name = name_dir.name
             entries: list[_FieldEntry] = []
             for data_file in sorted(list(name_dir.glob("*.zdf")) + list(name_dir.glob("*.h5"))):
-                quant_label, iteration = _parse_iter_file(data_file.name)
+                quant_label, _, iteration = _parse_iter_file(data_file.name)
                 entries.append(
                     _FieldEntry(
                         quantity=quant_label,

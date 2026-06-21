@@ -7,19 +7,29 @@ from osiris_toolkit.sim._parse import _parse_iter_file, _parse_quantity
 
 class TestParseIterFile:
     def test_zdf_file(self):
-        q, it = _parse_iter_file("e1-000050.zdf")
+        q, label, it = _parse_iter_file("e1-000050.zdf")
         assert q == "e1"
+        assert label == ""
         assert it == 50
 
     def test_h5_file(self):
-        q, it = _parse_iter_file("charge-000100.h5")
+        q, label, it = _parse_iter_file("charge-000100.h5")
         assert q == "charge"
+        assert label == ""
         assert it == 100
 
     def test_with_label(self):
-        q, it = _parse_iter_file("x1x2-electrons-000000.zdf")
-        assert q == "x1x2-electrons"
+        q, label, it = _parse_iter_file("x1x2-electrons-000000.zdf")
+        assert q == "x1x2"
+        assert label == "electrons"
         assert it == 0
+
+    def test_flat_density(self):
+        """Flat DENSITY format: charge-electrons-000100.zdf."""
+        q, label, it = _parse_iter_file("charge-electrons-000100.zdf")
+        assert q == "charge"
+        assert label == "electrons"
+        assert it == 100
 
     def test_invalid_format(self):
         from osiris_toolkit.exceptions import FormatError

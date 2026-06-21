@@ -13,19 +13,21 @@ from osiris_toolkit.exceptions import FormatError
 # ---------------------------------------------------------------------------
 # Naming convention: {quant}[-{label}]-{iter:06d}.zdf
 # ---------------------------------------------------------------------------
-_ITER_FILE_RE = re.compile(r"^(.+)-(\d{6})\.(?:zdf|h5)$")
+_ITER_FILE_RE = re.compile(r"^([^-]+?)(?:-(.+?))?-(\d{6})\.(?:zdf|h5)$")
 
 
-def _parse_iter_file(filename: str) -> tuple[str, int]:
-    """Parse quantity/label and iteration number from a ZDF filename.
+def _parse_iter_file(filename: str) -> tuple[str, str, int]:
+    """Parse quantity, label, and iteration number from a ZDF filename.
 
-    Returns (quant_label, iteration). quant_label may include species
-    or phasespace names separated by '-'.
+    Returns (quantity, label, iteration).  label is ``""`` for files
+    that follow the simple ``{quant}-{iter:06d}.zdf`` convention
+    (e.g. ``e1-000100.zdf``).  For flat species files like
+    ``charge-electrons-000100.zdf``, label is ``"electrons"``.
     """
     m = _ITER_FILE_RE.match(filename)
     if m is None:
         raise FormatError(f"Unexpected ZDF filename format: {filename}")
-    return m.group(1), int(m.group(2))
+    return m.group(1), m.group(2) or "", int(m.group(3))
 
 
 # Known OSIRIS report type suffixes (detected from filename)
