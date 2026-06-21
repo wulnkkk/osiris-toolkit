@@ -1,6 +1,14 @@
 ---
 name: osiris-user
-description: Process OSIRIS PIC simulation data using osiris-toolkit — CLI commands, Python API, deck parsing, visualization, and analysis. Use when the user needs to browse sim output, plot fields, convert units, or batch-process data.
+description: >-
+  Use when processing OSIRIS PIC simulation data with osiris-toolkit:
+  browsing simulation output, plotting fields (EMF, density,
+  phasespace), analyzing k-space spectra, converting units, parsing
+  input decks, batch processing, or estimating resources. Use this
+  when the task involves reading simulation data or producing
+  plots/analysis. For developing or modifying the toolkit itself
+  (adding features, fixing bugs, running tests, publishing releases),
+  load osiris-dev instead.
 ---
 
 # Agent Skill — osiris-toolkit Operation Manual
@@ -90,46 +98,6 @@ plot_k_space(sim=sim, system=system, quantity="e1", iteration=50, k_unit="k0")
 plot_density(sim=sim, system=system, species="electrons", iteration=50)
 ```
 
-## Full Documentation Reference
-
-For detailed guides, API signatures, and architecture docs beyond this skill:
-
-### User guides
-
-- [Installation](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/installation.md)
-- [Quick Start](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/quick-start.md)
-- [Basic Workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/basic-workflow.md)
-- [Deck Parsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/deck-parsing.md)
-- [Simulation Browsing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/simulation-browsing.md)
-- [Unit Conversion](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/unit-conversion.md)
-- [Field Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/field-plotting.md)
-- [K-Space Analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/kspace-analysis.md)
-- [Density Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/density-plotting.md)
-- [Phasespace Plotting](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/phasespace-plotting.md)
-- [Batch Processing](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/batch-processing.md)
-- [Parallel Execution](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/parallel-execution.md)
-- [CLI Reference](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/how-to/cli-reference.md) (all commands, options, environment variables)
-
-### API reference (class signatures, method parameters, return types)
-
-- [sim](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/sim.md) — Simulation class, data access
-- [units](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/units.md) — UnitSystem, SimulationParams, QuantityKind
-- [io](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/io.md) — ZDF/HDF5 reader
-- [deck](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/deck.md) — Parsing and validation
-- [compute](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/compute.md) — FFT, integration, deposition
-- [analysis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/analysis.md) — Field energy, k-space, species, scattering
-- [vis](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/vis.md) — Plot functions, customization, batch
-- [workflow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/workflow.md) — YAML pipeline
-- [resource](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/resource.md) — Memory/runtime/disk estimation
-- [exceptions](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/api/exceptions.md) — Error type hierarchy
-
-### Module overviews
-
-- [Modules index](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/modules/) — per-module deep dives
-
-### FAQ
-
-- [FAQ](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/faq.md)
 
 ## Decision Tree for Common User Intents
 
@@ -166,6 +134,17 @@ User says: "parse deck" / "check input"
   -> deck estimate <FILE> for resource prediction
 ```
 
+## Gotchas — common mistakes when processing data
+
+These are non-obvious traps that defy reasonable assumptions. Read before writing code.
+
+- **Physical units require an input deck.** Without a parsed deck, `UnitSystem` is `None` and all plots default to normalized units. Never assume `omega_p=1.0` — if the user wants physical units, ask for the input deck file.
+- **K-space requires 2-D field data.** 1-D simulations will fail on k-space analysis. Check `sim.list_fields()` and verify the grid dimensions before running FFT.
+- **Simulation directories are read-only.** Never write plots or output files into the simulation directory. Always save to a separate output path.
+- **Large datasets load entirely into memory.** `GridData` and `ParticleData` are not streamed — loading many iterations at once can cause OOM. Process one iteration at a time or use batch mode.
+- **Use `UnitSystem`, not `UnitConverter`.** `UnitConverter` is deprecated since v0.15.0. The `system=` parameter name is the current API — `converter=` is legacy.
+- **Remote data must be locally accessible.** There is no built-in SSH/NFS support. Simulation directories must be on a locally mounted filesystem.
+
 ## Known Limitations
 
 1. **HDF5 output supported since v0.12.0.** Both ZDF and HDF5 formats are auto-detected and handled transparently. No additional configuration is needed. The optional `hdf5` extra is required: `pip install osiris-toolkit[hdf5]`.
@@ -178,5 +157,16 @@ User says: "parse deck" / "check input"
 
 ### Reference files
 
-- [User Task Map](references/task-map.md) — intent-to-command mapping for common data processing tasks
-- [Recipes](references/recipes/) — step-by-step walkthroughs for multi-step workflows (discover simulations, batch k-space, compare two simulations)
+- [User Task Map](references/task-map.md) — **Load this when you know WHAT the user wants to do but not WHICH command to use.** Maps intents like "plot field" or "compare simulations" to CLI commands and Python API calls.
+- [Recipes](references/recipes/) — step-by-step walkthroughs for multi-step workflows
+
+### Deep-dive references
+
+For detailed guides, API signatures, and architecture docs beyond this skill:
+
+- **How-to guides:** `docs/how-to/` — deck parsing, simulation browsing, unit conversion, field/k-space/density/phasespace plotting, batch/parallel processing, CLI reference
+- **API reference:** `docs/reference/api/` — per-module class signatures, method parameters, return types
+- **Tutorials:** `docs/tutorials/` — installation, quick start, basic workflow
+- **Other:** `docs/reference/modules/` (module deep dives), `docs/faq.md`
+
+Load these only when you need detailed API signatures or step-by-step instructions beyond what's covered above.

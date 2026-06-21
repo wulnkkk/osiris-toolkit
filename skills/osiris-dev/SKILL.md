@@ -1,6 +1,15 @@
 ---
 name: osiris-dev
-description: Develop and maintain the osiris-toolkit codebase — architecture, workflow, testing, release, and code standards. Use when contributing code, fixing bugs, writing tests, or publishing releases.
+description: >-
+  Use when developing or maintaining the osiris-toolkit codebase:
+  adding features to src/osiris_toolkit/ (analysis functions,
+  visualizations, CLI commands, I/O readers, unit quantities),
+  fixing bugs in any module, refactoring architecture, writing
+  tests, running lint/typecheck/tests (make, ruff, mypy, pytest),
+  regenerating _generated/ files, or publishing releases. Use this
+  when the task modifies the toolkit itself. For processing
+  simulation data (plotting, k-space analysis, unit conversion,
+  deck parsing), load osiris-user instead.
 ---
 
 # Agent Dev Skill — osiris-toolkit Development Manual
@@ -48,7 +57,7 @@ osiris-toolkit/
 ```bash
 # Setup
 uv sync --dev
-uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
+uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 
 # Common tasks
 make lint        # ruff check
@@ -64,7 +73,10 @@ make bump        # version bump + git tag
 - `feat/<description>` — new features
 - `fix/<description>` — bug fixes
 - `refactor/<description>` — code restructuring
+- `docs/<description>` — documentation only
 - `release/vX.Y.Z` — version releases
+
+Use lowercase with hyphens (underscores are **not** allowed).
 
 ### Commit Messages
 
@@ -98,6 +110,18 @@ mid layer:  sim  sync  parallel  resource         ← can import base + low
 high layer: analysis  vis  workflow               ← can import anything below
 ```
 
+## Gotchas — common mistakes the tooling won't catch
+
+These are non-obvious traps that defy reasonable assumptions. Read before writing code.
+
+- **`* 2 * np.pi` outside `units/` is an architecture violation.** The only place `2π` should appear in unit conversion is inside `UnitSystem.convert()`. If you write it in `compute/`, `analysis/`, or `vis/`, you bypass the unit system.
+- **`compute/` must never import `sim/`, `units/`, or `matplotlib`.** It does pure math on `np.ndarray` — no OSIRIS data types, no physical units, no plotting.
+- **`_generated/` is overwritten without warning.** Editing those files by hand is waste — `extract_definitions.py` silently replaces them. Always regenerate.
+- **`UnitConverter` is deprecated but still importable.** New code must use `UnitSystem`. `converter=` parameters are legacy — use `system=` instead.
+- **Bypassing `QuantifiedSpectrum` produces wrong units.** Never compute `k_phys = kx * 2*np.pi/dx` by hand. Use `QuantifiedSpectrum.from_field(grid, system=system)` then `qspec.kx.to("k0")`.
+- **Simulation directories are read-only.** `vis/` produces PNGs; `sim/` reads ZDF. No module writes to simulation directories.
+- **Without an input deck, `UnitSystem` is `None` — there is no fallback.** Never assume `omega_p=1.0` or any dummy default. Callers must handle `system=None` explicitly.
+
 ## Code Style
 
 - **Ruff**: 10 rule sets (E, W, F, I, N, UP, B, SIM, ARG, RUF), line length 120
@@ -108,16 +132,7 @@ high layer: analysis  vis  workflow               ← can import anything below
 
 ## Pre-commit Hooks
 
-On every commit, these run automatically:
-1. Trailing whitespace check
-2. End-of-file fixer
-3. YAML/TOML syntax check
-4. Large file check (>1MB)
-5. Merge conflict detection
-6. Debug statement detection
-7. Ruff lint + format
-8. mypy type check (staged files)
-9. commitizen commit message validation
+On every commit, 13 hooks run automatically: lint, format, typecheck, arch check, English check, doc sync, commitizen, whitespace, merge-conflict, debug, large-file, YAML/TOML, private-key. Pre-push hooks run `make check-all`. No manual step needed — if a hook fails, fix what it reports and commit again.
 
 ## Testing
 
@@ -177,26 +192,28 @@ Architectural decisions use a two-tier system:
 
 ### Reference files
 
-- [Development Task Map](references/task-map.md) — intent-to-code-location mapping for common development tasks
+- [Development Task Map](references/task-map.md) — **Load this when you know WHAT you want to build but not WHERE to put it.** Maps intents like "add energy spectrum" or "add CLI subcommand" to specific files and code patterns.
 
-### Human documentation reference
+### Deep-dive references
 
-For architecture details, design decisions, and module internals beyond this skill:
+For architecture rationale, data flow diagrams, and design decisions beyond the rules above:
 
-- [Architecture Overview](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/overview.md)
-- [Dependency Hierarchy](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/dependency-hierarchy.md)
-- [Data Flow](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/data-flow.md)
-- [Unit Conversion Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/unit-conversion.md)
-- [K-Space Pipeline](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/k-space-pipeline.md)
-- [Vis Architecture](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/architecture/vis-architecture.md)
-- [Design: Unit System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/unit-system-architecture.md)
-- [Design: PostProcessor](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/postproc-architecture.md)
-- [Design: Documentation System](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/doc-system-architecture.md)
-- [Design: Architecture Refactor v0.14](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/explanation/design/architecture-refactor.md)
-- [Module Docs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/reference/modules/) — per-module deep dives
-- [Contributing (mkdocs version)](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/contributing.md)
-- [Documentation Standards](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/meta/documentation-standards.md) — frontmatter spec, controlled vocabularies
-- [Devlogs](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/devlog/) — version history and technical decisions
+- **Architecture:** `docs/explanation/architecture/` — overview, dependency hierarchy, data flow, unit conversion, k-space pipeline, vis architecture
+- **Design:** `docs/explanation/design/` — unit system, post-processor, documentation system, architecture refactor
+- **Modules:** `docs/reference/modules/` — per-module API deep dives
+- **Standards:** `docs/meta/documentation-standards.md` — frontmatter spec, controlled vocabularies
+
+Load these only when you need to understand *why* a design decision was made. For routine coding, the rules and gotchas above are sufficient.
+
+## Validation workflow
+
+After every code change, run the full check and iterate until green:
+
+1. `make check-all`
+2. If it fails: read the error, fix the issue, go to step 1
+3. Only commit or push when `make check-all` passes clean
+
+Pre-push hooks also run `make check-all` automatically. Use `git push --no-verify` only on feature branches for exploratory work — **never on `main`**.
 
 ## Submit Checklist
 
