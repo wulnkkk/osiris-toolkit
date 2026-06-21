@@ -11,6 +11,9 @@ pip install osiris-toolkit
 
 Requires Python >= 3.10, numpy >= 1.20, matplotlib >= 3.5.
 
+For development: `uv sync --dev` (or `pip install -e . && pip install pytest pytest-cov ruff mypy pre-commit commitizen`).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup instructions.
+
 ## Quick Start
 
 ```python

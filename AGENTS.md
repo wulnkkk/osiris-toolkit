@@ -5,14 +5,27 @@ Comprehensive Python toolkit for [OSIRIS](https://osiris-code.org/) PIC (Particl
 ## Quick Start
 
 ```bash
-# Install
+# ---- User install ----
 pip install osiris-toolkit
 
-# Setup development
+# ---- Development setup ----
+
+# Option A: uv (recommended)
+uv venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate     # Windows
 uv sync --dev
 uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
 
-# Common commands
+# Option B: pip + venv
+python -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate     # Windows
+pip install -e .
+pip install pytest pytest-cov ruff mypy pre-commit commitizen
+pre-commit install --hook-type pre-commit --hook-type commit-msg
+
+# ---- Common commands ----
 make lint        # ruff check
 make format      # ruff format
 make test        # pytest

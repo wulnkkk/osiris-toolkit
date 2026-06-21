@@ -19,6 +19,17 @@ osiris-toolkit is a Python CLI and library for post-processing OSIRIS PIC simula
 
 > 📖 This is a **specialized skill** loaded on demand. For the cross-platform entry point (always loaded per session), see [`AGENTS.md`](https://github.com/wulnkkk/osiris-toolkit/blob/main/AGENTS.md) at the project root.
 
+## Installation
+
+```bash
+pip install osiris-toolkit
+```
+
+Requires Python >= 3.10. Optional extras: `[docs]`, `[hdf5]`, `[vtk]`.
+
+For full installation guidance including development setup, see the
+[Installation tutorial](https://github.com/wulnkkk/osiris-toolkit/blob/main/docs/tutorials/installation.md).
+
 ## CLI Quick Reference
 
 | Command group | Quick examples | Full reference |

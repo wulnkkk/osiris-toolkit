@@ -35,6 +35,30 @@ uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-t
 > Pre-push hooks run `make check-all` before every `git push`. If they fail,
 > the push is blocked. Use `git push --no-verify` to bypass (not recommended).
 
+### Without uv
+
+If you don't have uv installed, use pip + venv instead:
+
+```bash
+# Create and activate virtual environment
+python -m venv .venv
+# Linux/macOS: source .venv/bin/activate
+# Windows: .venv\Scripts\activate
+
+# Install the project in editable mode
+pip install -e .
+
+# Install development dependencies (listed in [dependency-groups] in pyproject.toml)
+pip install pytest pytest-cov ruff mypy pre-commit commitizen
+
+# Install pre-commit hooks
+pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+```
+
+> **Note:** `pyproject.toml` uses uv's `[dependency-groups]` for dev dependencies.
+> Standard pip does not recognize this table, so `pip install -e ".[dev]"` won't
+> install the dev tools. Install them manually as shown above.
+
 ---
 
 ## Branch Naming
