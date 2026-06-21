@@ -28,11 +28,11 @@ def _worker_field_energy(
     limit_blas_threads(1)
     grid = sim.get_field(quantity, iteration)
     if grid is None:
-        return {"iteration": iteration, "time": -1.0, "energy": float("nan")}
+        return {"iteration": iteration, "time": -1.0, "total_energy": float("nan")}
     return {
         "iteration": iteration,
         "time": grid.time,
-        "energy": float((grid.data**2).sum()),
+        "total_energy": float((grid.data**2).sum()),
     }
 
 
@@ -113,7 +113,7 @@ def field_energy_all(
     -------
     list[dict]
         Sorted by iteration.  Each dict has keys ``"iteration"``,
-        ``"time"``, ``"energy"``.
+        ``"time"``, ``"total_energy"``.
     """
     iterations = sim.list_iterations(quantity)
     return _run_analysis_parallel(

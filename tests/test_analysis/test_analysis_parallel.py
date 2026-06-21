@@ -15,8 +15,8 @@ class TestFieldEnergyAll:
         for r in results:
             assert "iteration" in r
             assert "time" in r
-            assert "energy" in r
-            assert r["energy"] > 0
+            assert "total_energy" in r
+            assert r["total_energy"] > 0
 
     def test_parallel(self, tmp_sim_dir):
         from osiris_toolkit.sim import Simulation
